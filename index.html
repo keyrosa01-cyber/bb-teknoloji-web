@@ -14,6 +14,8 @@
             --input-bg: #1c2338;
             --gold-bright: #fbbf24;
             --gold-main: #f59e0b;
+            --purple-main: #8b5cf6;
+            --purple-bright: #c4b5fd;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: rgba(255, 255, 255, 0.08);
@@ -84,6 +86,10 @@
             background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-main) 100%);
             color: #0c0f17; border-color: var(--gold-bright); font-weight: 800; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
         }
+        .tab-btn.purple-tab.active {
+            background: linear-gradient(135deg, var(--purple-bright) 0%, var(--purple-main) 100%);
+            color: #0c0f17; border-color: var(--purple-bright); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
 
         .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 18px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .tab-content.active { display: block; }
@@ -153,6 +159,8 @@
             font-size: 13px; font-weight: 600; color: var(--text-main);
         }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
+        
+        .purple-input:focus { border-color: var(--purple-bright) !important; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important; }
 
         @media print {
             body { background: #fff !important; color: #000 !important; padding: 0 !important; font-family: 'Arial', sans-serif !important; }
@@ -245,9 +253,60 @@
         <button class="tab-btn" onclick="window.openTab('cariHesaplarTab', this)">💳 4. Bayi Ekstresi</button>
         <button class="tab-btn" onclick="window.openTab('finansTab', this)">📊 5. Finans & Bilanço</button>
         <button class="tab-btn" onclick="window.openTab('servisTab', this)">🛠️ 6. Teknik Servis</button>
-        <button class="tab-btn" onclick="window.openTab('giderTab', this)" style="border-color:#ef4444; color:#fca5a5;">📉 7. Giderler & Kasa</button>
+        <button class="tab-btn" onclick="window.openTab('giderTab', this)" style="border-color:#ef4444; color:#fca5a5;">📉 7. Giderler</button>
+        <button class="tab-btn purple-tab" onclick="window.openTab('tedarikciTab', this)" style="border-color:var(--purple-main); color:var(--purple-bright);">🏢 8. Toptancılar</button>
     </div>
 
+    <!-- TOPTANCI & TEDARİKÇİ SEKME (YENİ EKLENDİ) -->
+    <div id="tedarikciTab" class="tab-content">
+        <h2 style="color:var(--purple-bright); margin-top:0; font-size:20px;">🏢 Malzeme & Ürün Alım Kaydı (Toptancı)</h2>
+        <form id="tedarikciAlimForm" style="border-color:rgba(139, 92, 246, 0.3);">
+            <div class="autocomplete-container">
+                <label style="color:var(--purple-bright);">🔍 Toptancı Seç (Harf Yazın)</label>
+                <input type="text" id="alimTedarikciInput" class="purple-input" placeholder="Toptancı adını yazın..." autocomplete="off" oninput="window.tedarikciAramaCalistir(this.value)" style="border-color:var(--purple-main); background:#111622;">
+                <input type="hidden" id="alimTedarikciId" required>
+                <div id="alimTedarikciListesi" class="autocomplete-items" style="display:none; border-color:var(--purple-main);"></div>
+            </div>
+            <div><label style="color:var(--purple-bright);">Alınan Malzemeler / Açıklama</label><input type="text" id="alimAciklama" class="purple-input" placeholder="Örn: 50 adet batarya, 20 adet ekran..." required></div>
+            <div><label style="color:var(--purple-bright);">Toplam Fiş Tutarı (₺)</label><input type="number" step="0.01" id="alimTutari" class="purple-input" required></div>
+            <div><label style="color:var(--purple-bright);">Tarih</label><input type="date" id="alimTarihi" class="purple-input" required></div>
+            <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:15px; background:linear-gradient(135deg, var(--purple-bright) 0%, var(--purple-main) 100%); color:#000;">🧾 Fişi Toptancı Borcuna Yaz ⚡</button></div>
+        </form>
+
+        <h3 style="color:var(--purple-bright); margin:30px 0 12px 0; font-size:16px;">📋 Toptancı Hesapları & Fiş Karşılaştırma</h3>
+        <input type="text" id="tedarikciAramaInput" class="search-box" placeholder="🔍 Toptancılarda Ara..." onkeyup="window.tedarikciKartlariniYukle()" style="border-color:var(--purple-main);">
+        <div id="tedarikciKartlarKutusu" class="cari-grid"></div>
+
+        <div id="tedarikciDetayPaneli" style="display:none;">
+            <div style="background:var(--card-inner); padding:22px; border-radius:16px; margin-bottom:24px; border:1px solid var(--purple-main);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px; border-bottom:1px solid rgba(139, 92, 246, 0.3); padding-bottom:15px;">
+                    <div>
+                        <h1 style="margin:0; color:var(--purple-bright); font-size:20px;">🏢 TOPTANCI LİSTESİ & KONTROL EKRANI</h1>
+                        <h2 id="seciliTedarikciBaslik" style="margin:8px 0 0 0; color:var(--text-main); font-size:18px;"></h2>
+                    </div>
+                    <div style="text-align:right;">
+                        <p id="seciliTedarikciBakiye" style="margin:8px 0 0 0; font-size:14px;"></p>
+                    </div>
+                </div>
+                <h3 style="color:var(--purple-bright); margin:16px 0 10px 0; font-size:15px;">📋 Hafta Sonu Hesap Kontrol (Alınan Ürünler & Tarihleri)</h3>
+                <table id="tedarikciIslemTablosu">
+                    <thead><tr><th>Tarih</th><th>İşlem Tipi</th><th>Alınan Malzemeler / Detay</th><th>Fiş Tutarı</th><th class="btn-delete-col">İşlem</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <h3 style="color:var(--success); margin-bottom:12px; font-size:16px;">💵 Toptancıya Ödeme Yap & Borcu Düş</h3>
+            <form id="tedarikciOdemeForm" style="border-color:rgba(16, 185, 129, 0.3);">
+                <input type="hidden" id="odemeTedarikciId">
+                <div><label style="color:var(--success);">Ödenen Tutar (₺)</label><input type="number" step="0.01" id="tedOdemeTutari" required></div>
+                <div><label style="color:var(--success);">Ödeme Şekli</label><select id="tedOdemeTipi"><option value="Nakit">💵 Nakit (Kasadan Nakit Düşer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Banka Havalesi</option></select></div>
+                <div><label style="color:var(--success);">Ödeme Tarihi</label><input type="date" id="tedOdemeTarihi" required></div>
+                <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#000;">Toptancıya Ödemeyi Kaydet 💸</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STOK SEKME -->
     <div id="stokTab" class="tab-content active">
         <h2 id="stokFormBaslik" style="color:var(--gold-bright); margin-top:0; font-size:20px;">📦 Yeni Ürün Kaydı</h2>
         <form id="stokForm">
@@ -268,6 +327,7 @@
         </table>
     </div>
 
+    <!-- SATIŞ SEKME -->
     <div id="satisTab" class="tab-content">
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">🛒 Satış Yap & Stoktan Düş</h2>
         <form id="satisForm">
@@ -277,16 +337,13 @@
                 <input type="hidden" id="satisCariId" required>
                 <div id="satisCariListesi" class="autocomplete-items" style="display:none;"></div>
             </div>
-
             <div class="autocomplete-container">
                 <label>🔍 Satılacak Ürünü Seç (Harf Yazın)</label>
                 <input type="text" id="satisUrunInput" placeholder="Ürün adı, model veya barkod yazın..." autocomplete="off" oninput="window.urunAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
                 <input type="hidden" id="satisUrunId" required>
                 <div id="satisUrunListesi" class="autocomplete-items" style="display:none;"></div>
             </div>
-
             <div><label>Satış Adedi</label><input type="number" id="satisAdet" min="1" value="1" required></div>
-            
             <div>
                 <label>Ödeme / Tahsilat Durumu</label>
                 <select id="satisOdemeYontemi" required>
@@ -295,11 +352,9 @@
                     <option value="Kredi Kartı / Havale">💳 Kredi Kartı / Havale (Kasaya Girer)</option>
                 </select>
             </div>
-
             <div><label>İşlem Tarihi</label><input type="date" id="satisTarihi" required></div>
             <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:15px; background:linear-gradient(135deg, #f97316 0%, #ea580c 100%); color:white;">Satışı Tamamla ⚡</button></div>
         </form>
-
         <h3 style="color:var(--gold-bright); margin:30px 0 12px 0; font-size:16px;">📋 Son Yapılan Satış Çıkışları Arşivi</h3>
         <input type="text" id="satisGecmisAra" class="search-box" placeholder="🔍 Geçmiş Satışlarda Ara..." onkeyup="window.satisGecmisListele()">
         <table id="satisGecmisTablosu">
@@ -308,11 +363,19 @@
         </table>
     </div>
 
+    <!-- REHBER SEKME -->
     <div id="cariRehberTab" class="tab-content">
-        <h2 id="cariFormBaslik" style="color:var(--gold-bright); margin-top:0; font-size:20px;">👥 Yeni Müşteri / Bayi Kaydı</h2>
+        <h2 id="cariFormBaslik" style="color:var(--gold-bright); margin-top:0; font-size:20px;">👥 Yeni Müşteri / Bayi / Toptancı Kaydı</h2>
         <form id="cariKayıtForm">
             <input type="hidden" id="duzenlenecekCariId" value="">
-            <div><label>Kayıt Türü</label><select id="cariTuru"><option value="Bayi">Bayi</option><option value="Müşteri">Müşteri</option></select></div>
+            <div>
+                <label>Kayıt Türü</label>
+                <select id="cariTuru">
+                    <option value="Bayi">Bayi</option>
+                    <option value="Müşteri">Müşteri</option>
+                    <option value="Tedarikçi">🏢 Toptancı / Tedarikçi</option>
+                </select>
+            </div>
             <div><label>Adı Soyadı / Firma Adı</label><input type="text" id="cariAdi" placeholder="Örn: Yaşar İletişim" required></div>
             <div><label>Telefon</label><input type="text" id="cariTelefon" placeholder="05XX XXX XX XX"></div>
             <div><label>Adres / Bölge</label><input type="text" id="cariAdres" placeholder="İlçe / Mahalle"></div>
@@ -325,8 +388,10 @@
         </table>
     </div>
 
+    <!-- BAYİ EKSTRESİ SEKME -->
     <div id="cariHesaplarTab" class="tab-content">
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">💳 Bayi & Müşteri Hesap Kartları (Borçlular Üstte 🚀)</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:-5px;">Toptancılar bu listede görünmez, onlar 8. Toptancı sekmesindedir.</p>
         <input type="text" id="ekstreAramaInput" class="search-box" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
         <div id="cariKartlarKutusu" class="cari-grid"></div>
         <hr style="border-color:var(--border-color); margin:28px 0;">
@@ -368,6 +433,7 @@
         </div>
     </div>
 
+    <!-- FİNANS SEKME -->
     <div id="finansTab" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
             <div>
@@ -382,9 +448,9 @@
         </div>
         <div class="dashboard-grid" style="margin-bottom:25px;">
             <div class="stat-card" style="border-left-color:#fbbf24;"><div class="stat-title">Seçili Periyot Toplam Ciro</div><div class="stat-value" id="finansGunlukCiro" style="color:var(--gold-bright);">0.00 ₺</div></div>
-            <div class="stat-card" style="border-left-color:#ef4444;"><div class="stat-title">Toplam Giderler</div><div class="stat-value" id="finansToplamGider" style="color:#f87171;">0.00 ₺</div></div>
-            <div class="stat-card" style="border-left-color:#10b981;"><div class="stat-title">Kasadaki Net Kar</div><div class="stat-value" id="finansNetKar" style="color:#34d399;">0.00 ₺</div></div>
-            <div class="stat-card" style="border-left-color:#3b82f6;"><div class="stat-title">Kasaya Giren Nakit</div><div class="stat-value" id="finansToplamTahsilat" style="color:#60a5fa;">0.00 ₺</div></div>
+            <div class="stat-card" style="border-left-color:#ef4444;"><div class="stat-title">Toplam Nakit Çıkışı (Gider+Toptancı)</div><div class="stat-value" id="finansToplamGider" style="color:#f87171;">0.00 ₺</div></div>
+            <div class="stat-card" style="border-left-color:#10b981;"><div class="stat-title">Günün Nakit Karı</div><div class="stat-value" id="finansNetKar" style="color:#34d399;">0.00 ₺</div></div>
+            <div class="stat-card" style="border-left-color:#3b82f6;"><div class="stat-title">Kasaya Giren Toplam Nakit</div><div class="stat-value" id="finansToplamTahsilat" style="color:#60a5fa;">0.00 ₺</div></div>
         </div>
         <table id="finansTablosu">
             <thead><tr><th>Zaman Damgası</th><th>İlgili Kişi / Kategori</th><th>İşlem Türü / Ödeme</th><th>Açıklama & Personel</th><th>Tutar</th></tr></thead>
@@ -392,6 +458,7 @@
         </table>
     </div>
 
+    <!-- SERVİS SEKME -->
     <div id="servisTab" class="tab-content">
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">🛠️ Teknik Servis & Tamir Kaydı</h2>
         <form id="servisForm">
@@ -414,6 +481,7 @@
         </table>
     </div>
 
+    <!-- GİDER SEKME -->
     <div id="giderTab" class="tab-content">
         <h2 style="color:#fca5a5; margin-top:0; font-size:20px;">📉 Şirket Gideri & Malzeme Alımı</h2>
         <form id="giderForm" style="border-color:rgba(239, 68, 68, 0.3);">
@@ -453,6 +521,7 @@
         window.servisler = [];
         window.giderler = [];
         window.seciliCariId = null;
+        window.seciliTedarikciId = null;
         window.aktifFinansFiltre = 'bugun';
 
         function kullanicilariGetir() {
@@ -480,6 +549,7 @@
             if(typeof window.cariListele === 'function') window.cariListele();
             if(typeof window.dashboardGuncelle === 'function') window.dashboardGuncelle();
             if(typeof window.cariKartlariniYukle === 'function') window.cariKartlariniYukle();
+            if(typeof window.tedarikciKartlariniYukle === 'function') window.tedarikciKartlariniYukle();
             if(typeof window.finansGuncelle === 'function') window.finansGuncelle();
             if(typeof window.servisListele === 'function') window.servisListele();
             if(typeof window.satisGecmisListele === 'function') window.satisGecmisListele();
@@ -487,113 +557,72 @@
             if(typeof window.kasaHesapla === 'function') window.kasaHesapla();
         };
 
-        onSnapshot(collection(db, "stoklar"), (snapshot) => {
-            window.stoklar = [];
-            snapshot.forEach((doc) => { window.stoklar.push(doc.data()); });
-            window.ekraniGuncelle();
-        });
-
-        onSnapshot(collection(db, "cariler"), (snapshot) => {
-            window.cariler = [];
-            snapshot.forEach((doc) => { window.cariler.push(doc.data()); });
-            window.ekraniGuncelle();
-        });
-
-        onSnapshot(collection(db, "islemler"), (snapshot) => {
-            window.islemler = [];
-            snapshot.forEach((doc) => { window.islemler.push(doc.data()); });
-            window.ekraniGuncelle();
-        });
-
-        onSnapshot(collection(db, "servisler"), (snapshot) => {
-            window.servisler = [];
-            snapshot.forEach((doc) => { window.servisler.push(doc.data()); });
-            window.ekraniGuncelle();
-        });
-
-        onSnapshot(collection(db, "giderler"), (snapshot) => {
-            window.giderler = [];
-            snapshot.forEach((doc) => { window.giderler.push(doc.data()); });
-            window.ekraniGuncelle();
-        });
+        onSnapshot(collection(db, "stoklar"), (snapshot) => { window.stoklar = []; snapshot.forEach((doc) => { window.stoklar.push(doc.data()); }); window.ekraniGuncelle(); });
+        onSnapshot(collection(db, "cariler"), (snapshot) => { window.cariler = []; snapshot.forEach((doc) => { window.cariler.push(doc.data()); }); window.ekraniGuncelle(); });
+        onSnapshot(collection(db, "islemler"), (snapshot) => { window.islemler = []; snapshot.forEach((doc) => { window.islemler.push(doc.data()); }); window.ekraniGuncelle(); });
+        onSnapshot(collection(db, "servisler"), (snapshot) => { window.servisler = []; snapshot.forEach((doc) => { window.servisler.push(doc.data()); }); window.ekraniGuncelle(); });
+        onSnapshot(collection(db, "giderler"), (snapshot) => { window.giderler = []; snapshot.forEach((doc) => { window.giderler.push(doc.data()); }); window.ekraniGuncelle(); });
 
         window.cariAramaCalistir = function(deger) {
-            const listeDiv = document.getElementById('satisCariListesi');
-            listeDiv.innerHTML = '';
-            const arama = turkceKucukHarf(deger);
-            if (!arama) { listeDiv.style.display = 'none'; return; }
-
-            const bulunanlar = window.cariler.filter(c => turkceKucukHarf(c.ad).includes(arama));
+            const listeDiv = document.getElementById('satisCariListesi'); listeDiv.innerHTML = '';
+            const arama = turkceKucukHarf(deger); if (!arama) { listeDiv.style.display = 'none'; return; }
+            const bulunanlar = window.cariler.filter(c => c.tur !== 'Tedarikçi' && turkceKucukHarf(c.ad).includes(arama));
             if (bulunanlar.length === 0) { listeDiv.style.display = 'none'; return; }
-
             bulunanlar.forEach(c => {
-                const item = document.createElement('div');
-                item.innerHTML = `<b>[${c.tur}]</b> ${c.ad}`;
-                item.onclick = function() {
-                    document.getElementById('satisCariInput').value = `[${c.tur}] ${c.ad}`;
-                    document.getElementById('satisCariId').value = c.id;
-                    listeDiv.style.display = 'none';
-                };
+                const item = document.createElement('div'); item.innerHTML = `<b>[${c.tur}]</b> ${c.ad}`;
+                item.onclick = function() { document.getElementById('satisCariInput').value = `[${c.tur}] ${c.ad}`; document.getElementById('satisCariId').value = c.id; listeDiv.style.display = 'none'; };
+                listeDiv.appendChild(item);
+            });
+            listeDiv.style.display = 'block';
+        };
+
+        window.tedarikciAramaCalistir = function(deger) {
+            const listeDiv = document.getElementById('alimTedarikciListesi'); listeDiv.innerHTML = '';
+            const arama = turkceKucukHarf(deger); if (!arama) { listeDiv.style.display = 'none'; return; }
+            const bulunanlar = window.cariler.filter(c => c.tur === 'Tedarikçi' && turkceKucukHarf(c.ad).includes(arama));
+            if (bulunanlar.length === 0) { listeDiv.style.display = 'none'; return; }
+            bulunanlar.forEach(c => {
+                const item = document.createElement('div'); item.innerHTML = `<b>🏢 Toptancı:</b> ${c.ad}`;
+                item.onclick = function() { document.getElementById('alimTedarikciInput').value = `${c.ad}`; document.getElementById('alimTedarikciId').value = c.id; listeDiv.style.display = 'none'; };
                 listeDiv.appendChild(item);
             });
             listeDiv.style.display = 'block';
         };
 
         window.urunAramaCalistir = function(deger) {
-            const listeDiv = document.getElementById('satisUrunListesi');
-            listeDiv.innerHTML = '';
-            const arama = turkceKucukHarf(deger);
-            if (!arama) { listeDiv.style.display = 'none'; return; }
-
+            const listeDiv = document.getElementById('satisUrunListesi'); listeDiv.innerHTML = '';
+            const arama = turkceKucukHarf(deger); if (!arama) { listeDiv.style.display = 'none'; return; }
             const bulunanlar = window.stoklar.filter(u => turkceKucukHarf(u.urunAdi).includes(arama) || turkceKucukHarf(u.barkod).includes(arama));
             if (bulunanlar.length === 0) { listeDiv.style.display = 'none'; return; }
-
             bulunanlar.forEach(u => {
-                const item = document.createElement('div');
-                item.innerHTML = `<b>${u.urunAdi}</b> (${u.renk || 'Standart'}) - Stok: ${u.stokMiktari} - <b>${u.satisFiyati} ₺</b>`;
-                item.onclick = function() {
-                    document.getElementById('satisUrunInput').value = `${u.urunAdi} (${u.renk || 'Standart'})`;
-                    document.getElementById('satisUrunId').value = u.id;
-                    listeDiv.style.display = 'none';
-                };
+                const item = document.createElement('div'); item.innerHTML = `<b>${u.urunAdi}</b> (${u.renk || 'Standart'}) - Stok: ${u.stokMiktari} - <b>${u.satisFiyati} ₺</b>`;
+                item.onclick = function() { document.getElementById('satisUrunInput').value = `${u.urunAdi} (${u.renk || 'Standart'})`; document.getElementById('satisUrunId').value = u.id; listeDiv.style.display = 'none'; };
                 listeDiv.appendChild(item);
             });
             listeDiv.style.display = 'block';
         };
 
         window.servisCariAramaCalistir = function(deger) {
-            const listeDiv = document.getElementById('servisCariListesi');
-            listeDiv.innerHTML = '';
-            const arama = turkceKucukHarf(deger);
-            if (!arama) { listeDiv.style.display = 'none'; return; }
-
-            const bulunanlar = window.cariler.filter(c => turkceKucukHarf(c.ad).includes(arama));
+            const listeDiv = document.getElementById('servisCariListesi'); listeDiv.innerHTML = '';
+            const arama = turkceKucukHarf(deger); if (!arama) { listeDiv.style.display = 'none'; return; }
+            const bulunanlar = window.cariler.filter(c => c.tur !== 'Tedarikçi' && turkceKucukHarf(c.ad).includes(arama));
             if (bulunanlar.length === 0) { listeDiv.style.display = 'none'; return; }
-
             bulunanlar.forEach(c => {
-                const item = document.createElement('div');
-                item.innerHTML = `<b>[${c.tur}]</b> ${c.ad}`;
-                item.onclick = function() {
-                    document.getElementById('servisCariInput').value = `[${c.tur}] ${c.ad}`;
-                    document.getElementById('servisCariId').value = c.id;
-                    listeDiv.style.display = 'none';
-                };
+                const item = document.createElement('div'); item.innerHTML = `<b>[${c.tur}]</b> ${c.ad}`;
+                item.onclick = function() { document.getElementById('servisCariInput').value = `[${c.tur}] ${c.ad}`; document.getElementById('servisCariId').value = c.id; listeDiv.style.display = 'none'; };
                 listeDiv.appendChild(item);
             });
             listeDiv.style.display = 'block';
         };
 
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.autocomplete-container')) {
-                document.querySelectorAll('.autocomplete-items').forEach(el => el.style.display = 'none');
-            }
-        });
+        document.addEventListener('click', function(e) { if (!e.target.closest('.autocomplete-container')) { document.querySelectorAll('.autocomplete-items').forEach(el => el.style.display = 'none'); } });
 
         window.kasaHesapla = function() {
             let nakitKasa = 0;
             window.islemler.forEach(i => {
                 if ((i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) && (i.odemeYontemi === 'Nakit' || i.odemeYontemi.includes('Kredi Kartı'))) nakitKasa += Number(i.islemTutari);
                 if (i.islemTuru.includes('Ödeme Alındı')) nakitKasa += Number(i.islemTutari);
+                if (i.islemTuru === '💸 Toptancıya Ödeme' && i.odemeYontemi === 'Nakit') nakitKasa -= Number(i.islemTutari);
             });
             window.giderler.forEach(g => { if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) nakitKasa -= Number(g.tutar); });
             const el = document.getElementById('statKasaNakit');
@@ -606,39 +635,28 @@
             const kullanicilar = kullanicilariGetir();
             if (user && kullanicilar[user] && kullanicilar[user] === pass) {
                 document.getElementById('loginScreen').style.display = 'none';
-                sessionStorage.setItem('bb_logged_in', 'true');
-                sessionStorage.setItem('bb_aktif_kullanici', user);
-                document.getElementById('aktifKullaniciAdi').innerText = user.toUpperCase();
-                window.ekraniGuncelle();
+                sessionStorage.setItem('bb_logged_in', 'true'); sessionStorage.setItem('bb_aktif_kullanici', user);
+                document.getElementById('aktifKullaniciAdi').innerText = user.toUpperCase(); window.ekraniGuncelle();
             } else { document.getElementById('loginError').style.display = 'block'; }
         };
 
         window.cikisYap = function() { if(confirm('Çıkış yapılıyor?')) { sessionStorage.removeItem('bb_logged_in'); location.reload(); } };
         window.openPasswordModal = function() { document.getElementById('passwordModal').style.display = 'flex'; };
         window.closePasswordModal = function() { document.getElementById('passwordModal').style.display = 'none'; };
-
-        window.yonetimEkraniniDegistir = function() {
-            const tur = document.getElementById('yonetimTuru').value;
-            document.getElementById('sifreDegisBolumu').style.display = tur === 'sifreDegis' ? 'block' : 'none';
-            document.getElementById('yeniPersonelBolumu').style.display = tur === 'yeniPersonel' ? 'block' : 'none';
-        };
+        window.yonetimEkraniniDegistir = function() { const tur = document.getElementById('yonetimTuru').value; document.getElementById('sifreDegisBolumu').style.display = tur === 'sifreDegis' ? 'block' : 'none'; document.getElementById('yeniPersonelBolumu').style.display = tur === 'yeniPersonel' ? 'block' : 'none'; };
 
         window.yonetimKaydet = function() {
             const tur = document.getElementById('yonetimTuru').value;
             const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici');
             let kullanicilar = kullanicilariGetir();
             if(tur === 'sifreDegis') {
-                const currentPass = document.getElementById('currentPassword').value;
-                const newPass = document.getElementById('newPassword').value;
+                const currentPass = document.getElementById('currentPassword').value; const newPass = document.getElementById('newPassword').value;
                 if(kullanicilar[aktifKullanici] !== currentPass) return alert('Mevcut şifre hatalı!');
-                kullanicilar[aktifKullanici] = newPass;
-                localStorage.setItem('bb_pro_users', JSON.stringify(kullanicilar));
+                kullanicilar[aktifKullanici] = newPass; localStorage.setItem('bb_pro_users', JSON.stringify(kullanicilar));
                 alert('Şifre güncellendi!'); window.closePasswordModal();
             } else {
-                const yeniAd = turkceKucukHarf(document.getElementById('yeniKullaniciAdi').value.trim());
-                const yeniSifre = document.getElementById('yeniKullaniciSifresi').value.trim();
-                kullanicilar[yeniAd] = yeniSifre;
-                localStorage.setItem('bb_pro_users', JSON.stringify(kullanicilar));
+                const yeniAd = turkceKucukHarf(document.getElementById('yeniKullaniciAdi').value.trim()); const yeniSifre = document.getElementById('yeniKullaniciSifresi').value.trim();
+                kullanicilar[yeniAd] = yeniSifre; localStorage.setItem('bb_pro_users', JSON.stringify(kullanicilar));
                 alert(`Personel eklendi!`); window.closePasswordModal();
             }
         };
@@ -646,9 +664,9 @@
         window.openTab = function(tabName, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            if(btn) btn.classList.add('active');
+            document.getElementById(tabName).classList.add('active'); if(btn) btn.classList.add('active');
             if(tabName === 'cariHesaplarTab') window.cariKartlariniYukle();
+            if(tabName === 'tedarikciTab') window.tedarikciKartlariniYukle();
             if(tabName === 'finansTab') window.finansGuncelle();
             if(tabName === 'servisTab') window.servisListele();
             if(tabName === 'satisTab') window.satisGecmisListele();
@@ -656,20 +674,15 @@
         };
 
         window.dashboardGuncelle = function() {
-            let toplamCesit = window.stoklar.length;
-            let toplamAdet = 0, toplamMaliyet = 0, toplamAlacak = 0;
-            window.stoklar.forEach(u => {
-                toplamAdet += Number(u.stokMiktari);
-                toplamMaliyet += (Number(u.alisFiyati) * Number(u.stokMiktari));
-            });
-            window.cariler.forEach(c => {
+            let toplamCesit = window.stoklar.length; let toplamAdet = 0, toplamMaliyet = 0, toplamAlacak = 0;
+            window.stoklar.forEach(u => { toplamAdet += Number(u.stokMiktari); toplamMaliyet += (Number(u.alisFiyati) * Number(u.stokMiktari)); });
+            window.cariler.filter(c => c.tur !== 'Tedarikçi').forEach(c => {
                 let borc = 0, odenen = 0;
                 window.islemler.filter(i => i.cariId == c.id).forEach(i => {
                     if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
                     else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
                 });
-                let bak = borc - odenen;
-                if (bak > 0) toplamAlacak += bak;
+                let bak = borc - odenen; if (bak > 0) toplamAlacak += bak;
             });
             document.getElementById('statStokAdet').innerText = `${toplamCesit} Çeşit / ${toplamAdet} Adet`;
             document.getElementById('statMaliyet').innerText = `${toplamMaliyet.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
@@ -677,10 +690,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('bb_logged_in') === 'true') {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('aktifKullaniciAdi').innerText = (sessionStorage.getItem('bb_aktif_kullanici') || 'admin').toUpperCase();
-            }
+            if (sessionStorage.getItem('bb_logged_in') === 'true') { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('aktifKullaniciAdi').innerText = (sessionStorage.getItem('bb_aktif_kullanici') || 'admin').toUpperCase(); }
 
             document.getElementById('stokForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -688,402 +698,280 @@
                 let urunId = editId ? Number(editId) : (Date.now() + Math.floor(Math.random() * 1000));
                 const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
                 const yeniUrun = {
-                    id: urunId,
-                    barkod: document.getElementById('barkod').value,
-                    urunAdi: document.getElementById('urunAdi').value,
-                    renk: document.getElementById('renk').value,
-                    alisFiyati: parseFloat(document.getElementById('alisFiyati').value),
-                    satisFiyati: parseFloat(document.getElementById('satisFiyati').value),
-                    stokMiktari: parseInt(document.getElementById('stokMiktari').value),
-                    kritikStok: parseInt(document.getElementById('kritikStok').value),
-                    sonIslemYapan: aktifKullanici.toUpperCase(),
-                    sonIslemTarihi: simdiTarihSaat()
+                    id: urunId, barkod: document.getElementById('barkod').value, urunAdi: document.getElementById('urunAdi').value, renk: document.getElementById('renk').value,
+                    alisFiyati: parseFloat(document.getElementById('alisFiyati').value), satisFiyati: parseFloat(document.getElementById('satisFiyati').value),
+                    stokMiktari: parseInt(document.getElementById('stokMiktari').value), kritikStok: parseInt(document.getElementById('kritikStok').value),
+                    sonIslemYapan: aktifKullanici.toUpperCase(), sonIslemTarihi: simdiTarihSaat()
                 };
-                document.getElementById('duzenlenecekUrunId').value = '';
-                this.reset();
-                document.getElementById('stokFormBaslik').innerText = "📦 Yeni Ürün Kaydı";
+                document.getElementById('duzenlenecekUrunId').value = ''; this.reset(); document.getElementById('stokFormBaslik').innerText = "📦 Yeni Ürün Kaydı";
                 await setDoc(doc(window.db, "stoklar", urunId.toString()), yeniUrun);
             });
 
             document.getElementById('cariKayıtForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                document.getElementById('duzenlenecekCariId').value = "";
+                e.preventDefault(); document.getElementById('duzenlenecekCariId').value = "";
                 let cariId = Date.now() + Math.floor(Math.random() * 1000);
+                const cariObj = { id: cariId, tur: document.getElementById('cariTuru').value, ad: document.getElementById('cariAdi').value, tel: document.getElementById('cariTelefon').value, adres: document.getElementById('cariAdres').value };
+                this.reset(); document.getElementById('duzenlenecekCariId').value = ""; document.getElementById('cariFormBaslik').innerText = "👥 Yeni Müşteri / Bayi Kaydı";
+                await setDoc(doc(window.db, "cariler", cariId.toString()), cariObj); alert("Kayıt başarıyla tamamlandı!");
+            });
+
+            document.getElementById('tedarikciAlimForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const cariId = parseInt(document.getElementById('alimTedarikciId').value);
+                const islemId = Date.now() + Math.floor(Math.random() * 1000);
+                const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
                 
-                const cariObj = { 
-                    id: cariId, 
-                    tur: document.getElementById('cariTuru').value, 
-                    ad: document.getElementById('cariAdi').value, 
-                    tel: document.getElementById('cariTelefon').value, 
-                    adres: document.getElementById('cariAdres').value 
+                const islemObj = {
+                    id: islemId, cariId: cariId, islemTuru: '🏢 Toptancı Alımı (Bize Borç)',
+                    islemTutari: parseFloat(document.getElementById('alimTutari').value), odemeYontemi: '-',
+                    islemTarihi: `${document.getElementById('alimTarihi').value} [${simdiTarihSaat()}]`,
+                    aciklama: `${document.getElementById('alimAciklama').value} [İşleyen: ${aktifKullanici.toUpperCase()}]`
                 };
+                this.reset(); document.getElementById('alimTedarikciId').value = ''; document.getElementById('alimTarihi').valueAsDate = new Date();
+                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancı alımı fişi borç olarak eklendi!");
+            });
 
-                this.reset(); 
-                document.getElementById('duzenlenecekCariId').value = "";
-                document.getElementById('cariFormBaslik').innerText = "👥 Yeni Müşteri / Bayi Kaydı";
-
-                await setDoc(doc(window.db, "cariler", cariId.toString()), cariObj);
-                alert("Bayi / Müşteri başarıyla kaydedildi!");
+            document.getElementById('tedarikciOdemeForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const cariId = parseInt(document.getElementById('odemeTedarikciId').value);
+                const islemId = Date.now() + Math.floor(Math.random() * 1000);
+                const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
+                const odemeTipi = document.getElementById('tedOdemeTipi').value;
+                const islemObj = {
+                    id: islemId, cariId: cariId, islemTuru: '💸 Toptancıya Ödeme',
+                    islemTutari: parseFloat(document.getElementById('tedOdemeTutari').value), odemeYontemi: odemeTipi,
+                    islemTarihi: `${document.getElementById('tedOdemeTarihi').value} [${simdiTarihSaat()}]`,
+                    aciklama: `Toptancıya ödeme yapıldı. [${odemeTipi}] [İşleyen: ${aktifKullanici.toUpperCase()}]`
+                };
+                this.reset(); document.getElementById('tedOdemeTarihi').valueAsDate = new Date();
+                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancıya ödeme başarıyla işlendi ve borçtan düşüldü!");
             });
 
             document.getElementById('satisForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const cariId = parseInt(document.getElementById('satisCariId').value);
-                const urunId = parseInt(document.getElementById('satisUrunId').value);
-                const adet = parseInt(document.getElementById('satisAdet').value);
-                const odemeYontemi = document.getElementById('satisOdemeYontemi').value;
-                const secilenTarih = document.getElementById('satisTarihi').value;
-                const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
-
-                const urun = window.stoklar.find(u => u.id == urunId);
-                const cari = window.cariler.find(c => c.id == cariId);
+                const cariId = parseInt(document.getElementById('satisCariId').value); const urunId = parseInt(document.getElementById('satisUrunId').value);
+                const adet = parseInt(document.getElementById('satisAdet').value); const odemeYontemi = document.getElementById('satisOdemeYontemi').value;
+                const secilenTarih = document.getElementById('satisTarihi').value; const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
+                const urun = window.stoklar.find(u => u.id == urunId); const cari = window.cariler.find(c => c.id == cariId);
                 if(!urun || !cari) return alert('Lütfen listeden geçerli bir müşteri ve ürün seçin!');
                 if(Number(urun.stokMiktari) < adet) return alert('Stok yetersiz!');
-
-                urun.stokMiktari = Number(urun.stokMiktari) - adet;
-                const toplamTutar = Number(urun.satisFiyati) * adet;
+                urun.stokMiktari = Number(urun.stokMiktari) - adet; const toplamTutar = Number(urun.satisFiyati) * adet;
                 const islemId = Date.now() + Math.floor(Math.random() * 1000);
-                
                 let islemTuruBaslik = odemeYontemi.includes('Veresiye') ? '📦 Veresiye Satış (Borç)' : '📦 Peşin Satış';
-
-                const islemObj = {
-                    id: islemId, cariId: cari.id,
-                    islemTuru: islemTuruBaslik,
-                    islemTutari: toplamTutar,
-                    odemeYontemi: odemeYontemi,
-                    islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`,
-                    aciklama: `${adet} Adet "${urun.urunAdi}" [Ödeme: ${odemeYontemi}] [Yapan: ${aktifKullanici.toUpperCase()}]`
-                };
-
-                this.reset();
-                document.getElementById('satisCariId').value = '';
-                document.getElementById('satisUrunId').value = '';
-                document.getElementById('satisTarihi').valueAsDate = new Date();
-
-                await setDoc(doc(window.db, "stoklar", urun.id.toString()), urun);
-                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj);
-                alert("Satış başarıyla tamamlandı!");
+                const islemObj = { id: islemId, cariId: cari.id, islemTuru: islemTuruBaslik, islemTutari: toplamTutar, odemeYontemi: odemeYontemi, islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, aciklama: `${adet} Adet "${urun.urunAdi}" [Ödeme: ${odemeYontemi}] [Yapan: ${aktifKullanici.toUpperCase()}]` };
+                this.reset(); document.getElementById('satisCariId').value = ''; document.getElementById('satisUrunId').value = ''; document.getElementById('satisTarihi').valueAsDate = new Date();
+                await setDoc(doc(window.db, "stoklar", urun.id.toString()), urun); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Satış başarıyla tamamlandı!");
             });
 
             document.getElementById('islemForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const cid = parseInt(document.getElementById('islemCariId').value);
-                const islemId = Date.now() + Math.floor(Math.random() * 1000);
+                const cid = parseInt(document.getElementById('islemCariId').value); const islemId = Date.now() + Math.floor(Math.random() * 1000);
                 const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
-                const secilenTarih = document.getElementById('islemTarihi').value;
-                const tur = document.getElementById('islemTuru').value;
-                const odemeTipi = document.getElementById('islemOdemeTipi').value;
-
-                const islemObj = {
-                    id: islemId, cariId: cid,
-                    islemTuru: tur,
-                    islemTutari: parseFloat(document.getElementById('islemTutari').value),
-                    odemeYontemi: odemeTipi,
-                    islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`,
-                    aciklama: `${document.getElementById('islemAciklama').value || '-'} [Ödeme: ${odemeTipi}] [Alan: ${aktifKullanici.toUpperCase()}]`
-                };
-
-                this.reset(); document.getElementById('islemTarihi').valueAsDate = new Date();
-                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj);
+                const secilenTarih = document.getElementById('islemTarihi').value; const tur = document.getElementById('islemTuru').value; const odemeTipi = document.getElementById('islemOdemeTipi').value;
+                const islemObj = { id: islemId, cariId: cid, islemTuru: tur, islemTutari: parseFloat(document.getElementById('islemTutari').value), odemeYontemi: odemeTipi, islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, aciklama: `${document.getElementById('islemAciklama').value || '-'} [Ödeme: ${odemeTipi}] [Alan: ${aktifKullanici.toUpperCase()}]` };
+                this.reset(); document.getElementById('islemTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj);
             });
 
             document.getElementById('servisForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const servisId = Date.now() + Math.floor(Math.random() * 1000);
-                const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
-                const cihaz = document.getElementById('servisCihaz').value;
-                const ucret = parseFloat(document.getElementById('servisUcret').value);
-                const odemeYontemi = document.getElementById('servisOdemeYontemi').value;
-                const tarih = document.getElementById('servisTarihi').value;
-                const cariId = document.getElementById('servisCariId').value;
-                const detay = document.getElementById('servisAciklama').value;
-
-                let cariAdi = "Doğrudan Nakit";
-                if (cariId) {
-                    const cariBul = window.cariler.find(c => c.id == cariId);
-                    if (cariBul) cariAdi = cariBul.ad;
-                }
-
-                const servisObj = {
-                    id: servisId, cihaz: cihaz, ucret: ucret, odemeYontemi: odemeYontemi,
-                    tarih: `${tarih} [${simdiTarihSaat()}]`,
-                    cariId: cariId ? parseInt(cariId) : null,
-                    cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase()
-                };
-
-                if (cariId) {
-                    const islemId = Date.now() + 1;
-                    const islemObj = {
-                        id: islemId, cariId: parseInt(cariId),
-                        islemTuru: '🛠️ Teknik Servis (Borç)',
-                        islemTutari: ucret, odemeYontemi: odemeYontemi,
-                        islemTarihi: `${tarih} [${simdiTarihSaat()}]`,
-                        aciklama: `${cihaz} - ${detay || 'Tamirat'} [Yapan: ${aktifKullanici.toUpperCase()}]`
-                    };
-                    await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj);
-                }
-
-                this.reset(); 
-                document.getElementById('servisCariId').value = '';
-                document.getElementById('servisTarihi').valueAsDate = new Date();
-                await setDoc(doc(window.db, "servisler", servisId.toString()), servisObj);
-                alert("Servis kaydedildi!");
+                const servisId = Date.now() + Math.floor(Math.random() * 1000); const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
+                const cihaz = document.getElementById('servisCihaz').value; const ucret = parseFloat(document.getElementById('servisUcret').value);
+                const odemeYontemi = document.getElementById('servisOdemeYontemi').value; const tarih = document.getElementById('servisTarihi').value;
+                const cariId = document.getElementById('servisCariId').value; const detay = document.getElementById('servisAciklama').value;
+                let cariAdi = "Doğrudan Nakit"; if (cariId) { const cariBul = window.cariler.find(c => c.id == cariId); if (cariBul) cariAdi = cariBul.ad; }
+                const servisObj = { id: servisId, cihaz: cihaz, ucret: ucret, odemeYontemi: odemeYontemi, tarih: `${tarih} [${simdiTarihSaat()}]`, cariId: cariId ? parseInt(cariId) : null, cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase() };
+                if (cariId) { const islemId = Date.now() + 1; const islemObj = { id: islemId, cariId: parseInt(cariId), islemTuru: '🛠️ Teknik Servis (Borç)', islemTutari: ucret, odemeYontemi: odemeYontemi, islemTarihi: `${tarih} [${simdiTarihSaat()}]`, aciklama: `${cihaz} - ${detay || 'Tamirat'} [Yapan: ${aktifKullanici.toUpperCase()}]` }; await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); }
+                this.reset(); document.getElementById('servisCariId').value = ''; document.getElementById('servisTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "servisler", servisId.toString()), servisObj); alert("Servis kaydedildi!");
             });
 
             document.getElementById('giderForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const giderId = Date.now();
-                const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
-                const giderObj = {
-                    id: giderId,
-                    kategori: document.getElementById('giderKategori').value,
-                    odemeYontemi: document.getElementById('giderOdemeYontemi').value,
-                    tutar: parseFloat(document.getElementById('giderTutari').value),
-                    tarih: `${document.getElementById('giderTarihi').value} [${simdiTarihSaat()}]`,
-                    aciklama: `${document.getElementById('giderAciklama').value} [Yapan: ${aktifKullanici.toUpperCase()}]`
-                };
-                this.reset(); document.getElementById('giderTarihi').valueAsDate = new Date();
-                await setDoc(doc(window.db, "giderler", giderId.toString()), giderObj);
-                alert("Gider kaydedildi!");
+                const giderId = Date.now(); const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
+                const giderObj = { id: giderId, kategori: document.getElementById('giderKategori').value, odemeYontemi: document.getElementById('giderOdemeYontemi').value, tutar: parseFloat(document.getElementById('giderTutari').value), tarih: `${document.getElementById('giderTarihi').value} [${simdiTarihSaat()}]`, aciklama: `${document.getElementById('giderAciklama').value} [Yapan: ${aktifKullanici.toUpperCase()}]` };
+                this.reset(); document.getElementById('giderTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "giderler", giderId.toString()), giderObj); alert("Gider kaydedildi!");
             });
 
             document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = new Date());
         });
 
         window.stokLlistele = function() {
-            const tbody = document.querySelector('#stokTablosu tbody');
-            if(!tbody) return; tbody.innerHTML = '';
+            const tbody = document.querySelector('#stokTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
             const arama = turkceKucukHarf(document.getElementById('stokAramaInput').value);
             window.stoklar.filter(u => turkceKucukHarf(u.urunAdi).includes(arama) || turkceKucukHarf(u.barkod).includes(arama)).forEach(u => {
-                tbody.innerHTML += `<tr>
-                    <td><code>${u.barkod}</code></td><td><b>${u.urunAdi}</b></td><td>${u.renk || '-'}</td>
-                    <td>${Number(u.alisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</td>
-                    <td><b style="color:var(--gold-bright);">${Number(u.satisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
-                    <td><b>${u.stokMiktari}</b></td>
-                    <td>👤 ${u.sonIslemYapan || 'ADMİN'}<br><small>${u.sonIslemTarihi || '-'}</small></td>
-                    <td><button class="btn-edit" onclick="window.stokDuzenle(${u.id})">Düzenle</button> <button class="btn-delete" onclick="window.stokSil(${u.id})">Sil</button></td>
-                </tr>`;
+                tbody.innerHTML += `<tr><td><code>${u.barkod}</code></td><td><b>${u.urunAdi}</b></td><td>${u.renk || '-'}</td><td>${Number(u.alisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</td><td><b style="color:var(--gold-bright);">${Number(u.satisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><b>${u.stokMiktari}</b></td><td>👤 ${u.sonIslemYapan || 'ADMİN'}<br><small>${u.sonIslemTarihi || '-'}</small></td><td><button class="btn-edit" onclick="window.stokDuzenle(${u.id})">Düzenle</button> <button class="btn-delete" onclick="window.stokSil(${u.id})">Sil</button></td></tr>`;
             });
         };
 
         window.stokDuzenle = function(id) {
             const u = window.stoklar.find(x => x.id == id);
-            if(u) {
-                document.getElementById('duzenlenecekUrunId').value = u.id;
-                document.getElementById('barkod').value = u.barkod;
-                document.getElementById('urunAdi').value = u.urunAdi;
-                document.getElementById('renk').value = u.renk;
-                document.getElementById('alisFiyati').value = u.alisFiyati;
-                document.getElementById('satisFiyati').value = u.satisFiyati;
-                document.getElementById('stokMiktari').value = u.stokMiktari;
-                document.getElementById('kritikStok').value = u.kritikStok;
-                document.getElementById('stokFormBaslik').innerText = "✏️ Ürün Bilgisini Güncelle";
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            if(u) { document.getElementById('duzenlenecekUrunId').value = u.id; document.getElementById('barkod').value = u.barkod; document.getElementById('urunAdi').value = u.urunAdi; document.getElementById('renk').value = u.renk; document.getElementById('alisFiyati').value = u.alisFiyati; document.getElementById('satisFiyati').value = u.satisFiyati; document.getElementById('stokMiktari').value = u.stokMiktari; document.getElementById('kritikStok').value = u.kritikStok; document.getElementById('stokFormBaslik').innerText = "✏️ Ürün Bilgisini Güncelle"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         };
 
         window.stokSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "stoklar", id.toString())); };
 
         window.cariListele = function() {
-            const tbody = document.querySelector('#cariRehberTablosu tbody');
-            if(!tbody) return; tbody.innerHTML = '';
+            const tbody = document.querySelector('#cariRehberTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
             const arama = turkceKucukHarf(document.getElementById('rehberAramaInput').value);
             window.cariler.filter(c => turkceKucukHarf(c.ad).includes(arama)).forEach(c => {
-                tbody.innerHTML += `<tr>
-                    <td><span class="badge ${c.tur === 'Bayi' ? 'badge-bayi' : 'badge-musteri'}">${c.tur}</span></td>
-                    <td><b>${c.ad}</b></td><td>${c.tel || '-'}</td><td>${c.adres || '-'}</td>
-                    <td><button class="btn-edit" onclick="window.cariDuzenle(${c.id})">Düzenle</button> <button class="btn-delete" onclick="window.cariSil(${c.id})">Sil</button></td>
-                </tr>`;
+                let badgeClass = c.tur === 'Bayi' ? 'badge-bayi' : (c.tur === 'Tedarikçi' ? 'badge-gider' : 'badge-musteri');
+                tbody.innerHTML += `<tr><td><span class="badge ${badgeClass}">${c.tur}</span></td><td><b>${c.ad}</b></td><td>${c.tel || '-'}</td><td>${c.adres || '-'}</td><td><button class="btn-edit" onclick="window.cariDuzenle(${c.id})">Düzenle</button> <button class="btn-delete" onclick="window.cariSil(${c.id})">Sil</button></td></tr>`;
             });
         };
 
         window.cariDuzenle = function(id) {
             const c = window.cariler.find(x => x.id == id);
-            if(c) {
-                document.getElementById('duzenlenecekCariId').value = c.id;
-                document.getElementById('cariTuru').value = c.tur;
-                document.getElementById('cariAdi').value = c.ad;
-                document.getElementById('cariTelefon').value = c.tel;
-                document.getElementById('cariAdres').value = c.adres;
-                document.getElementById('cariFormBaslik').innerText = "✏️ Müşteri / Bayi Bilgisini Güncelle";
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            if(c) { document.getElementById('duzenlenecekCariId').value = c.id; document.getElementById('cariTuru').value = c.tur; document.getElementById('cariAdi').value = c.ad; document.getElementById('cariTelefon').value = c.tel; document.getElementById('cariAdres').value = c.adres; document.getElementById('cariFormBaslik').innerText = "✏️ Rehber Bilgisini Güncelle"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         };
 
         window.cariSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "cariler", id.toString())); };
 
         window.satisGecmisListele = function() {
-            const tbody = document.querySelector('#satisGecmisTablosu tbody');
-            if(!tbody) return; tbody.innerHTML = '';
+            const tbody = document.querySelector('#satisGecmisTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
             window.islemler.filter(i => i.islemTuru.includes('Satış')).forEach(i => {
                 const cari = window.cariler.find(c => c.id == i.cariId);
-                tbody.innerHTML += `<tr>
-                    <td><small>${i.islemTarihi}</small></td><td><b>${cari ? cari.ad : '-'}</b></td><td>${i.aciklama}</td>
-                    <td><b>${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
-                    <td><span class="badge" style="background:rgba(245,158,11,0.2); color:var(--gold-bright);">${i.odemeYontemi || 'Nakit'}</span></td>
-                    <td>👤 Admin</td><td><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td>
-                </tr>`;
+                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${cari ? cari.ad : '-'}</b></td><td>${i.aciklama}</td><td><b>${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><span class="badge" style="background:rgba(245,158,11,0.2); color:var(--gold-bright);">${i.odemeYontemi || 'Nakit'}</span></td><td>👤 Admin</td><td><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
         };
 
         window.giderListele = function() {
-            const tbody = document.querySelector('#giderTablosu tbody');
-            if(!tbody) return; tbody.innerHTML = '';
-            window.giderler.forEach(g => {
-                tbody.innerHTML += `<tr>
-                    <td><small>${g.tarih}</small></td><td><span class="badge badge-gider">${g.kategori}</span></td>
-                    <td><b>${g.aciklama}</b></td><td><span style="color:var(--gold-bright);">${g.odemeYontemi}</span></td>
-                    <td><b style="color:#ef4444;">-${Number(g.tutar).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
-                    <td><button class="btn-delete" onclick="window.giderSil(${g.id})">Sil</button></td>
-                </tr>`;
-            });
+            const tbody = document.querySelector('#giderTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
+            window.giderler.forEach(g => { tbody.innerHTML += `<tr><td><small>${g.tarih}</small></td><td><span class="badge badge-gider">${g.kategori}</span></td><td><b>${g.aciklama}</b></td><td><span style="color:var(--gold-bright);">${g.odemeYontemi}</span></td><td><b style="color:#ef4444;">-${Number(g.tutar).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><button class="btn-delete" onclick="window.giderSil(${g.id})">Sil</button></td></tr>`; });
         };
 
         window.giderSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "giderler", id.toString())); };
 
         window.cariKartlariniYukle = function() {
-            const kutu = document.getElementById('cariKartlarKutusu');
-            if(!kutu) return; kutu.innerHTML = '';
+            const kutu = document.getElementById('cariKartlarKutusu'); if(!kutu) return; kutu.innerHTML = '';
             const arama = turkceKucukHarf(document.getElementById('ekstreAramaInput').value);
             
-            // BAYİLERİ HESAPLA VE BORCA GÖRE SIRALA (Borçlular En Üste)
-            let liste = window.cariler.map(c => {
+            // SADECE MÜŞTERİ VE BAYİLER GÖRÜNÜR (Toptancılar Gizlenir)
+            let liste = window.cariler.filter(c => c.tur !== 'Tedarikçi').map(c => {
                 let borc = 0, odenen = 0;
                 window.islemler.filter(i => i.cariId == c.id).forEach(i => {
                     if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
                     else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
                 });
-                let bakiye = borc - odenen;
-                return { ...c, bakiye: bakiye };
+                return { ...c, bakiye: borc - odenen };
             });
 
-            // Sıralama Algoritması: Bakiye büyüklüğüne göre azalan sırada (En çok borcu olan en üste)
             liste.sort((a, b) => b.bakiye - a.bakiye);
 
             liste.filter(c => turkceKucukHarf(c.ad).includes(arama)).forEach(c => {
-                let bak = c.bakiye;
-                let bakiyeYazisi = bak > 0 ? `${bak.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Borçlu)` : (bak < 0 ? `${Math.abs(bak).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Alacaklı)` : '0.00 ₺');
+                let bak = c.bakiye; let bakiyeYazisi = bak > 0 ? `${bak.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Borçlu)` : (bak < 0 ? `${Math.abs(bak).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Alacaklı)` : '0.00 ₺');
                 let bClass = bak > 0 ? 'bakiye-borclu' : (bak < 0 ? 'bakiye-alacakli' : 'bakiye-sifir');
-
-                kutu.innerHTML += `<div class="cari-card ${window.seciliCariId == c.id ? 'active-card' : ''}" onclick="window.cariDetayAc(${c.id})">
-                    <span class="badge ${c.tur === 'Bayi' ? 'badge-bayi' : 'badge-musteri'}">${c.tur}</span>
-                    <h3 style="margin:12px 0 6px 0; color:var(--text-main); font-size:16px;">${c.ad}</h3>
-                    <div class="${bClass}">${bakiyeYazisi}</div>
-                </div>`;
+                kutu.innerHTML += `<div class="cari-card ${window.seciliCariId == c.id ? 'active-card' : ''}" onclick="window.cariDetayAc(${c.id})"><span class="badge ${c.tur === 'Bayi' ? 'badge-bayi' : 'badge-musteri'}">${c.tur}</span><h3 style="margin:12px 0 6px 0; color:var(--text-main); font-size:16px;">${c.ad}</h3><div class="${bClass}">${bakiyeYazisi}</div></div>`;
             });
         };
 
         window.cariDetayAc = function(id) {
-            window.seciliCariId = id; window.cariKartlariniYukle();
-            const c = window.cariler.find(x => x.id == id);
-            if(!c) return;
-            document.getElementById('detayPaneli').style.display = 'block';
-            document.getElementById('seciliCariBaslik').innerText = `${c.ad} (${c.tur})`;
-            document.getElementById('pdfTarihYazisi').innerText = new Date().toLocaleDateString('tr-TR');
-            document.getElementById('islemCariId').value = c.id;
-            window.kisiIslemleriniListele(id);
+            window.seciliCariId = id; window.cariKartlariniYukle(); const c = window.cariler.find(x => x.id == id); if(!c) return;
+            document.getElementById('detayPaneli').style.display = 'block'; document.getElementById('seciliCariBaslik').innerText = `${c.ad} (${c.tur})`; document.getElementById('pdfTarihYazisi').innerText = new Date().toLocaleDateString('tr-TR'); document.getElementById('islemCariId').value = c.id; window.kisiIslemleriniListele(id);
         };
 
         window.kisiIslemleriniListele = function(cariId) {
-            const tbody = document.querySelector('#kisiIslemTablosu tbody');
-            if(!tbody) return; tbody.innerHTML = '';
-            let borc = 0, odenen = 0;
+            const tbody = document.querySelector('#kisiIslemTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; let borc = 0, odenen = 0;
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
-                if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
-                else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
-                tbody.innerHTML += `<tr>
-                    <td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${i.aciklama}</td>
-                    <td><b>${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
-                    <td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td>
-                </tr>`;
+                if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari); else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
+                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b>${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
-            let net = borc - odenen;
-            document.getElementById('seciliCariBakiye').innerHTML = `<b>Top. Borç:</b> ${borc.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ | <b>Top. Ödenen:</b> ${odenen.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺<br><b>Net Bakiye:</b> <span style="color:${net > 0 ? '#f87171' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
+            let net = borc - odenen; document.getElementById('seciliCariBakiye').innerHTML = `<b>Top. Borç:</b> ${borc.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ | <b>Top. Ödenen:</b> ${odenen.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺<br><b>Net Bakiye:</b> <span style="color:${net > 0 ? '#f87171' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
+        };
+
+        // YENİ EKLENEN TOPTANCI FONKSİYONLARI
+        window.tedarikciKartlariniYukle = function() {
+            const kutu = document.getElementById('tedarikciKartlarKutusu'); if(!kutu) return; kutu.innerHTML = '';
+            const arama = turkceKucukHarf(document.getElementById('tedarikciAramaInput').value);
+            
+            // SADECE TOPTANCILAR GÖRÜNÜR
+            let liste = window.cariler.filter(c => c.tur === 'Tedarikçi').map(c => {
+                let borcumuz = 0, odenen = 0;
+                window.islemler.filter(i => i.cariId == c.id).forEach(i => {
+                    if (i.islemTuru.includes('Toptancı Alımı')) borcumuz += Number(i.islemTutari);
+                    else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += Number(i.islemTutari);
+                });
+                return { ...c, bakiye: borcumuz - odenen };
+            });
+
+            liste.sort((a, b) => b.bakiye - a.bakiye); // Borcumuz olan en üstte
+
+            liste.filter(c => turkceKucukHarf(c.ad).includes(arama)).forEach(c => {
+                let bak = c.bakiye; let bakiyeYazisi = bak > 0 ? `${bak.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Borcumuz Var)` : (bak < 0 ? `${Math.abs(bak).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Alacaklıyız)` : '0.00 ₺');
+                let bClass = bak > 0 ? 'bakiye-borclu' : (bak < 0 ? 'bakiye-alacakli' : 'bakiye-sifir');
+                kutu.innerHTML += `<div class="cari-card ${window.seciliTedarikciId == c.id ? 'active-card' : ''}" onclick="window.tedarikciDetayAc(${c.id})" style="border-color: rgba(139, 92, 246, 0.4);">
+                    <span class="badge" style="background:rgba(139, 92, 246, 0.2); color:#c4b5fd;">🏢 TOPTANCI</span>
+                    <h3 style="margin:12px 0 6px 0; color:var(--text-main); font-size:16px;">${c.ad}</h3>
+                    <div class="${bClass}" style="color:${bak > 0 ? '#ef4444' : '#34d399'}">${bakiyeYazisi}</div>
+                </div>`;
+            });
+        };
+
+        window.tedarikciDetayAc = function(id) {
+            window.seciliTedarikciId = id; window.tedarikciKartlariniYukle(); const c = window.cariler.find(x => x.id == id); if(!c) return;
+            document.getElementById('tedarikciDetayPaneli').style.display = 'block'; document.getElementById('seciliTedarikciBaslik').innerText = `${c.ad} - Haftalık Kontrol Paneli`; document.getElementById('odemeTedarikciId').value = c.id; window.tedarikciIslemleriniListele(id);
+        };
+
+        window.tedarikciIslemleriniListele = function(cariId) {
+            const tbody = document.querySelector('#tedarikciIslemTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; let borcumuz = 0, odenen = 0;
+            window.islemler.filter(i => i.cariId == cariId).forEach(i => {
+                if (i.islemTuru.includes('Toptancı Alımı')) borcumuz += Number(i.islemTutari); else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += Number(i.islemTutari);
+                let isAlim = i.islemTuru.includes('Toptancı Alımı'); let renk = isAlim ? '#ef4444' : '#34d399';
+                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b style="color:${renk}">${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b style="color:${renk}">${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+            });
+            let net = borcumuz - odenen; document.getElementById('seciliTedarikciBakiye').innerHTML = `<b>Toplam Alınan Mal:</b> ${borcumuz.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ | <b>Ödenen:</b> ${odenen.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺<br><br><span style="font-size:17px;"><b>Net Kalan Borcumuz:</b> <span style="color:${net > 0 ? '#ef4444' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></span>`;
         };
 
         window.islemSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "islemler", id.toString())); };
 
-        window.finansFiltrele = function(tur, btn) {
-            window.aktifFinansFiltre = tur;
-            if(btn) { document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); }
-            window.finansGuncelle();
-        };
+        window.finansFiltrele = function(tur, btn) { window.aktifFinansFiltre = tur; if(btn) { document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); } window.finansGuncelle(); };
 
         window.finansGuncelle = function() {
-            const tbody = document.querySelector('#finansTablosu tbody');
-            if(!tbody) return; tbody.innerHTML = '';
-            let ciro = 0, tahsilat = 0, toplamGider = 0;
-            const simdi = new Date();
-            const bugunStr = simdi.toLocaleDateString('tr-TR');
-
+            const tbody = document.querySelector('#finansTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
+            let ciro = 0, tahsilat = 0, toplamGider = 0; const simdi = new Date(); const bugunStr = simdi.toLocaleDateString('tr-TR');
             const tarihUyuşuyorMu = (tarihMetni) => {
-                if(!tarihMetni) return false;
-                let tarihKismi = tarihMetni.split(' ')[0];
+                if(!tarihMetni) return false; let tarihKismi = tarihMetni.split(' ')[0];
                 if(window.aktifFinansFiltre === 'bugun') return tarihKismi === bugunStr;
-                else if(window.aktifFinansFiltre === 'buHafta') {
-                    const parcalar = tarihKismi.split('.');
-                    if(parcalar.length === 3) {
-                        const iDate = new Date(`${parcalar[2]}-${parcalar[1]}-${parcalar[0]}`);
-                        const yGec = new Date(); yGec.setDate(simdi.getDate() - 7);
-                        return iDate >= yGec && iDate <= simdi;
-                    }
-                } else if(window.aktifFinansFiltre === 'buAy') { return tarihKismi.endsWith(bugunStr.slice(3)); }
-                return true;
+                else if(window.aktifFinansFiltre === 'buHafta') { const parcalar = tarihKismi.split('.'); if(parcalar.length === 3) { const iDate = new Date(`${parcalar[2]}-${parcalar[1]}-${parcalar[0]}`); const yGec = new Date(); yGec.setDate(simdi.getDate() - 7); return iDate >= yGec && iDate <= simdi; } }
+                else if(window.aktifFinansFiltre === 'buAy') { return tarihKismi.endsWith(bugunStr.slice(3)); } return true;
             };
 
             let liste = [];
             window.islemler.filter(i => tarihUyuşuyorMu(i.islemTarihi)).forEach(i => {
                 const cari = window.cariler.find(c => c.id == i.cariId);
-                if (!i.islemTuru.includes('Ödeme Alındı')) ciro += Number(i.islemTutari);
-                else tahsilat += Number(i.islemTutari);
-                liste.push({tarih: i.islemTuru, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: i.islemTuru.includes('Ödeme Alındı') ? 'tahsilat' : 'ciro'});
+                
+                // Müşteri Ödemeleri
+                if (i.islemTuru.includes('Ödeme Alındı')) {
+                    tahsilat += Number(i.islemTutari); liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: 'tahsilat'});
+                } 
+                // Toptancıya Nakit Ödeme Çıkışı (Gidere yansır)
+                else if (i.islemTuru.includes('Toptancıya Ödeme')) {
+                    toplamGider += Number(i.islemTutari); liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Toptancı', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: 'gider'});
+                }
+                // Toptancı Alımı Ciro'ya dahil olmamalı (Sadece borç kaydı)
+                else if (!i.islemTuru.includes('Toptancı Alımı')) {
+                    ciro += Number(i.islemTutari); liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: 'ciro'});
+                }
             });
 
             window.giderler.filter(g => tarihUyuşuyorMu(g.tarih)).forEach(g => {
-                toplamGider += Number(g.tutar);
-                liste.push({tarih: g.tarih, kisi: g.kategori, tur: `📉 GİDER (${g.odemeYontemi})`, aciklama: g.aciklama, tutar: Number(g.tutar), tip: 'gider'});
+                toplamGider += Number(g.tutar); liste.push({tarih: g.tarih, kisi: g.kategori, tur: `📉 GİDER (${g.odemeYontemi})`, aciklama: g.aciklama, tutar: Number(g.tutar), tip: 'gider'});
             });
 
-            liste.slice(0, 30).forEach(h => {
-                let renk = h.tip === 'tahsilat' ? '#34d399' : (h.tip === 'gider' ? '#ef4444' : '#fbbf24');
-                tbody.innerHTML += `<tr><td><small>${h.tarih}</small></td><td><b>${h.kisi}</b></td><td><span style="color:${renk};">${h.tur}</span></td><td>${h.aciklama}</td><td><b style="color:${renk};">${h.tip === 'gider' ? '-' : '+'}${h.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
-            });
+            liste.slice(0, 30).forEach(h => { let renk = h.tip === 'tahsilat' ? '#34d399' : (h.tip === 'gider' ? '#ef4444' : '#fbbf24'); tbody.innerHTML += `<tr><td><small>${h.tarih}</small></td><td><b>${h.kisi}</b></td><td><span style="color:${renk};">${h.tur}</span></td><td>${h.aciklama}</td><td><b style="color:${renk};">${h.tip === 'gider' ? '-' : '+'}${h.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`; });
 
-            let netKar = ciro - toplamGider;
-            document.getElementById('finansGunlukCiro').innerText = `${ciro.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
-            document.getElementById('finansToplamGider').innerText = `-${toplamGider.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
-            document.getElementById('finansToplamTahsilat').innerText = `${tahsilat.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
-            document.getElementById('finansNetKar').innerText = `${netKar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
+            let netKar = ciro - toplamGider; document.getElementById('finansGunlukCiro').innerText = `${ciro.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansToplamGider').innerText = `-${toplamGider.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansToplamTahsilat').innerText = `${tahsilat.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansNetKar').innerText = `${netKar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
         };
 
-        window.servisListele = function() {
-            const tbody = document.querySelector('#servisTablosu tbody');
-            if(!tbody) return; tbody.innerHTML = '';
-            window.servisler.forEach(s => {
-                tbody.innerHTML += `<tr><td><small>${s.tarih}</small></td><td><b>${s.cihaz}</b></td><td>${s.detay || '-'}</td><td><b>${Number(s.ucret).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd;">${s.odemeYontemi || 'Nakit'}</span></td><td><span class="badge badge-bayi">${s.cariAdi}</span></td><td><button class="btn-delete" onclick="window.servisSil(${s.id})">Sil</button></td></tr>`;
-            });
-        };
-
+        window.servisListele = function() { const tbody = document.querySelector('#servisTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; window.servisler.forEach(s => { tbody.innerHTML += `<tr><td><small>${s.tarih}</small></td><td><b>${s.cihaz}</b></td><td>${s.detay || '-'}</td><td><b>${Number(s.ucret).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd;">${s.odemeYontemi || 'Nakit'}</span></td><td><span class="badge badge-bayi">${s.cariAdi}</span></td><td><button class="btn-delete" onclick="window.servisSil(${s.id})">Sil</button></td></tr>`; }); };
         window.servisSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "servisler", id.toString())); };
         window.gunlukRaporuYazdir = function() { window.openTab('finansTab', document.querySelector('.tab-btn:nth-child(5)')); setTimeout(() => window.print(), 300); };
         window.bayiEkstrePdfIndir = function() { if (!window.seciliCariId) return alert("Seçim yapın!"); document.body.classList.add('printing-cari-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-cari-ekstre'), 500); };
         window.whatsappEkstreGonder = function() {
-            if (!window.seciliCariId) return;
-            const c = window.cariler.find(x => x.id == window.seciliCariId);
-            if (!c || !c.tel) return alert('Telefon numarası yok!');
-            let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel;
-            let borç = 0, odenen = 0;
-            window.islemler.filter(i => i.cariId == c.id).forEach(i => {
-                if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borç += Number(i.islemTutari);
-                else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
-            });
-            let net = borç - odenen;
-            window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}*,\nNet Bakiye: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`)}`, '_blank');
+            if (!window.seciliCariId) return; const c = window.cariler.find(x => x.id == window.seciliCariId); if (!c || !c.tel) return alert('Telefon numarası yok!');
+            let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel; let borç = 0, odenen = 0;
+            window.islemler.filter(i => i.cariId == c.id).forEach(i => { if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borç += Number(i.islemTutari); else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari); });
+            let net = borç - odenen; window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}*,\nNet Bakiye: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`)}`, '_blank');
         };
-        window.verileriYedekle = function() {
-            const data = { stoklar: window.stoklar, cariler: window.cariler, islemler: window.islemler, servisler: window.servisler, giderler: window.giderler };
-            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `BB_Pro_Yedek.json`; a.click();
-        };
+        window.verileriYedekle = function() { const data = { stoklar: window.stoklar, cariler: window.cariler, islemler: window.islemler, servisler: window.servisler, giderler: window.giderler }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `BB_Pro_Yedek.json`; a.click(); };
     </script>
 </body>
 </html>

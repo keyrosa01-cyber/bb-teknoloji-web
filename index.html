@@ -175,60 +175,57 @@
         }
 
         /* =========================================================================
-           📱 SADECE MOBİL İÇİN ÖZEL RESPONSIVE TASARIM (MASAÜSTÜNÜ ETKİLEMEZ)
+           📱 MOBİL CİHAZLAR İÇİN ÖZEL ERGONOMİK APP GÖRÜNÜMÜ
            ========================================================================= */
         @media screen and (max-width: 768px) {
-            body { padding: 12px; }
+            body { padding: 10px; }
             
-            /* Üst Menü Düzeni */
-            .header-brand { flex-direction: column; gap: 15px; text-align: center; padding: 15px; }
+            .header-brand { flex-direction: column; gap: 12px; text-align: center; padding: 15px; }
             .brand-title h1 { font-size: 20px; }
-            .backup-controls { justify-content: center; width: 100%; gap: 8px; }
-            .btn-pro-action { flex: 1 1 calc(50% - 8px); justify-content: center; text-align: center; font-size: 12px; padding: 12px; }
+            .backup-controls { justify-content: center; width: 100%; gap: 6px; }
+            .btn-pro-action { flex: 1 1 calc(50% - 6px); justify-content: center; font-size: 11px; padding: 10px; }
             
-            /* İstatistik Kartları */
-            .dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
-            .stat-card { padding: 16px; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 10px; }
+            .stat-card { padding: 14px; }
             
-            /* Sekme Menüsü (Yana kaydırılabilir) */
+            /* Mobilde Sekme Butonlarını Şık, Alt Alta / Yan Yana Büyük Bloklar Yapıyoruz */
             .tab-buttons { 
-                flex-wrap: nowrap; 
-                overflow-x: auto; 
-                padding-bottom: 12px; 
-                -webkit-overflow-scrolling: touch; 
-                /* Kaydırma çubuğunu gizleme */
-                scrollbar-width: none; 
+                display: grid; 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 8px; 
+                margin-bottom: 20px;
             }
-            .tab-buttons::-webkit-scrollbar { display: none; }
-            .tab-btn { flex: 0 0 auto; padding: 12px 18px; font-size: 13px; border-radius: 10px; }
+            .tab-btn { 
+                width: 100%; 
+                justify-content: center; 
+                padding: 14px 10px; 
+                font-size: 12px; 
+                border-radius: 12px;
+                text-align: center;
+            }
             
-            /* Sekme İçerikleri ve Formlar */
-            .tab-content { padding: 20px 15px; }
-            form { grid-template-columns: 1fr; padding: 20px 15px; gap: 15px; }
+            .tab-content { padding: 18px 12px; }
+            form { grid-template-columns: 1fr; padding: 18px 12px; gap: 14px; }
             
-            /* iPhone Zoom sorununu çözmek için font-size minimum 16px olmalı */
-            input, select, textarea { padding: 14px 15px; font-size: 16px !important; }
+            /* iPhone zoom engelleme (16px kuralı) */
+            input, select, textarea { padding: 14px; font-size: 16px !important; }
             button.submit-btn { padding: 16px; font-size: 14px; }
-            .search-box { font-size: 16px !important; padding: 14px 15px; }
+            .search-box { font-size: 16px !important; padding: 14px; }
 
-            /* TABLOLAR - Mobilde dışarı taşmayı önler, yana kaydırma sağlar */
             table { 
                 display: block; 
                 width: 100%; 
                 overflow-x: auto; 
                 white-space: nowrap; 
                 -webkit-overflow-scrolling: touch; 
-                border: 1px solid var(--border-color); 
             }
-            th, td { padding: 12px 14px; font-size: 13px; }
+            th, td { padding: 12px; font-size: 12px; }
 
-            /* Ekstra Butonlar (WhatsApp, PDF vb.) */
             .btn-whatsapp, .btn-pdf { width: 100%; justify-content: center; padding: 14px; }
             .filter-btn-group { justify-content: space-between; width: 100%; }
-            .filter-btn { flex: 1; text-align: center; padding: 10px 5px; font-size: 11px; }
+            .filter-btn { flex: 1; text-align: center; padding: 10px 4px; font-size: 11px; }
 
-            /* Modal (Giriş & Ayarlar Ekranı) */
-            .modal-box { padding: 30px 20px; width: 95%; max-width: none; }
+            .modal-box { padding: 25px 15px; width: 95%; max-width: none; }
         }
     </style>
 </head>

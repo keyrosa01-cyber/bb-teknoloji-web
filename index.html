@@ -2,8 +2,12 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BB TEKNOLOJİ PRO - Kurumsal ERP & Kasa Platformu</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BB TEKNO PRO">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3268/3268696.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -169,6 +173,63 @@
             body.printing-cari-ekstre #pdfCariAlani { background: #fff !important; border: none !important; padding: 0 !important; margin: 0 !important; color: #000 !important; width: 100% !important; }
             @page { size: A4 portrait; margin: 10mm; }
         }
+
+        /* =========================================================================
+           📱 SADECE MOBİL İÇİN ÖZEL RESPONSIVE TASARIM (MASAÜSTÜNÜ ETKİLEMEZ)
+           ========================================================================= */
+        @media screen and (max-width: 768px) {
+            body { padding: 12px; }
+            
+            /* Üst Menü Düzeni */
+            .header-brand { flex-direction: column; gap: 15px; text-align: center; padding: 15px; }
+            .brand-title h1 { font-size: 20px; }
+            .backup-controls { justify-content: center; width: 100%; gap: 8px; }
+            .btn-pro-action { flex: 1 1 calc(50% - 8px); justify-content: center; text-align: center; font-size: 12px; padding: 12px; }
+            
+            /* İstatistik Kartları */
+            .dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
+            .stat-card { padding: 16px; }
+            
+            /* Sekme Menüsü (Yana kaydırılabilir) */
+            .tab-buttons { 
+                flex-wrap: nowrap; 
+                overflow-x: auto; 
+                padding-bottom: 12px; 
+                -webkit-overflow-scrolling: touch; 
+                /* Kaydırma çubuğunu gizleme */
+                scrollbar-width: none; 
+            }
+            .tab-buttons::-webkit-scrollbar { display: none; }
+            .tab-btn { flex: 0 0 auto; padding: 12px 18px; font-size: 13px; border-radius: 10px; }
+            
+            /* Sekme İçerikleri ve Formlar */
+            .tab-content { padding: 20px 15px; }
+            form { grid-template-columns: 1fr; padding: 20px 15px; gap: 15px; }
+            
+            /* iPhone Zoom sorununu çözmek için font-size minimum 16px olmalı */
+            input, select, textarea { padding: 14px 15px; font-size: 16px !important; }
+            button.submit-btn { padding: 16px; font-size: 14px; }
+            .search-box { font-size: 16px !important; padding: 14px 15px; }
+
+            /* TABLOLAR - Mobilde dışarı taşmayı önler, yana kaydırma sağlar */
+            table { 
+                display: block; 
+                width: 100%; 
+                overflow-x: auto; 
+                white-space: nowrap; 
+                -webkit-overflow-scrolling: touch; 
+                border: 1px solid var(--border-color); 
+            }
+            th, td { padding: 12px 14px; font-size: 13px; }
+
+            /* Ekstra Butonlar (WhatsApp, PDF vb.) */
+            .btn-whatsapp, .btn-pdf { width: 100%; justify-content: center; padding: 14px; }
+            .filter-btn-group { justify-content: space-between; width: 100%; }
+            .filter-btn { flex: 1; text-align: center; padding: 10px 5px; font-size: 11px; }
+
+            /* Modal (Giriş & Ayarlar Ekranı) */
+            .modal-box { padding: 30px 20px; width: 95%; max-width: none; }
+        }
     </style>
 </head>
 <body>
@@ -220,7 +281,7 @@
             <p>⚡ CANLI BULUT | <span class="badge badge-user" id="aktifKullaniciAdi">ADMİN</span></p>
         </div>
         <div class="backup-controls">
-            <button class="btn-pro-action" onclick="window.gunlukRaporuYazdir()" style="background:#10b981; color:#0a0d14; border-color:#059669;">🖨️ Günlük Rapor Yazdır</button>
+            <button class="btn-pro-action" onclick="window.gunlukRaporuYazdir()" style="background:#10b981; color:#0a0d14; border-color:#059669;">🖨️ Günlük Rapor</button>
             <button class="btn-pro-action" onclick="window.openPasswordModal()">⚙️ Ayarlar</button>
             <button class="btn-pro-action" onclick="window.verileriYedekle()">💾 Yedek</button>
             <button class="btn-pro-action" style="background:rgba(239,68,68,0.2); color:#ef4444; border-color:rgba(239,68,68,0.4);" onclick="window.cikisYap()">🔒 Çıkış</button>
@@ -251,13 +312,13 @@
         <button class="tab-btn" onclick="window.openTab('satisTab', this)">🛒 2. Satış</button>
         <button class="tab-btn" onclick="window.openTab('cariRehberTab', this)">👥 3. Rehber</button>
         <button class="tab-btn" onclick="window.openTab('cariHesaplarTab', this)">💳 4. Bayi Ekstresi</button>
-        <button class="tab-btn" onclick="window.openTab('finansTab', this)">📊 5. Finans & Bilanço</button>
+        <button class="tab-btn" onclick="window.openTab('finansTab', this)">📊 5. Finans</button>
         <button class="tab-btn" onclick="window.openTab('servisTab', this)">🛠️ 6. Teknik Servis</button>
         <button class="tab-btn" onclick="window.openTab('giderTab', this)" style="border-color:#ef4444; color:#fca5a5;">📉 7. Giderler</button>
         <button class="tab-btn purple-tab" onclick="window.openTab('tedarikciTab', this)" style="border-color:var(--purple-main); color:var(--purple-bright);">🏢 8. Toptancılar</button>
     </div>
 
-    <!-- TOPTANCI & TEDARİKÇİ SEKME (YENİ EKLENDİ) -->
+    <!-- TOPTANCI & TEDARİKÇİ SEKME -->
     <div id="tedarikciTab" class="tab-content">
         <h2 style="color:var(--purple-bright); margin-top:0; font-size:20px;">🏢 Malzeme & Ürün Alım Kaydı (Toptancı)</h2>
         <form id="tedarikciAlimForm" style="border-color:rgba(139, 92, 246, 0.3);">

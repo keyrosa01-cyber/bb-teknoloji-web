@@ -326,7 +326,7 @@
     </div>
 
     <div id="cariHesaplarTab" class="tab-content">
-        <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">💳 Bayi & Müşteri Hesap Kartları</h2>
+        <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">💳 Bayi & Müşteri Hesap Kartları (Borçlular Üstte 🚀)</h2>
         <input type="text" id="ekstreAramaInput" class="search-box" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
         <div id="cariKartlarKutusu" class="cari-grid"></div>
         <hr style="border-color:var(--border-color); margin:28px 0;">
@@ -705,11 +705,8 @@
                 await setDoc(doc(window.db, "stoklar", urunId.toString()), yeniUrun);
             });
 
-            // KESİN ÇÖZÜM: FORM GÖNDERİLİR GÖNDERİLMEZ ID KESİNLİKLE SIFIRLANIR VE YENİ KAYIT AÇILIR
             document.getElementById('cariKayıtForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
-                // Gizli ID kutusundaki değeri tamamen sıfırlıyoruz ki her zaman YENİ kayıt açsın
                 document.getElementById('duzenlenecekCariId').value = "";
                 let cariId = Date.now() + Math.floor(Math.random() * 1000);
                 
@@ -721,7 +718,6 @@
                     adres: document.getElementById('cariAdres').value 
                 };
 
-                // Form kutularını tertemiz yap ve başlığı eskiye döndür
                 this.reset(); 
                 document.getElementById('duzenlenecekCariId').value = "";
                 document.getElementById('cariFormBaslik').innerText = "👥 Yeni Müşteri / Bayi Kaydı";
@@ -949,13 +945,23 @@
             const kutu = document.getElementById('cariKartlarKutusu');
             if(!kutu) return; kutu.innerHTML = '';
             const arama = turkceKucukHarf(document.getElementById('ekstreAramaInput').value);
-            window.cariler.filter(c => turkceKucukHarf(c.ad).includes(arama)).forEach(c => {
+            
+            // BAYİLERİ HESAPLA VE BORCA GÖRE SIRALA (Borçlular En Üste)
+            let liste = window.cariler.map(c => {
                 let borc = 0, odenen = 0;
                 window.islemler.filter(i => i.cariId == c.id).forEach(i => {
                     if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
                     else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
                 });
-                let bak = borc - odenen;
+                let bakiye = borc - odenen;
+                return { ...c, bakiye: bakiye };
+            });
+
+            // Sıralama Algoritması: Bakiye büyüklüğüne göre azalan sırada (En çok borcu olan en üste)
+            liste.sort((a, b) => b.bakiye - a.bakiye);
+
+            liste.filter(c => turkceKucukHarf(c.ad).includes(arama)).forEach(c => {
+                let bak = c.bakiye;
                 let bakiyeYazisi = bak > 0 ? `${bak.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Borçlu)` : (bak < 0 ? `${Math.abs(bak).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Alacaklı)` : '0.00 ₺');
                 let bClass = bak > 0 ? 'bakiye-borclu' : (bak < 0 ? 'bakiye-alacakli' : 'bakiye-sifir');
 
@@ -1030,7 +1036,7 @@
                 const cari = window.cariler.find(c => c.id == i.cariId);
                 if (!i.islemTuru.includes('Ödeme Alındı')) ciro += Number(i.islemTutari);
                 else tahsilat += Number(i.islemTutari);
-                liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: i.islemTuru.includes('Ödeme Alındı') ? 'tahsilat' : 'ciro'});
+                liste.push({tarih: i.islemTuru, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: i.islemTuru.includes('Ödeme Alındı') ? 'tahsilat' : 'ciro'});
             });
 
             window.giderler.filter(g => tarihUyuşuyorMu(g.tarih)).forEach(g => {
@@ -1066,12 +1072,12 @@
             const c = window.cariler.find(x => x.id == window.seciliCariId);
             if (!c || !c.tel) return alert('Telefon numarası yok!');
             let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel;
-            let borc = 0, odenen = 0;
+            let borç = 0, odenen = 0;
             window.islemler.filter(i => i.cariId == c.id).forEach(i => {
-                if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
+                if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borç += Number(i.islemTutari);
                 else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
             });
-            let net = borc - odenen;
+            let net = borç - odenen;
             window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}*,\nNet Bakiye: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`)}`, '_blank');
         };
         window.verileriYedekle = function() {

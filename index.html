@@ -142,7 +142,6 @@
         .filter-btn { padding: 10px 16px; border: 1px solid var(--border-color); background: var(--card-inner); color: var(--text-main); font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .filter-btn.active { background: var(--gold-main); color: #000; border-color: var(--gold-bright); }
 
-        /* AÇILIR LİSTE STİLLERİ */
         .autocomplete-container { position: relative; width: 100%; }
         .autocomplete-items {
             position: absolute; border: 1px solid var(--gold-main); border-top: none; z-index: 99;
@@ -312,7 +311,7 @@
     <div id="cariRehberTab" class="tab-content">
         <h2 id="cariFormBaslik" style="color:var(--gold-bright); margin-top:0; font-size:20px;">👥 Yeni Müşteri / Bayi Kaydı</h2>
         <form id="cariKayıtForm">
-            <input type="hidden" id="duzenlenecekCariId">
+            <input type="hidden" id="duzenlenecekCariId" value="">
             <div><label>Kayıt Türü</label><select id="cariTuru"><option value="Bayi">Bayi</option><option value="Müşteri">Müşteri</option></select></div>
             <div><label>Adı Soyadı / Firma Adı</label><input type="text" id="cariAdi" placeholder="Örn: Yaşar İletişim" required></div>
             <div><label>Telefon</label><input type="text" id="cariTelefon" placeholder="05XX XXX XX XX"></div>
@@ -702,14 +701,17 @@
                 };
                 document.getElementById('duzenlenecekUrunId').value = '';
                 this.reset();
+                document.getElementById('stokFormBaslik').innerText = "📦 Yeni Ürün Kaydı";
                 await setDoc(doc(window.db, "stoklar", urunId.toString()), yeniUrun);
             });
 
-            // GÜNCELLENEN REHBER KAYIT MANTIĞI (ÇAKIŞMAYI ÖNLEMEK İÇİN SIFIRLAMA EKLENDİ)
+            // KESİN ÇÖZÜM: REHBER KAYITTAN ÖNCE VEYA SONRA ID ASLA KARIŞMAZ
             document.getElementById('cariKayıtForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const editId = document.getElementById('duzenlenecekCariId').value;
-                let cariId = editId ? Number(editId) : (Date.now() + Math.floor(Math.random() * 1000));
+                
+                // Eğer editId boşsa kesinlikle yeni ID üretilir, eskisiyle çakışmaz!
+                let cariId = (editId && editId !== "") ? Number(editId) : (Date.now() + Math.floor(Math.random() * 1000));
                 
                 const cariObj = { 
                     id: cariId, 
@@ -719,8 +721,9 @@
                     adres: document.getElementById('cariAdres').value 
                 };
 
+                // Form ve hafıza sıfırlanır
                 document.getElementById('duzenlenecekCariId').value = '';
-                this.reset(); // Kayıttan sonra form kutularını tertemiz sıfırlar ve çakışmayı önler
+                this.reset(); 
                 document.getElementById('cariFormBaslik').innerText = "👥 Yeni Müşteri / Bayi Kaydı";
 
                 await setDoc(doc(window.db, "cariler", cariId.toString()), cariObj);
@@ -878,6 +881,7 @@
                 document.getElementById('satisFiyati').value = u.satisFiyati;
                 document.getElementById('stokMiktari').value = u.stokMiktari;
                 document.getElementById('kritikStok').value = u.kritikStok;
+                document.getElementById('stokFormBaslik').innerText = "✏️ Ürün Bilgisini Güncelle";
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         };

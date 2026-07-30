@@ -705,13 +705,13 @@
                 await setDoc(doc(window.db, "stoklar", urunId.toString()), yeniUrun);
             });
 
-            // KESİN ÇÖZÜM: REHBER KAYITTAN ÖNCE VEYA SONRA ID ASLA KARIŞMAZ
+            // KESİN ÇÖZÜM: FORM GÖNDERİLİR GÖNDERİLMEZ ID KESİNLİKLE SIFIRLANIR VE YENİ KAYIT AÇILIR
             document.getElementById('cariKayıtForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const editId = document.getElementById('duzenlenecekCariId').value;
                 
-                // Eğer editId boşsa kesinlikle yeni ID üretilir, eskisiyle çakışmaz!
-                let cariId = (editId && editId !== "") ? Number(editId) : (Date.now() + Math.floor(Math.random() * 1000));
+                // Gizli ID kutusundaki değeri tamamen sıfırlıyoruz ki her zaman YENİ kayıt açsın
+                document.getElementById('duzenlenecekCariId').value = "";
+                let cariId = Date.now() + Math.floor(Math.random() * 1000);
                 
                 const cariObj = { 
                     id: cariId, 
@@ -721,9 +721,9 @@
                     adres: document.getElementById('cariAdres').value 
                 };
 
-                // Form ve hafıza sıfırlanır
-                document.getElementById('duzenlenecekCariId').value = '';
+                // Form kutularını tertemiz yap ve başlığı eskiye döndür
                 this.reset(); 
+                document.getElementById('duzenlenecekCariId').value = "";
                 document.getElementById('cariFormBaslik').innerText = "👥 Yeni Müşteri / Bayi Kaydı";
 
                 await setDoc(doc(window.db, "cariler", cariId.toString()), cariObj);

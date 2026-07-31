@@ -548,7 +548,15 @@
                 </select>
             </div>
             <div><label>Tamir Ücreti</label><input type="number" step="0.01" id="servisUcret" required></div>
-            <div><label>Ödeme Yöntemi</label><select id="servisOdemeYontemi"><option value="Nakit TL">💵 Nakit (TL)</option><option value="Nakit USD">💵 Nakit (USD)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı</option></select></div>
+            <div>
+                <label>Ödeme Yöntemi</label>
+                <select id="servisOdemeYontemi">
+                    <option value="Nakit (TL)">💵 Nakit (TL)</option>
+                    <option value="Nakit (USD)">💵 Nakit (USD)</option>
+                    <option value="Kredi Kartı">💳 Kredi Kartı</option>
+                    <option value="Cari Borç (Veresiye)">📋 Cari Borç (Veresiye / Açık Hesap)</option>
+                </select>
+            </div>
             <div><label>İşlem Tarihi</label><input type="date" id="servisTarihi" required></div>
             <div class="autocomplete-container">
                 <label>🔍 Bayi / Müşteri Seç (Harf Yazın)</label>
@@ -707,7 +715,7 @@
             const bulunanlar = window.stoklar.filter(u => turkceKucukHarf(u.urunAdi).includes(arama) || turkceKucukHarf(u.barkod).includes(arama));
             if (bulunanlar.length === 0) { listeDiv.style.display = 'none'; return; }
             bulunanlar.forEach(u => {
-                let birimSembol = u. birim === 'USD' ? '$' : '₺';
+                let birimSembol = u.birim === 'USD' ? '$' : '₺';
                 const item = document.createElement('div'); item.innerHTML = `<b>${u.urunAdi}</b> (${u.renk || 'Standart'}) - Stok: ${u.stokMiktari} - <b>${u.satisFiyati} ${birimSembol}</b>`;
                 item.onclick = function() { document.getElementById('satisUrunInput').value = `${u.urunAdi} (${u.renk || 'Standart'})`; document.getElementById('satisUrunId').value = u.id; listeDiv.style.display = 'none'; };
                 listeDiv.appendChild(item);
@@ -834,7 +842,6 @@
             });
 
             document.getElementById('statStokAdet').innerText = `${toplamCesit} Çeşit / ${toplamAdet} Adet`;
-            document.getElementById('statMaliyet').innerText = `${toplamMaliyetTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
             document.getElementById('statAlacak').innerText = `${toplamAlacakTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
         };
 
@@ -958,11 +965,13 @@
                 let cariAdi = "Doğrudan Nakit"; if (cariId) { const cariBul = window.cariler.find(c => c.id == cariId); if (cariBul) cariAdi = cariBul.ad; }
                 const servisObj = { id: servisId, cihaz: cihaz, ucret: ucret, birim: birim, odemeYontemi: odemeYontemi, tarih: `${tarih} [${simdiTarihSaat()}]`, cariId: cariId ? parseInt(cariId) : null, cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase() };
                 
-                if (cariId) { 
+                // Eğer cari seçilmişse ve ödeme yöntemi Cari Borç ise veya cariye borç yazılacaksa
+                if (cariId && (odemeYontemi.includes('Cari Borç') || odemeYontemi.includes('Veresiye'))) { 
                     const islemId = Date.now() + 1; 
                     const islemObj = { id: islemId, cariId: parseInt(cariId), islemTuru: '🛠️ Teknik Servis (Borç)', birim: birim, islemTutari: ucret, odemeYontemi: odemeYontemi, islemTarihi: `${tarih} [${simdiTarihSaat()}]`, aciklama: `${cihaz} - ${detay || 'Tamirat'} (${ucret} ${sembol}) [Yapan: ${aktifKullanici.toUpperCase()}]` }; 
                     await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); 
                 }
+
                 this.reset(); document.getElementById('servisCariId').value = ''; document.getElementById('servisTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "servisler", servisId.toString()), servisObj); alert("Servis kaydedildi!");
             });
 

@@ -174,57 +174,26 @@
             @page { size: A4 portrait; margin: 10mm; }
         }
 
-        /* =========================================================================
-           📱 MOBİL CİHAZLAR İÇİN ÖZEL ERGONOMİK APP GÖRÜNÜMÜ
-           ========================================================================= */
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
-            
             .header-brand { flex-direction: column; gap: 12px; text-align: center; padding: 15px; }
             .brand-title h1 { font-size: 20px; }
             .backup-controls { justify-content: center; width: 100%; gap: 6px; }
             .btn-pro-action { flex: 1 1 calc(50% - 6px); justify-content: center; font-size: 11px; padding: 10px; }
-            
             .dashboard-grid { grid-template-columns: 1fr; gap: 10px; }
             .stat-card { padding: 14px; }
-            
-            /* Mobilde Sekme Butonlarını Şık, Alt Alta / Yan Yana Büyük Bloklar Yapıyoruz */
-            .tab-buttons { 
-                display: grid; 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 8px; 
-                margin-bottom: 20px;
-            }
-            .tab-btn { 
-                width: 100%; 
-                justify-content: center; 
-                padding: 14px 10px; 
-                font-size: 12px; 
-                border-radius: 12px;
-                text-align: center;
-            }
-            
+            .tab-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+            .tab-btn { width: 100%; justify-content: center; padding: 14px 10px; font-size: 12px; border-radius: 12px; text-align: center; }
             .tab-content { padding: 18px 12px; }
             form { grid-template-columns: 1fr; padding: 18px 12px; gap: 14px; }
-            
-            /* iPhone zoom engelleme (16px kuralı) */
             input, select, textarea { padding: 14px; font-size: 16px !important; }
             button.submit-btn { padding: 16px; font-size: 14px; }
             .search-box { font-size: 16px !important; padding: 14px; }
-
-            table { 
-                display: block; 
-                width: 100%; 
-                overflow-x: auto; 
-                white-space: nowrap; 
-                -webkit-overflow-scrolling: touch; 
-            }
+            table { display: block; width: 100%; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
             th, td { padding: 12px; font-size: 12px; }
-
             .btn-whatsapp, .btn-pdf { width: 100%; justify-content: center; padding: 14px; }
             .filter-btn-group { justify-content: space-between; width: 100%; }
             .filter-btn { flex: 1; text-align: center; padding: 10px 4px; font-size: 11px; }
-
             .modal-box { padding: 25px 15px; width: 95%; max-width: none; }
         }
     </style>
@@ -285,18 +254,33 @@
         </div>
     </div>
 
+    <!-- DOLAR KURU AYAR PANELİ -->
+    <div style="background:var(--card-bg); border:1px solid var(--border-gold); padding:16px 20px; border-radius:16px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; box-shadow:var(--shadow);">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:22px;">💵</span>
+            <div>
+                <div style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Dükkan Güncel Dolar Kuru (USD)</div>
+                <div style="font-size:16px; color:var(--gold-bright); font-weight:800;" id="gosterilenKur">34.00 ₺</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <input type="number" step="0.01" id="inputDolarKuru" placeholder="Kur Girin (Örn: 34.50)" style="width:160px; padding:10px 12px; font-size:14px;">
+            <button class="btn-pro-action" onclick="window.dolarKuruGuncelle()" style="background:var(--gold-main); color:#000; border:none; padding:11px 16px;">Kuru Kaydet 🚀</button>
+        </div>
+    </div>
+
     <div class="dashboard-grid">
         <div class="stat-card" style="border-left-color:#10b981;">
             <div class="stat-title">💰 Kasadaki Nakit Para</div>
             <div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div>
         </div>
+        <div class="stat-card" style="border-left-color:#3b82f6;">
+            <div class="stat-title">💰 Kasadaki Dolar (USD)</div>
+            <div class="stat-value" id="statKasaDolar" style="color:#60a5fa;">$0.00</div>
+        </div>
         <div class="stat-card">
             <div class="stat-title">Toplam Çeşit / Stok</div>
             <div class="stat-value" id="statStokAdet">0 Çeşit / 0 Adet</div>
-        </div>
-        <div class="stat-card" style="border-left-color:#3b82f6;">
-            <div class="stat-title">Toplam Maliyet (Envanter)</div>
-            <div class="stat-value" id="statMaliyet" style="color:#60a5fa;">0.00 ₺</div>
         </div>
         <div class="stat-card" style="border-left-color:#ef4444;">
             <div class="stat-title">Piyasadan Toplam Alacak</div>
@@ -325,8 +309,15 @@
                 <input type="hidden" id="alimTedarikciId" required>
                 <div id="alimTedarikciListesi" class="autocomplete-items" style="display:none; border-color:var(--purple-main);"></div>
             </div>
-            <div><label style="color:var(--purple-bright);">Alınan Malzemeler / Açıklama</label><input type="text" id="alimAciklama" class="purple-input" placeholder="Örn: 50 adet batarya, 20 adet ekran..." required></div>
-            <div><label style="color:var(--purple-bright);">Toplam Fiş Tutarı (₺)</label><input type="number" step="0.01" id="alimTutari" class="purple-input" required></div>
+            <div><label style="color:var(--purple-bright);">Alınan Malzemeler / Açıklama</label><input type="text" id="alimAciklama" class="purple-input" placeholder="Örn: 50 adet batarya..." required></div>
+            <div>
+                <label style="color:var(--purple-bright);">Para Birimi</label>
+                <select id="alimParaBirim" class="purple-input" style="border-color:var(--purple-main);">
+                    <option value="TL">₺ Türk Lirası (TL)</option>
+                    <option value="USD">$ Amerikan Doları (USD)</option>
+                </select>
+            </div>
+            <div><label style="color:var(--purple-bright);">Toplam Fiş Tutarı</label><input type="number" step="0.01" id="alimTutari" class="purple-input" required></div>
             <div><label style="color:var(--purple-bright);">Tarih</label><input type="date" id="alimTarihi" class="purple-input" required></div>
             <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:15px; background:linear-gradient(135deg, var(--purple-bright) 0%, var(--purple-main) 100%); color:#000;">🧾 Fişi Toptancı Borcuna Yaz ⚡</button></div>
         </form>
@@ -348,7 +339,7 @@
                 </div>
                 <h3 style="color:var(--purple-bright); margin:16px 0 10px 0; font-size:15px;">📋 Hafta Sonu Hesap Kontrol (Alınan Ürünler & Tarihleri)</h3>
                 <table id="tedarikciIslemTablosu">
-                    <thead><tr><th>Tarih</th><th>İşlem Tipi</th><th>Alınan Malzemeler / Detay</th><th>Fiş Tutarı</th><th class="btn-delete-col">İşlem</th></tr></thead>
+                    <thead><tr><th>Tarih</th><th>İşlem Tipi</th><th>Alınan Malzemeler / Detay</th><th>Tutar</th><th class="btn-delete-col">İşlem</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -356,8 +347,15 @@
             <h3 style="color:var(--success); margin-bottom:12px; font-size:16px;">💵 Toptancıya Ödeme Yap & Borcu Düş</h3>
             <form id="tedarikciOdemeForm" style="border-color:rgba(16, 185, 129, 0.3);">
                 <input type="hidden" id="odemeTedarikciId">
-                <div><label style="color:var(--success);">Ödenen Tutar (₺)</label><input type="number" step="0.01" id="tedOdemeTutari" required></div>
-                <div><label style="color:var(--success);">Ödeme Şekli</label><select id="tedOdemeTipi"><option value="Nakit">💵 Nakit (Kasadan Nakit Düşer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Banka Havalesi</option></select></div>
+                <div>
+                    <label style="color:var(--success);">Ödeme Para Birimi</label>
+                    <select id="tedOdemeBirim">
+                        <option value="TL">₺ Türk Lirası (TL)</option>
+                        <option value="USD">$ Amerikan Doları (USD)</option>
+                    </select>
+                </div>
+                <div><label style="color:var(--success);">Ödenen Tutar</label><input type="number" step="0.01" id="tedOdemeTutari" required></div>
+                <div><label style="color:var(--success);">Ödeme Şekli</label><select id="tedOdemeTipi"><option value="Nakit">💵 Nakit (Kasadan Düşer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Banka Havalesi</option></select></div>
                 <div><label style="color:var(--success);">Ödeme Tarihi</label><input type="date" id="tedOdemeTarihi" required></div>
                 <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#000;">Toptancıya Ödemeyi Kaydet 💸</button></div>
             </form>
@@ -372,13 +370,20 @@
             <div><label>Barkod</label><input type="text" id="barkod" placeholder="Barkod numarası" required></div>
             <div><label>Ürün Adı</label><input type="text" id="urunAdi" placeholder="Örn: Samsung Type-C Kablo" required></div>
             <div><label>Model / Renk</label><input type="text" id="renk" placeholder="Örn: Beyaz / 1 Metre"></div>
-            <div><label>Alış Fiyatı (₺)</label><input type="number" step="0.01" id="alisFiyati" required></div>
-            <div><label>Satış Fiyatı (₺)</label><input type="number" step="0.01" id="satisFiyati" required></div>
+            <div>
+                <label>Fiyat Birimi</label>
+                <select id="urunBirim">
+                    <option value="TL">₺ Türk Lirası (TL)</option>
+                    <option value="USD">$ Dolar (USD)</option>
+                </select>
+            </div>
+            <div><label>Alış Fiyatı</label><input type="number" step="0.01" id="alisFiyati" required></div>
+            <div><label>Satış Fiyatı</label><input type="number" step="0.01" id="satisFiyati" required></div>
             <div><label>Stok Adedi</label><input type="number" id="stokMiktari" required></div>
             <div><label>Kritik Uyarı Sınırı</label><input type="number" id="kritikStok" value="5" required></div>
             <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:14px;">Anında Kaydet & Senkronize Et ⚡</button></div>
         </form>
-        <input type="text" id="stokAramaInput" class="search-box" placeholder="🔍 Ürünlerde Ara (Barkod, Ürün Adı veya Model)..." onkeyup="window.stokLlistele()">
+        <input type="text" id="stokAramaInput" class="search-box" placeholder="🔍 Ürünlerde Ara..." onkeyup="window.stokLlistele()">
         <table id="stokTablosu">
             <thead><tr><th>Barkod</th><th>Ürün Adı</th><th>Model</th><th>Alış</th><th>Satış</th><th>Stok</th><th>Son İşlem / Tarih</th><th>İşlem</th></tr></thead>
             <tbody></tbody>
@@ -405,9 +410,10 @@
             <div>
                 <label>Ödeme / Tahsilat Durumu</label>
                 <select id="satisOdemeYontemi" required>
-                    <option value="Veresiye / Açık Hesap (Cari Borç)">📋 Veresiye / Açık Hesap (Kasaya Para Girmez, Bayiye Borç Yazılır)</option>
-                    <option value="Nakit">💵 Peşin Nakit (Kasaya Nakit Girer)</option>
-                    <option value="Kredi Kartı / Havale">💳 Kredi Kartı / Havale (Kasaya Girer)</option>
+                    <option value="Veresiye / Açık Hesap (Cari Borç)">📋 Veresiye / Açık Hesap (Bayiye Borç Yazılır)</option>
+                    <option value="Nakit TL">💵 Peşin Nakit (TL)</option>
+                    <option value="Nakit USD">💵 Peşin Nakit (USD - Dolar)</option>
+                    <option value="Kredi Kartı / Havale">💳 Kredi Kartı / Havale</option>
                 </select>
             </div>
             <div><label>İşlem Tarihi</label><input type="date" id="satisTarihi" required></div>
@@ -416,7 +422,7 @@
         <h3 style="color:var(--gold-bright); margin:30px 0 12px 0; font-size:16px;">📋 Son Yapılan Satış Çıkışları Arşivi</h3>
         <input type="text" id="satisGecmisAra" class="search-box" placeholder="🔍 Geçmiş Satışlarda Ara..." onkeyup="window.satisGecmisListele()">
         <table id="satisGecmisTablosu">
-            <thead><tr><th>Zaman Damgası</th><th>Müşteri / Bayi</th><th>Satılan Ürün & Detay</th><th>Tutar</th><th>Ödeme Durumu</th><th>İşlemi Yapan</th><th>İşlem</th></tr></thead>
+            <thead><tr><th>Zaman Damgası</th><th>Müşteri / Bayi</th><th>Satılan Ürün & Detay</th><th>Tutar</th><th>Ödeme Durumu</th><th>İşlem</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -481,9 +487,22 @@
             <h3 style="color:var(--gold-bright); margin-bottom:12px; font-size:16px;">💵 Ödeme / Tahsilat İşlemi Ekle</h3>
             <form id="islemForm">
                 <input type="hidden" id="islemCariId">
-                <div><label>İşlem Türü</label><select id="islemTuru"><option value="Ödeme Alındı">💵 Ödeme Alındı (Kasaya Nakit Girer, Borçtan Düşer)</option><option value="Manuel Borç">📝 Manuel Borç (Cariye Borç Ekler)</option></select></div>
-                <div><label>Tutar (₺)</label><input type="number" step="0.01" id="islemTutari" required></div>
-                <div><label>Ödeme Şekli</label><select id="islemOdemeTipi"><option value="Nakit">Nakit (Kasaya Ekle)</option><option value="Kredi Kartı / Havale">Kredi Kartı / Havale</option></select></div>
+                <div>
+                    <label>İşlem Türü</label>
+                    <select id="islemTuru">
+                        <option value="Ödeme Alındı">💵 Ödeme Alındı (Kasaya Girer, Borçtan Düşer)</option>
+                        <option value="Manuel Borç">📝 Manuel Borç (Cariye Borç Ekler)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Ödeme / İşlem Birimi</label>
+                    <select id="islemBirim">
+                        <option value="TL">₺ Türk Lirası (TL)</option>
+                        <option value="USD">$ Amerikan Doları (USD)</option>
+                    </select>
+                </div>
+                <div><label>Tutar</label><input type="number" step="0.01" id="islemTutari" required></div>
+                <div><label>Ödeme Şekli</label><select id="islemOdemeTipi"><option value="Nakit">Nakit</option><option value="Kredi Kartı / Havale">Kredi Kartı / Havale</option></select></div>
                 <div><label>İşlem Tarihi</label><input type="date" id="islemTarihi" required></div>
                 <div><label>Açıklama</label><input type="text" id="islemAciklama" placeholder="Elden nakit / Havale"></div>
                 <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:14px;">İşlemi Kaydet & Güncelle ⚡</button></div>
@@ -521,8 +540,15 @@
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">🛠️ Teknik Servis & Tamir Kaydı</h2>
         <form id="servisForm">
             <div><label>Tamir Edilen Cihaz / İşlem</label><input type="text" id="servisCihaz" placeholder="Örn: Samsung A12 Ön Cam" required></div>
-            <div><label>Tamir Ücreti (₺)</label><input type="number" step="0.01" id="servisUcret" required></div>
-            <div><label>Ödeme Yöntemi</label><select id="servisOdemeYontemi"><option value="Nakit">💵 Nakit</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı</option></select></div>
+            <div>
+                <label>Ücret Birimi</label>
+                <select id="servisBirim">
+                    <option value="TL">₺ Türk Lirası (TL)</option>
+                    <option value="USD">$ Amerikan Doları (USD)</option>
+                </select>
+            </div>
+            <div><label>Tamir Ücreti</label><input type="number" step="0.01" id="servisUcret" required></div>
+            <div><label>Ödeme Yöntemi</label><select id="servisOdemeYontemi"><option value="Nakit TL">💵 Nakit (TL)</option><option value="Nakit USD">💵 Nakit (USD)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı</option></select></div>
             <div><label>İşlem Tarihi</label><input type="date" id="servisTarihi" required></div>
             <div class="autocomplete-container">
                 <label>🔍 Bayi / Müşteri Seç (Harf Yazın)</label>
@@ -544,8 +570,15 @@
         <h2 style="color:#fca5a5; margin-top:0; font-size:20px;">📉 Şirket Gideri & Malzeme Alımı</h2>
         <form id="giderForm" style="border-color:rgba(239, 68, 68, 0.3);">
             <div><label style="color:#fca5a5;">Gider Kategorisi</label><select id="giderKategori" required><option value="🍽️ Yemek & Çay / Mutfak">🍽️ Yemek & Çay / Mutfak</option><option value="📦 Dükkan Malzemesi">📦 Dükkan Malzemesi</option><option value="👥 Personel Haftalık / Maaş">👥 Personel Haftalık / Maaş</option><option value="⚡ Fatura">⚡ Fatura</option></select></div>
-            <div><label style="color:#fca5a5;">Ödeme Yöntemi</label><select id="giderOdemeYontemi" required><option value="Nakit">💵 Nakit (Kasadan Düşer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı</option></select></div>
-            <div><label style="color:#fca5a5;">Tutar (₺)</label><input type="number" step="0.01" id="giderTutari" required></div>
+            <div>
+                <label style="color:#fca5a5;">Gider Birimi</label>
+                <select id="giderBirim">
+                    <option value="TL">₺ Türk Lirası (TL)</option>
+                    <option value="USD">$ Amerikan Doları (USD)</option>
+                </select>
+            </div>
+            <div><label style="color:#fca5a5;">Ödeme Yöntemi</label><select id="giderOdemeYontemi" required><option value="Nakit">💵 Nakit</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı</option></select></div>
+            <div><label style="color:#fca5a5;">Tutar</label><input type="number" step="0.01" id="giderTutari" required></div>
             <div><label style="color:#fca5a5;">Tarih</label><input type="date" id="giderTarihi" required></div>
             <div style="grid-column: 1 / -1;"><label style="color:#fca5a5;">Açıklama</label><input type="text" id="giderAciklama" required></div>
             <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:15px; background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color:white;">Gideri Kaydet 📉</button></div>
@@ -582,6 +615,21 @@
         window.seciliTedarikciId = null;
         window.aktifFinansFiltre = 'bugun';
 
+        // Dolar Kuru Yönetimi
+        window.dolarKuruAl = function() {
+            let kur = localStorage.getItem('bb_dolar_kuru');
+            return kur ? parseFloat(kur) : 34.00;
+        };
+
+        window.dolarKuruGuncelle = function() {
+            let val = parseFloat(document.getElementById('inputDolarKuru').value);
+            if (!val || val <= 0) return alert('Geçerli bir kur girin!');
+            localStorage.setItem('bb_dolar_kuru', val);
+            document.getElementById('gosterilenKur').innerText = val.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+            alert('Dolar kuru başarıyla güncellendi!');
+            window.ekraniGuncelle();
+        };
+
         function kullanicilariGetir() {
             let kayitli = localStorage.getItem('bb_pro_users');
             if (!kayitli) {
@@ -603,6 +651,12 @@
         }
 
         window.ekraniGuncelle = function() {
+            let kur = window.dolarKuruAl();
+            let kurInput = document.getElementById('inputDolarKuru');
+            if(kurInput && document.activeElement !== kurInput) kurInput.value = kur;
+            let gosterge = document.getElementById('gosterilenKur');
+            if(gosterge) gosterge.innerText = kur.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+
             if(typeof window.stokLlistele === 'function') window.stokLlistele();
             if(typeof window.cariListele === 'function') window.cariListele();
             if(typeof window.dashboardGuncelle === 'function') window.dashboardGuncelle();
@@ -653,7 +707,8 @@
             const bulunanlar = window.stoklar.filter(u => turkceKucukHarf(u.urunAdi).includes(arama) || turkceKucukHarf(u.barkod).includes(arama));
             if (bulunanlar.length === 0) { listeDiv.style.display = 'none'; return; }
             bulunanlar.forEach(u => {
-                const item = document.createElement('div'); item.innerHTML = `<b>${u.urunAdi}</b> (${u.renk || 'Standart'}) - Stok: ${u.stokMiktari} - <b>${u.satisFiyati} ₺</b>`;
+                let birimSembol = u. birim === 'USD' ? '$' : '₺';
+                const item = document.createElement('div'); item.innerHTML = `<b>${u.urunAdi}</b> (${u.renk || 'Standart'}) - Stok: ${u.stokMiktari} - <b>${u.satisFiyati} ${birimSembol}</b>`;
                 item.onclick = function() { document.getElementById('satisUrunInput').value = `${u.urunAdi} (${u.renk || 'Standart'})`; document.getElementById('satisUrunId').value = u.id; listeDiv.style.display = 'none'; };
                 listeDiv.appendChild(item);
             });
@@ -676,15 +731,40 @@
         document.addEventListener('click', function(e) { if (!e.target.closest('.autocomplete-container')) { document.querySelectorAll('.autocomplete-items').forEach(el => el.style.display = 'none'); } });
 
         window.kasaHesapla = function() {
-            let nakitKasa = 0;
+            let kur = window.dolarKuruAl();
+            let nakitKasaTL = 0;
+            let nakitKasaUSD = 0;
+
             window.islemler.forEach(i => {
-                if ((i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) && (i.odemeYontemi === 'Nakit' || i.odemeYontemi.includes('Kredi Kartı'))) nakitKasa += Number(i.islemTutari);
-                if (i.islemTuru.includes('Ödeme Alındı')) nakitKasa += Number(i.islemTutari);
-                if (i.islemTuru === '💸 Toptancıya Ödeme' && i.odemeYontemi === 'Nakit') nakitKasa -= Number(i.islemTutari);
+                let tutar = Number(i.islemTutari);
+                let birim = i.birim || 'TL';
+                if ((i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir'))) {
+                    if (i.odemeYontemi.includes('USD')) {
+                        if(birim === 'USD') nakitKasaUSD += tutar; else nakitKasaUSD += (tutar / kur);
+                    } else if (i.odemeYontemi.includes('Nakit') || i.odemeYontemi.includes('Kredi')) {
+                        if(birim === 'USD') nakitKasaTL += (tutar * kur); else nakitKasaTL += tutar;
+                    }
+                }
+                if (i.islemTuru.includes('Ödeme Alındı')) {
+                    if(birim === 'USD') nakitKasaUSD += tutar; else nakitKasaTL += tutar;
+                }
+                if (i.islemTuru === '💸 Toptancıya Ödeme' && i.odemeYontemi === 'Nakit') {
+                    if(birim === 'USD') nakitKasaUSD -= tutar; else nakitKasaTL -= tutar;
+                }
             });
-            window.giderler.forEach(g => { if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) nakitKasa -= Number(g.tutar); });
-            const el = document.getElementById('statKasaNakit');
-            if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
+
+            window.giderler.forEach(g => {
+                let tutar = Number(g.tutar);
+                let birim = g.birim || 'TL';
+                if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) {
+                    if(birim === 'USD') nakitKasaUSD -= tutar; else nakitKasaTL -= tutar;
+                }
+            });
+
+            const elTL = document.getElementById('statKasaNakit');
+            const elUSD = document.getElementById('statKasaDolar');
+            if(elTL) { elTL.innerText = `${nakitKasaTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; elTL.style.color = nakitKasaTL >= 0 ? '#34d399' : '#f87171'; }
+            if(elUSD) { elUSD.innerText = `$${nakitKasaUSD.toLocaleString('tr-TR', {minimumFractionDigits:2})}`; elUSD.style.color = nakitKasaUSD >= 0 ? '#60a5fa' : '#f87171'; }
         };
 
         window.girisYap = function() {
@@ -732,23 +812,35 @@
         };
 
         window.dashboardGuncelle = function() {
-            let toplamCesit = window.stoklar.length; let toplamAdet = 0, toplamMaliyet = 0, toplamAlacak = 0;
-            window.stoklar.forEach(u => { toplamAdet += Number(u.stokMiktari); toplamMaliyet += (Number(u.alisFiyati) * Number(u.stokMiktari)); });
+            let kur = window.dolarKuruAl();
+            let toplamCesit = window.stoklar.length; let toplamAdet = 0, toplamMaliyetTL = 0, toplamAlacakTL = 0;
+            
+            window.stoklar.forEach(u => {
+                toplamAdet += Number(u.stokMiktari);
+                let alis = Number(u.alisFiyati);
+                if(u.birim === 'USD') alis = alis * kur;
+                toplamMaliyetTL += (alis * Number(u.stokMiktari));
+            });
+
             window.cariler.filter(c => c.tur !== 'Tedarikçi').forEach(c => {
                 let borc = 0, odenen = 0;
                 window.islemler.filter(i => i.cariId == c.id).forEach(i => {
-                    if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
-                    else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
+                    let tut = Number(i.islemTutari);
+                    if(i.birim === 'USD') tut = tut * kur;
+                    if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += tut;
+                    else if (i.islemTuru.includes('Ödeme Alındı')) odenen += tut;
                 });
-                let bak = borc - odenen; if (bak > 0) toplamAlacak += bak;
+                let bak = borc - odenen; if (bak > 0) toplamAlacakTL += bak;
             });
+
             document.getElementById('statStokAdet').innerText = `${toplamCesit} Çeşit / ${toplamAdet} Adet`;
-            document.getElementById('statMaliyet').innerText = `${toplamMaliyet.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
-            document.getElementById('statAlacak').innerText = `${toplamAlacak.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
+            document.getElementById('statMaliyet').innerText = `${toplamMaliyetTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
+            document.getElementById('statAlacak').innerText = `${toplamAlacakTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('bb_logged_in') === 'true') { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('aktifKullaniciAdi').innerText = (sessionStorage.getItem('bb_aktif_kullanici') || 'admin').toUpperCase(); }
+            window.ekraniGuncelle();
 
             document.getElementById('stokForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -757,6 +849,7 @@
                 const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
                 const yeniUrun = {
                     id: urunId, barkod: document.getElementById('barkod').value, urunAdi: document.getElementById('urunAdi').value, renk: document.getElementById('renk').value,
+                    birim: document.getElementById('urunBirim').value,
                     alisFiyati: parseFloat(document.getElementById('alisFiyati').value), satisFiyati: parseFloat(document.getElementById('satisFiyati').value),
                     stokMiktari: parseInt(document.getElementById('stokMiktari').value), kritikStok: parseInt(document.getElementById('kritikStok').value),
                     sonIslemYapan: aktifKullanici.toUpperCase(), sonIslemTarihi: simdiTarihSaat()
@@ -778,15 +871,17 @@
                 const cariId = parseInt(document.getElementById('alimTedarikciId').value);
                 const islemId = Date.now() + Math.floor(Math.random() * 1000);
                 const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
+                const birim = document.getElementById('alimParaBirim').value;
+                const sembol = birim === 'USD' ? '$' : '₺';
                 
                 const islemObj = {
                     id: islemId, cariId: cariId, islemTuru: '🏢 Toptancı Alımı (Bize Borç)',
-                    islemTutari: parseFloat(document.getElementById('alimTutari').value), odemeYontemi: '-',
+                    birim: birim, islemTutari: parseFloat(document.getElementById('alimTutari').value), odemeYontemi: '-',
                     islemTarihi: `${document.getElementById('alimTarihi').value} [${simdiTarihSaat()}]`,
-                    aciklama: `${document.getElementById('alimAciklama').value} [İşleyen: ${aktifKullanici.toUpperCase()}]`
+                    aciklama: `${document.getElementById('alimAciklama').value} [${document.getElementById('alimTutari').value} ${sembol}] [İşleyen: ${aktifKullanici.toUpperCase()}]`
                 };
                 this.reset(); document.getElementById('alimTedarikciId').value = ''; document.getElementById('alimTarihi').valueAsDate = new Date();
-                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancı alımı fişi borç olarak eklendi!");
+                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancı alımı borç olarak eklendi!");
             });
 
             document.getElementById('tedarikciOdemeForm').addEventListener('submit', async function(e) {
@@ -795,14 +890,17 @@
                 const islemId = Date.now() + Math.floor(Math.random() * 1000);
                 const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
                 const odemeTipi = document.getElementById('tedOdemeTipi').value;
+                const birim = document.getElementById('tedOdemeBirim').value;
+                const sembol = birim === 'USD' ? '$' : '₺';
+
                 const islemObj = {
                     id: islemId, cariId: cariId, islemTuru: '💸 Toptancıya Ödeme',
-                    islemTutari: parseFloat(document.getElementById('tedOdemeTutari').value), odemeYontemi: odemeTipi,
+                    birim: birim, islemTutari: parseFloat(document.getElementById('tedOdemeTutari').value), odemeYontemi: odemeTipi,
                     islemTarihi: `${document.getElementById('tedOdemeTarihi').value} [${simdiTarihSaat()}]`,
-                    aciklama: `Toptancıya ödeme yapıldı. [${odemeTipi}] [İşleyen: ${aktifKullanici.toUpperCase()}]`
+                    aciklama: `Toptancıya ödeme yapıldı. [${document.getElementById('tedOdemeTutari').value} ${sembol}] [${odemeTipi}] [İşleyen: ${aktifKullanici.toUpperCase()}]`
                 };
                 this.reset(); document.getElementById('tedOdemeTarihi').valueAsDate = new Date();
-                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancıya ödeme başarıyla işlendi ve borçtan düşüldü!");
+                await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancıya ödeme işlendi!");
             });
 
             document.getElementById('satisForm').addEventListener('submit', async function(e) {
@@ -813,12 +911,22 @@
                 const urun = window.stoklar.find(u => u.id == urunId); const cari = window.cariler.find(c => c.id == cariId);
                 if(!urun || !cari) return alert('Lütfen listeden geçerli bir müşteri ve ürün seçin!');
                 if(Number(urun.stokMiktari) < adet) return alert('Stok yetersiz!');
-                urun.stokMiktari = Number(urun.stokMiktari) - adet; const toplamTutar = Number(urun.satisFiyati) * adet;
+                urun.stokMiktari = Number(urun.stokMiktari) - adet; 
+                
+                const toplamTutar = Number(urun.satisFiyati) * adet;
+                const birim = urun.birim || 'TL';
                 const islemId = Date.now() + Math.floor(Math.random() * 1000);
                 let islemTuruBaslik = odemeYontemi.includes('Veresiye') ? '📦 Veresiye Satış (Borç)' : '📦 Peşin Satış';
-                const islemObj = { id: islemId, cariId: cari.id, islemTuru: islemTuruBaslik, islemTutari: toplamTutar, odemeYontemi: odemeYontemi, islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, aciklama: `${adet} Adet "${urun.urunAdi}" [Ödeme: ${odemeYontemi}] [Yapan: ${aktifKullanici.toUpperCase()}]` };
+                const sembol = birim === 'USD' ? '$' : '₺';
+
+                const islemObj = { 
+                    id: islemId, cariId: cari.id, islemTuru: islemTuruBaslik, 
+                    birim: birim, islemTutari: toplamTutar, odemeYontemi: odemeYontemi, 
+                    islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, 
+                    aciklama: `${adet} Adet "${urun.urunAdi}" (${toplamTutar} ${sembol}) [Ödeme: ${odemeYontemi}] [Yapan: ${aktifKullanici.toUpperCase()}]` 
+                };
                 this.reset(); document.getElementById('satisCariId').value = ''; document.getElementById('satisUrunId').value = ''; document.getElementById('satisTarihi').valueAsDate = new Date();
-                await setDoc(doc(window.db, "stoklar", urun.id.toString()), urun); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Satış başarıyla tamamlandı!");
+                await setDoc(doc(window.db, "stoklar", urun.id.toString()), urun); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Satış tamamlandı!");
             });
 
             document.getElementById('islemForm').addEventListener('submit', async function(e) {
@@ -826,8 +934,16 @@
                 const cid = parseInt(document.getElementById('islemCariId').value); const islemId = Date.now() + Math.floor(Math.random() * 1000);
                 const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
                 const secilenTarih = document.getElementById('islemTarihi').value; const tur = document.getElementById('islemTuru').value; const odemeTipi = document.getElementById('islemOdemeTipi').value;
-                const islemObj = { id: islemId, cariId: cid, islemTuru: tur, islemTutari: parseFloat(document.getElementById('islemTutari').value), odemeYontemi: odemeTipi, islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, aciklama: `${document.getElementById('islemAciklama').value || '-'} [Ödeme: ${odemeTipi}] [Alan: ${aktifKullanici.toUpperCase()}]` };
-                this.reset(); document.getElementById('islemTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj);
+                const birim = document.getElementById('islemBirim').value;
+                const sembol = birim === 'USD' ? '$' : '₺';
+
+                const islemObj = { 
+                    id: islemId, cariId: cid, islemTuru: tur, birim: birim,
+                    islemTutari: parseFloat(document.getElementById('islemTutari').value), odemeYontemi: odemeTipi, 
+                    islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, 
+                    aciklama: `${document.getElementById('islemAciklama').value || '-'} (${document.getElementById('islemTutari').value} ${sembol}) [Alan: ${aktifKullanici.toUpperCase()}]` 
+                };
+                this.reset(); document.getElementById('islemTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("İşlem kaydedildi!");
             });
 
             document.getElementById('servisForm').addEventListener('submit', async function(e) {
@@ -836,16 +952,31 @@
                 const cihaz = document.getElementById('servisCihaz').value; const ucret = parseFloat(document.getElementById('servisUcret').value);
                 const odemeYontemi = document.getElementById('servisOdemeYontemi').value; const tarih = document.getElementById('servisTarihi').value;
                 const cariId = document.getElementById('servisCariId').value; const detay = document.getElementById('servisAciklama').value;
+                const birim = document.getElementById('servisBirim').value;
+                const sembol = birim === 'USD' ? '$' : '₺';
+
                 let cariAdi = "Doğrudan Nakit"; if (cariId) { const cariBul = window.cariler.find(c => c.id == cariId); if (cariBul) cariAdi = cariBul.ad; }
-                const servisObj = { id: servisId, cihaz: cihaz, ucret: ucret, odemeYontemi: odemeYontemi, tarih: `${tarih} [${simdiTarihSaat()}]`, cariId: cariId ? parseInt(cariId) : null, cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase() };
-                if (cariId) { const islemId = Date.now() + 1; const islemObj = { id: islemId, cariId: parseInt(cariId), islemTuru: '🛠️ Teknik Servis (Borç)', islemTutari: ucret, odemeYontemi: odemeYontemi, islemTarihi: `${tarih} [${simdiTarihSaat()}]`, aciklama: `${cihaz} - ${detay || 'Tamirat'} [Yapan: ${aktifKullanici.toUpperCase()}]` }; await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); }
+                const servisObj = { id: servisId, cihaz: cihaz, ucret: ucret, birim: birim, odemeYontemi: odemeYontemi, tarih: `${tarih} [${simdiTarihSaat()}]`, cariId: cariId ? parseInt(cariId) : null, cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase() };
+                
+                if (cariId) { 
+                    const islemId = Date.now() + 1; 
+                    const islemObj = { id: islemId, cariId: parseInt(cariId), islemTuru: '🛠️ Teknik Servis (Borç)', birim: birim, islemTutari: ucret, odemeYontemi: odemeYontemi, islemTarihi: `${tarih} [${simdiTarihSaat()}]`, aciklama: `${cihaz} - ${detay || 'Tamirat'} (${ucret} ${sembol}) [Yapan: ${aktifKullanici.toUpperCase()}]` }; 
+                    await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); 
+                }
                 this.reset(); document.getElementById('servisCariId').value = ''; document.getElementById('servisTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "servisler", servisId.toString()), servisObj); alert("Servis kaydedildi!");
             });
 
             document.getElementById('giderForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const giderId = Date.now(); const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
-                const giderObj = { id: giderId, kategori: document.getElementById('giderKategori').value, odemeYontemi: document.getElementById('giderOdemeYontemi').value, tutar: parseFloat(document.getElementById('giderTutari').value), tarih: `${document.getElementById('giderTarihi').value} [${simdiTarihSaat()}]`, aciklama: `${document.getElementById('giderAciklama').value} [Yapan: ${aktifKullanici.toUpperCase()}]` };
+                const birim = document.getElementById('giderBirim').value;
+                const sembol = birim === 'USD' ? '$' : '₺';
+
+                const giderObj = { 
+                    id: giderId, kategori: document.getElementById('giderKategori').value, odemeYontemi: document.getElementById('giderOdemeYontemi').value, 
+                    birim: birim, tutar: parseFloat(document.getElementById('giderTutari').value), tarih: `${document.getElementById('giderTarihi').value} [${simdiTarihSaat()}]`, 
+                    aciklama: `${document.getElementById('giderAciklama').value} (${document.getElementById('giderTutari').value} ${sembol}) [Yapan: ${aktifKullanici.toUpperCase()}]` 
+                };
                 this.reset(); document.getElementById('giderTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "giderler", giderId.toString()), giderObj); alert("Gider kaydedildi!");
             });
 
@@ -856,13 +987,18 @@
             const tbody = document.querySelector('#stokTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
             const arama = turkceKucukHarf(document.getElementById('stokAramaInput').value);
             window.stoklar.filter(u => turkceKucukHarf(u.urunAdi).includes(arama) || turkceKucukHarf(u.barkod).includes(arama)).forEach(u => {
-                tbody.innerHTML += `<tr><td><code>${u.barkod}</code></td><td><b>${u.urunAdi}</b></td><td>${u.renk || '-'}</td><td>${Number(u.alisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</td><td><b style="color:var(--gold-bright);">${Number(u.satisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><b>${u.stokMiktari}</b></td><td>👤 ${u.sonIslemYapan || 'ADMİN'}<br><small>${u.sonIslemTarihi || '-'}</small></td><td><button class="btn-edit" onclick="window.stokDuzenle(${u.id})">Düzenle</button> <button class="btn-delete" onclick="window.stokSil(${u.id})">Sil</button></td></tr>`;
+                let sembol = u.birim === 'USD' ? '$' : '₺';
+                tbody.innerHTML += `<tr><td><code>${u.barkod}</code></td><td><b>${u.urunAdi}</b></td><td>${u.renk || '-'}</td><td>${Number(u.alisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}</td><td><b style="color:var(--gold-bright);">${Number(u.satisFiyati).toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}</b></td><td><b>${u.stokMiktari}</b></td><td>👤 ${u.sonIslemYapan || 'ADMİN'}<br><small>${u.sonIslemTarihi || '-'}</small></td><td><button class="btn-edit" onclick="window.stokDuzenle(${u.id})">Düzenle</button> <button class="btn-delete" onclick="window.stokSil(${u.id})">Sil</button></td></tr>`;
             });
         };
 
         window.stokDuzenle = function(id) {
             const u = window.stoklar.find(x => x.id == id);
-            if(u) { document.getElementById('duzenlenecekUrunId').value = u.id; document.getElementById('barkod').value = u.barkod; document.getElementById('urunAdi').value = u.urunAdi; document.getElementById('renk').value = u.renk; document.getElementById('alisFiyati').value = u.alisFiyati; document.getElementById('satisFiyati').value = u.satisFiyati; document.getElementById('stokMiktari').value = u.stokMiktari; document.getElementById('kritikStok').value = u.kritikStok; document.getElementById('stokFormBaslik').innerText = "✏️ Ürün Bilgisini Güncelle"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            if(u) { 
+                document.getElementById('duzenlenecekUrunId').value = u.id; document.getElementById('barkod').value = u.barkod; document.getElementById('urunAdi').value = u.urunAdi; document.getElementById('renk').value = u.renk; 
+                document.getElementById('urunBirim').value = u.birim || 'TL';
+                document.getElementById('alisFiyati').value = u.alisFiyati; document.getElementById('satisFiyati').value = u.satisFiyati; document.getElementById('stokMiktari').value = u.stokMiktari; document.getElementById('kritikStok').value = u.kritikStok; document.getElementById('stokFormBaslik').innerText = "✏️ Ürün Bilgisini Güncelle"; window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            }
         };
 
         window.stokSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "stoklar", id.toString())); };
@@ -887,13 +1023,17 @@
             const tbody = document.querySelector('#satisGecmisTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
             window.islemler.filter(i => i.islemTuru.includes('Satış')).forEach(i => {
                 const cari = window.cariler.find(c => c.id == i.cariId);
-                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${cari ? cari.ad : '-'}</b></td><td>${i.aciklama}</td><td><b>${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><span class="badge" style="background:rgba(245,158,11,0.2); color:var(--gold-bright);">${i.odemeYontemi || 'Nakit'}</span></td><td>👤 Admin</td><td><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                let sembol = i.birim === 'USD' ? '$' : '₺';
+                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${cari ? cari.ad : '-'}</b></td><td>${i.aciklama}</td><td><b>${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}</b></td><td><span class="badge" style="background:rgba(245,158,11,0.2); color:var(--gold-bright);">${i.odemeYontemi || 'Nakit'}</span></td><td><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
         };
 
         window.giderListele = function() {
             const tbody = document.querySelector('#giderTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
-            window.giderler.forEach(g => { tbody.innerHTML += `<tr><td><small>${g.tarih}</small></td><td><span class="badge badge-gider">${g.kategori}</span></td><td><b>${g.aciklama}</b></td><td><span style="color:var(--gold-bright);">${g.odemeYontemi}</span></td><td><b style="color:#ef4444;">-${Number(g.tutar).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><button class="btn-delete" onclick="window.giderSil(${g.id})">Sil</button></td></tr>`; });
+            window.giderler.forEach(g => { 
+                let sembol = g.birim === 'USD' ? '$' : '₺';
+                tbody.innerHTML += `<tr><td><small>${g.tarih}</small></td><td><span class="badge badge-gider">${g.kategori}</span></td><td><b>${g.aciklama}</b></td><td><span style="color:var(--gold-bright);">${g.odemeYontemi}</span></td><td><b style="color:#ef4444;">-${Number(g.tutar).toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}</b></td><td><button class="btn-delete" onclick="window.giderSil(${g.id})">Sil</button></td></tr>`; 
+            });
         };
 
         window.giderSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "giderler", id.toString())); };
@@ -901,15 +1041,17 @@
         window.cariKartlariniYukle = function() {
             const kutu = document.getElementById('cariKartlarKutusu'); if(!kutu) return; kutu.innerHTML = '';
             const arama = turkceKucukHarf(document.getElementById('ekstreAramaInput').value);
+            let kur = window.dolarKuruAl();
             
-            // SADECE MÜŞTERİ VE BAYİLER GÖRÜNÜR (Toptancılar Gizlenir)
             let liste = window.cariler.filter(c => c.tur !== 'Tedarikçi').map(c => {
-                let borc = 0, odenen = 0;
+                let borcTL = 0, odenenTL = 0;
                 window.islemler.filter(i => i.cariId == c.id).forEach(i => {
-                    if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
-                    else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
+                    let tut = Number(i.islemTutari);
+                    if(i.birim === 'USD') tut = tut * kur;
+                    if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borcTL += tut;
+                    else if (i.islemTuru.includes('Ödeme Alındı')) odenenTL += tut;
                 });
-                return { ...c, bakiye: borc - odenen };
+                return { ...c, bakiye: borcTL - odenenTL };
             });
 
             liste.sort((a, b) => b.bakiye - a.bakiye);
@@ -927,34 +1069,44 @@
         };
 
         window.kisiIslemleriniListele = function(cariId) {
-            const tbody = document.querySelector('#kisiIslemTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; let borc = 0, odenen = 0;
+            const tbody = document.querySelector('#kisiIslemTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; let borcTL = 0, odenenTL = 0;
+            let kur = window.dolarKuruAl();
+
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
-                if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari); else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
-                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b>${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                let tut = Number(i.islemTutari);
+                let birim = i.birim || 'TL';
+                let sembol = birim === 'USD' ? '$' : '₺';
+                let tutarTL = birim === 'USD' ? (tut * kur) : tut;
+
+                if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borcTL += tutarTL; 
+                else if (i.islemTuru.includes('Ödeme Alındı')) odenenTL += tutarTL;
+
+                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
-            let net = borc - odenen; document.getElementById('seciliCariBakiye').innerHTML = `<b>Top. Borç:</b> ${borc.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ | <b>Top. Ödenen:</b> ${odenen.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺<br><b>Net Bakiye:</b> <span style="color:${net > 0 ? '#f87171' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
+            let net = borcTL - odenenTL; document.getElementById('seciliCariBakiye').innerHTML = `<b>Net Bakiye:</b> <span style="color:${net > 0 ? '#f87171' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
         };
 
-        // YENİ EKLENEN TOPTANCI FONKSİYONLARI
         window.tedarikciKartlariniYukle = function() {
             const kutu = document.getElementById('tedarikciKartlarKutusu'); if(!kutu) return; kutu.innerHTML = '';
             const arama = turkceKucukHarf(document.getElementById('tedarikciAramaInput').value);
+            let kur = window.dolarKuruAl();
             
-            // SADECE TOPTANCILAR GÖRÜNÜR
             let liste = window.cariler.filter(c => c.tur === 'Tedarikçi').map(c => {
-                let borcumuz = 0, odenen = 0;
+                let borcumuzTL = 0, odenenTL = 0;
                 window.islemler.filter(i => i.cariId == c.id).forEach(i => {
-                    if (i.islemTuru.includes('Toptancı Alımı')) borcumuz += Number(i.islemTutari);
-                    else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += Number(i.islemTutari);
+                    let tut = Number(i.islemTutari);
+                    if(i.birim === 'USD') tut = tut * kur;
+                    if (i.islemTuru.includes('Toptancı Alımı')) borcumuzTL += tut;
+                    else if (i.islemTuru.includes('Toptancıya Ödeme')) odenenTL += tut;
                 });
-                return { ...c, bakiye: borcumuz - odenen };
+                return { ...c, bakiye: borcumuzTL - odenenTL };
             });
 
-            liste.sort((a, b) => b.bakiye - a.bakiye); // Borcumuz olan en üstte
+            liste.sort((a, b) => b.bakiye - a.bakiye);
 
             liste.filter(c => turkceKucukHarf(c.ad).includes(arama)).forEach(c => {
                 let bak = c.bakiye; let bakiyeYazisi = bak > 0 ? `${bak.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Borcumuz Var)` : (bak < 0 ? `${Math.abs(bak).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ (Alacaklıyız)` : '0.00 ₺');
-                let bClass = bak > 0 ? 'bakiye-borclu' : (bak < 0 ? 'bakiye-alacakli' : 'bakiye-sifir');
+                let bClass = bak > 0 ? 'bakiye-borclu' : 'bakiye-alacakli';
                 kutu.innerHTML += `<div class="cari-card ${window.seciliTedarikciId == c.id ? 'active-card' : ''}" onclick="window.tedarikciDetayAc(${c.id})" style="border-color: rgba(139, 92, 246, 0.4);">
                     <span class="badge" style="background:rgba(139, 92, 246, 0.2); color:#c4b5fd;">🏢 TOPTANCI</span>
                     <h3 style="margin:12px 0 6px 0; color:var(--text-main); font-size:16px;">${c.ad}</h3>
@@ -969,13 +1121,20 @@
         };
 
         window.tedarikciIslemleriniListele = function(cariId) {
-            const tbody = document.querySelector('#tedarikciIslemTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; let borcumuz = 0, odenen = 0;
+            const tbody = document.querySelector('#tedarikciIslemTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; let borcTL = 0, odenenTL = 0;
+            let kur = window.dolarKuruAl();
+
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
-                if (i.islemTuru.includes('Toptancı Alımı')) borcumuz += Number(i.islemTutari); else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += Number(i.islemTutari);
+                let tut = Number(i.islemTutari);
+                let birim = i.birim || 'TL';
+                let sembol = birim === 'USD' ? '$' : '₺';
+                let tutarTL = birim === 'USD' ? (tut * kur) : tut;
+
+                if (i.islemTuru.includes('Toptancı Alımı')) borcTL += tutarTL; else if (i.islemTuru.includes('Toptancıya Ödeme')) odenenTL += tutarTL;
                 let isAlim = i.islemTuru.includes('Toptancı Alımı'); let renk = isAlim ? '#ef4444' : '#34d399';
-                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b style="color:${renk}">${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b style="color:${renk}">${Number(i.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                tbody.innerHTML += `<tr><td><small>${i.islemTarihi}</small></td><td><b style="color:${renk}">${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b style="color:${renk}">${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
-            let net = borcumuz - odenen; document.getElementById('seciliTedarikciBakiye').innerHTML = `<b>Toplam Alınan Mal:</b> ${borcumuz.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺ | <b>Ödenen:</b> ${odenen.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺<br><br><span style="font-size:17px;"><b>Net Kalan Borcumuz:</b> <span style="color:${net > 0 ? '#ef4444' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></span>`;
+            let net = borcTL - odenenTL; document.getElementById('seciliTedarikciBakiye').innerHTML = `<b>Net Kalan Borcumuz:</b> <span style="color:${net > 0 ? '#ef4444' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
         };
 
         window.islemSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "islemler", id.toString())); };
@@ -984,7 +1143,9 @@
 
         window.finansGuncelle = function() {
             const tbody = document.querySelector('#finansTablosu tbody'); if(!tbody) return; tbody.innerHTML = '';
-            let ciro = 0, tahsilat = 0, toplamGider = 0; const simdi = new Date(); const bugunStr = simdi.toLocaleDateString('tr-TR');
+            let ciroTL = 0, tahsilatTL = 0, toplamGiderTL = 0; const simdi = new Date(); const bugunStr = simdi.toLocaleDateString('tr-TR');
+            let kur = window.dolarKuruAl();
+
             const tarihUyuşuyorMu = (tarihMetni) => {
                 if(!tarihMetni) return false; let tarihKismi = tarihMetni.split(' ')[0];
                 if(window.aktifFinansFiltre === 'bugun') return tarihKismi === bugunStr;
@@ -995,38 +1156,45 @@
             let liste = [];
             window.islemler.filter(i => tarihUyuşuyorMu(i.islemTarihi)).forEach(i => {
                 const cari = window.cariler.find(c => c.id == i.cariId);
+                let tut = Number(i.islemTutari);
+                let birim = i.birim || 'TL';
+                let sembol = birim === 'USD' ? '$' : '₺';
+                let tutarTL = birim === 'USD' ? (tut * kur) : tut;
                 
-                // Müşteri Ödemeleri
                 if (i.islemTuru.includes('Ödeme Alındı')) {
-                    tahsilat += Number(i.islemTutari); liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: 'tahsilat'});
+                    tahsilatTL += tutarTL; liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutarStr: `${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}`, tip: 'tahsilat'});
                 } 
-                // Toptancıya Nakit Ödeme Çıkışı (Gidere yansır)
                 else if (i.islemTuru.includes('Toptancıya Ödeme')) {
-                    toplamGider += Number(i.islemTutari); liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Toptancı', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: 'gider'});
+                    toplamGiderTL += tutarTL; liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Toptancı', tur: i.islemTuru, aciklama: i.aciklama, tutarStr: `${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}`, tip: 'gider'});
                 }
-                // Toptancı Alımı Ciro'ya dahil olmamalı (Sadece borç kaydı)
                 else if (!i.islemTuru.includes('Toptancı Alımı')) {
-                    ciro += Number(i.islemTutari); liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: 'ciro'});
+                    ciroTL += tutarTL; liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutarStr: `${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}`, tip: 'ciro'});
                 }
             });
 
             window.giderler.filter(g => tarihUyuşuyorMu(g.tarih)).forEach(g => {
-                toplamGider += Number(g.tutar); liste.push({tarih: g.tarih, kisi: g.kategori, tur: `📉 GİDER (${g.odemeYontemi})`, aciklama: g.aciklama, tutar: Number(g.tutar), tip: 'gider'});
+                let tut = Number(g.tutar);
+                let birim = g.birim || 'TL';
+                let sembol = birim === 'USD' ? '$' : '₺';
+                let tutarTL = birim === 'USD' ? (tut * kur) : tut;
+
+                toplamGiderTL += tutarTL; 
+                liste.push({tarih: g.tarih, kisi: g.kategori, tur: `📉 GİDER (${g.odemeYontemi})`, aciklama: g.aciklama, tutarStr: `-${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}`, tip: 'gider'});
             });
 
-            liste.slice(0, 30).forEach(h => { let renk = h.tip === 'tahsilat' ? '#34d399' : (h.tip === 'gider' ? '#ef4444' : '#fbbf24'); tbody.innerHTML += `<tr><td><small>${h.tarih}</small></td><td><b>${h.kisi}</b></td><td><span style="color:${renk};">${h.tur}</span></td><td>${h.aciklama}</td><td><b style="color:${renk};">${h.tip === 'gider' ? '-' : '+'}${h.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`; });
+            liste.slice(0, 30).forEach(h => { let renk = h.tip === 'tahsilat' ? '#34d399' : (h.tip === 'gider' ? '#ef4444' : '#fbbf24'); tbody.innerHTML += `<tr><td><small>${h.tarih}</small></td><td><b>${h.kisi}</b></td><td><span style="color:${renk};">${h.tur}</span></td><td>${h.aciklama}</td><td><b style="color:${renk};">${h.tutarStr}</b></td></tr>`; });
 
-            let netKar = ciro - toplamGider; document.getElementById('finansGunlukCiro').innerText = `${ciro.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansToplamGider').innerText = `-${toplamGider.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansToplamTahsilat').innerText = `${tahsilat.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansNetKar').innerText = `${netKar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
+            let netKar = ciroTL - toplamGiderTL; document.getElementById('finansGunlukCiro').innerText = `${ciroTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansToplamGider').innerText = `-${toplamGiderTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansToplamTahsilat').innerText = `${tahsilatTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; document.getElementById('finansNetKar').innerText = `${netKar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
         };
 
-        window.servisListele = function() { const tbody = document.querySelector('#servisTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; window.servisler.forEach(s => { tbody.innerHTML += `<tr><td><small>${s.tarih}</small></td><td><b>${s.cihaz}</b></td><td>${s.detay || '-'}</td><td><b>${Number(s.ucret).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd;">${s.odemeYontemi || 'Nakit'}</span></td><td><span class="badge badge-bayi">${s.cariAdi}</span></td><td><button class="btn-delete" onclick="window.servisSil(${s.id})">Sil</button></td></tr>`; }); };
+        window.servisListele = function() { const tbody = document.querySelector('#servisTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; window.servisler.forEach(s => { let sembol = s.birim === 'USD' ? '$' : '₺'; tbody.innerHTML += `<tr><td><small>${s.tarih}</small></td><td><b>${s.cihaz}</b></td><td>${s.detay || '-'}</td><td><b>${Number(s.ucret).toLocaleString('tr-TR', {minimumFractionDigits:2})} ${sembol}</b></td><td><span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd;">${s.odemeYontemi || 'Nakit'}</span></td><td><span class="badge badge-bayi">${s.cariAdi}</span></td><td><button class="btn-delete" onclick="window.servisSil(${s.id})">Sil</button></td></tr>`; }); };
         window.servisSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "servisler", id.toString())); };
         window.gunlukRaporuYazdir = function() { window.openTab('finansTab', document.querySelector('.tab-btn:nth-child(5)')); setTimeout(() => window.print(), 300); };
         window.bayiEkstrePdfIndir = function() { if (!window.seciliCariId) return alert("Seçim yapın!"); document.body.classList.add('printing-cari-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-cari-ekstre'), 500); };
         window.whatsappEkstreGonder = function() {
             if (!window.seciliCariId) return; const c = window.cariler.find(x => x.id == window.seciliCariId); if (!c || !c.tel) return alert('Telefon numarası yok!');
-            let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel; let borç = 0, odenen = 0;
-            window.islemler.filter(i => i.cariId == c.id).forEach(i => { if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borç += Number(i.islemTutari); else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari); });
+            let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel; let borç = 0, odenen = 0; let kur = window.dolarKuruAl();
+            window.islemler.filter(i => i.cariId == c.id).forEach(i => { let tut = Number(i.islemTutari); if(i.birim === 'USD') tut = tut * kur; if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borç += tut; else if (i.islemTuru.includes('Ödeme Alındı')) odenen += tut; });
             let net = borç - odenen; window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}*,\nNet Bakiye: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`)}`, '_blank');
         };
         window.verileriYedekle = function() { const data = { stoklar: window.stoklar, cariler: window.cariler, islemler: window.islemler, servisler: window.servisler, giderler: window.giderler }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `BB_Pro_Yedek.json`; a.click(); };

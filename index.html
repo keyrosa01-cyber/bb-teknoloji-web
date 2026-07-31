@@ -164,7 +164,6 @@
         }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
         
-        /* PROFESYONEL FATURA & FİŞ STİLİ (YAZDIRMA İÇİN) */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
             body * { visibility: hidden; }
@@ -671,11 +670,17 @@
             let nakitKasa = 0;
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
-                if (i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) {
+                if (i.islemTuru.includes('Satış')) {
                     if (i.odemeYontemi.includes('Nakit') || i.odemeYontemi.includes('Kredi')) nakitKasa += tutar;
                 }
                 if (i.islemTuru.includes('Ödeme Alındı')) nakitKasa += tutar;
                 if (i.islemTuru === '💸 Toptancıya Ödeme' && i.odemeYontemi === 'Nakit') nakitKasa -= tutar;
+            });
+            window.servisler.forEach(s => {
+                let tutar = Number(s.ucret);
+                if (!s.odemeYontemi || s.odemeYontemi.includes('Nakit') || s.odemeYontemi.includes('Kredi')) {
+                    nakitKasa += tutar;
+                }
             });
             window.giderler.forEach(g => {
                 if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) nakitKasa -= Number(g.tutar);
@@ -1064,9 +1069,9 @@
         window.servisListele = function() { const tbody = document.querySelector('#servisTablosu tbody'); if(!tbody) return; tbody.innerHTML = ''; window.servisler.forEach(s => { tbody.innerHTML += `<tr><td><small>${s.tarih}</small></td><td><b>${s.cihaz}</b></td><td>${s.detay || '-'}</td><td><b>${Number(s.ucret).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td><span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd;">${s.odemeYontemi || 'Nakit'}</span></td><td><span class="badge badge-bayi">${s.cariAdi}</span></td><td><button class="btn-delete" onclick="window.servisSil(${s.id})">Sil</button></td></tr>`; }); };
         window.servisSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "servisler", id.toString())); };
         window.gunlukRaporuYazdir = function() { window.openTab('finansTab', document.querySelector('.tab-btn:nth-child(5)')); setTimeout(() => window.print(), 300); };
-        window.bayiEkstrePdfIndir = function() { if (!window.seciliCariId) return alert("Seçim yapın!"); window.print(); };
+        window.bayiEkstrePdfIndir = function() { if (!window.seciliCariId) return; window.print(); };
         window.whatsappEkstreGonder = function() {
-            if (!window.seciliCariId) return; const c = window.cariler.find(x => x.id == window.seciliCariId); if (!c || !c.tel) return alert('Telefon numarası yok!');
+            if (!window.seciliCariId) return; const c = window.cariler.find(x => x.id == window.seciliCariId); if (!c || !c.tel) return;
             let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel; let borç = 0, odenen = 0;
             window.islemler.filter(i => i.cariId == c.id).forEach(i => { let tut = Number(i.islemTutari); if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borç += tut; else if (i.islemTuru.includes('Ödeme Alındı')) odenen += tut; });
             let net = borç - odenen; window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}*,\nNet Bakiye: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`)}`, '_blank');

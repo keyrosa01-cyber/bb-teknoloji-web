@@ -222,7 +222,7 @@
             <div id="pdfTedarikciAlani" style="background:var(--card-inner); padding:22px; border-radius:16px; margin-bottom:24px; border:1px solid var(--purple-main);">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px; border-bottom:1px solid rgba(139, 92, 246, 0.3); padding-bottom:15px;">
                     <div style="display:flex; align-items:center; gap:15px;">
-                        <img src="logo.png" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid var(--purple-main); background:#000;">
+                        <img src="logo.png" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid var(--purple-main); background:#fff;">
                         <div style="text-align:left;">
                             <h1 style="margin:0; font-size:22px; font-weight:900; color:var(--purple-bright); text-transform:uppercase; border:none; padding:0;">BB TEKNOLOJİ</h1>
                             <div style="font-size:11px; font-weight:800; color:var(--text-muted); letter-spacing:1px; margin-top:2px;">CAM DEĞİŞİM MERKEZİ • MERSİN</div>
@@ -329,7 +329,7 @@
             <div id="pdfCariAlani" style="background:var(--card-inner); padding:22px; border-radius:16px; margin-bottom:24px; border:1px solid var(--border-color);">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:15px;">
                     <div style="display:flex; align-items:center; gap:15px;">
-                        <img src="logo.png" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid var(--gold-main); background:#000;">
+                        <img src="logo.png" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid var(--gold-main); background:#fff;">
                         <div style="text-align:left;">
                             <h1 style="margin:0; font-size:22px; font-weight:900; color:var(--gold-bright); text-transform:uppercase; border:none; padding:0;">BB TEKNOLOJİ</h1>
                             <div style="font-size:11px; font-weight:800; color:var(--text-muted); letter-spacing:1px; margin-top:2px;">CAM DEĞİŞİM MERKEZİ • MERSİN</div>
@@ -719,10 +719,13 @@
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
                 let tut = Number(i.islemTutari); if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += tut; else if (i.islemTuru.includes('Ödeme Alındı')) odenen += tut;
                 
-                // Müşteriye fiş/ekstre çıktısı verilirken geliş MALİYETİNİ gizleyen akıllı filtre:
-                let gosterilecekAciklama = i.aciklama ? i.aciklama.replace(/Maliyet:\s*[\d,.]+\s*₺\s*\|\s*/gi, '') : '-';
+                // MALİYETLERİ KESİN OLARAK GİZLEYEN GÜÇLENDİRİLMİŞ FİLTRE:
+                let aciklama = i.aciklama || '-';
+                aciklama = aciklama.replace(/\(Maliyet:[^)]*\)/gi, ''); // (Maliyet: ... ₺) kısmını komple siler
+                aciklama = aciklama.replace(/Maliyet:\s*[\d,.]+\s*₺\s*\|\s*/gi, ''); 
+                aciklama = aciklama.replace(/Maliyet:[^|]*\|\s*/gi, '');
                 
-                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${gosterilecekAciklama}</td><td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${aciklama.trim()}</td><td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
             tbody.innerHTML = html; let net = borc - odenen; document.getElementById('seciliCariBakiye').innerHTML = `<b>Net Bakiye:</b> <span style="color:${net > 0 ? '#f87171' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
         };

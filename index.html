@@ -534,6 +534,7 @@
                 let odeme = (i.odemeYontemi || '').toLowerCase();
                 let tur = (i.islemTuru || '').toLowerCase();
 
+                // Satışlardan veya Bayi Ekstresinden gelen NAKİT tahsilatlar kasaya eklenir
                 if (tur.includes('satış') || tur.includes('ödeme alındı')) {
                     if (!odeme || odeme.includes('nakit') || (!odeme.includes('kredi') && !odeme.includes('havale'))) {
                         nakitKasa += tutar;
@@ -564,7 +565,7 @@
             const el = document.getElementById('statKasaNakit');
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
 
-            // BANKA TOPLAMI: Kesinlikle sadece 9. Banka Sekmesindeki (bankaIslemleri) hareketlerden hesaplanır. Çift sayma riski tamamen kaldırılmıştır.
+            // BANKA TOPLAMI: Sadece 9. Banka sekmesindeki hareketlerden hesaplanır.
             let bankaBakiye = 0;
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);

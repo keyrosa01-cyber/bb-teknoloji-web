@@ -84,8 +84,9 @@
             
             /* Bayi Ekstresi Print */
             body.printing-cari-ekstre #pdfCariAlani, body.printing-cari-ekstre #pdfCariAlani * { visibility: visible; }
-            body.printing-cari-ekstre #pdfCariAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 20px !important; border-radius: 0 !important; box-shadow: none !important; }
-            body.printing-cari-ekstre #pdfCariAlani h1 { color: #000 !important; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 18px; }
+            body.printing-cari-ekstre #pdfCariAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 25px !important; border-radius: 0 !important; box-shadow: none !important; }
+            body.printing-cari-ekstre #pdfCariAlani h1 { color: #000 !important; }
+            body.printing-cari-ekstre #pdfCariAlani p, body.printing-cari-ekstre #pdfCariAlani div { color: #333 !important; }
             body.printing-cari-ekstre #pdfCariAlani h2 { color: #000 !important; font-size: 16px; }
             body.printing-cari-ekstre #pdfCariAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
             body.printing-cari-ekstre #pdfCariAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
@@ -94,9 +95,9 @@
             
             /* Toptancı Ekstresi Print */
             body.printing-tedarikci-ekstre #pdfTedarikciAlani, body.printing-tedarikci-ekstre #pdfTedarikciAlani * { visibility: visible; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 20px !important; border-radius: 0 !important; box-shadow: none !important; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani h1 { color: #000 !important; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 18px; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani h2 { color: #000 !important; font-size: 16px; }
+            body.printing-tedarikci-ekstre #pdfTedarikciAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 25px !important; border-radius: 0 !important; box-shadow: none !important; }
+            body.printing-tedarikci-ekstre #pdfTedarikciAlani h1 { color: #000 !important; }
+            body.printing-tedarikci-ekstre #pdfTedarikciAlani p, body.printing-tedarikci-ekstre #pdfTedarikciAlani div { color: #333 !important; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
@@ -220,8 +221,19 @@
         <div id="tedarikciDetayPaneli" style="display:none;">
             <div id="pdfTedarikciAlani" style="background:var(--card-inner); padding:22px; border-radius:16px; margin-bottom:24px; border:1px solid var(--purple-main);">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px; border-bottom:1px solid rgba(139, 92, 246, 0.3); padding-bottom:15px;">
-                    <div><h1 style="margin:0; color:var(--purple-bright); font-size:20px;">BB TEKNOLOJİ PRO - TOPTANCI BİLGİ FİŞİ</h1><h2 id="seciliTedarikciBaslik" style="margin:8px 0 0 0; color:var(--text-main); font-size:18px;"></h2></div>
-                    <div style="text-align:right;"><span style="font-size:12px; color:var(--text-muted);">Tarih: <b id="pdfTedarikciTarihYazisi"></b></span><p id="seciliTedarikciBakiye" style="margin:8px 0 0 0; font-size:14px;"></p></div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <img src="ChatGPT Image 17 Haz 2026 10_19_57.png" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid var(--purple-main); background:#000;">
+                        <div style="text-align:left;">
+                            <h1 style="margin:0; font-size:22px; font-weight:900; color:var(--purple-bright); text-transform:uppercase; border:none; padding:0;">BB TEKNOLOJİ</h1>
+                            <div style="font-size:11px; font-weight:800; color:var(--text-muted); letter-spacing:1px; margin-top:2px;">CAM DEĞİŞİM MERKEZİ • MERSİN</div>
+                            <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-top:2px;">📞 0533 658 64 47</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:12px; color:var(--text-muted);">Tarih: <b id="pdfTedarikciTarihYazisi"></b></span>
+                        <h2 id="seciliTedarikciBaslik" style="margin:8px 0 0 0; color:var(--text-main); font-size:18px;"></h2>
+                        <p id="seciliTedarikciBakiye" style="margin:8px 0 0 0; font-size:14px;"></p>
+                    </div>
                 </div>
                 <h3 style="color:var(--purple-bright); margin:16px 0 10px 0; font-size:15px;">📋 Hesap Kontrol Dökümü</h3>
                 <table id="tedarikciIslemTablosu"><thead><tr><th>Tarih</th><th>İşlem Tipi</th><th>Alınan Malzemeler / Detay</th><th>Tutar</th><th class="btn-delete-col">İşlem</th></tr></thead><tbody></tbody></table>
@@ -316,8 +328,19 @@
         <div id="detayPaneli" style="display:none;">
             <div id="pdfCariAlani" style="background:var(--card-inner); padding:22px; border-radius:16px; margin-bottom:24px; border:1px solid var(--border-color);">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:15px;">
-                    <div><h1 style="margin:0; color:var(--gold-bright); font-size:20px;">BB TEKNOLOJİ PRO - BİLGİ FİŞİ / EKSTRE</h1><h2 id="seciliCariBaslik" style="margin:8px 0 0 0; color:var(--text-main); font-size:18px;"></h2></div>
-                    <div style="text-align:right;"><span style="font-size:12px; color:var(--text-muted);">Tarih: <b id="pdfTarihYazisi"></b></span><p id="seciliCariBakiye" style="margin:8px 0 0 0; font-size:14px;"></p></div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <img src="ChatGPT Image 17 Haz 2026 10_19_57.png" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid var(--gold-main); background:#000;">
+                        <div style="text-align:left;">
+                            <h1 style="margin:0; font-size:22px; font-weight:900; color:var(--gold-bright); text-transform:uppercase; border:none; padding:0;">BB TEKNOLOJİ</h1>
+                            <div style="font-size:11px; font-weight:800; color:var(--text-muted); letter-spacing:1px; margin-top:2px;">CAM DEĞİŞİM MERKEZİ • MERSİN</div>
+                            <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-top:2px;">📞 0533 658 64 47</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:12px; color:var(--text-muted);">Tarih: <b id="pdfTarihYazisi"></b></span>
+                        <h2 id="seciliCariBaslik" style="margin:8px 0 0 0; color:var(--text-main); font-size:16px;"></h2>
+                        <p id="seciliCariBakiye" style="margin:4px 0 0 0; font-size:14px;"></p>
+                    </div>
                 </div>
                 <h3 style="color:var(--gold-bright); margin:16px 0 10px 0; font-size:15px;">📋 Detaylı İşlem ve Hareket Dökümü</h3>
                 <table id="kisiIslemTablosu"><thead><tr><th>Tarih & Saat</th><th>İşlem Türü</th><th>Açıklama & Personel</th><th>Tutar</th><th class="btn-delete-col">İşlem</th></tr></thead><tbody></tbody></table>
@@ -695,7 +718,11 @@
             const tbody = document.querySelector('#kisiIslemTablosu tbody'); if(!tbody) return; let borc = 0, odenen = 0; let html = '';
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
                 let tut = Number(i.islemTutari); if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += tut; else if (i.islemTuru.includes('Ödeme Alındı')) odenen += tut;
-                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                
+                // Müşteriye fiş/ekstre çıktısı verilirken geliş MALİYETİNİ gizleyen akıllı filtre:
+                let gosterilecekAciklama = i.aciklama ? i.aciklama.replace(/Maliyet:\s*[\d,.]+\s*₺\s*\|\s*/gi, '') : '-';
+                
+                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${gosterilecekAciklama}</td><td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
             tbody.innerHTML = html; let net = borc - odenen; document.getElementById('seciliCariBakiye').innerHTML = `<b>Net Bakiye:</b> <span style="color:${net > 0 ? '#f87171' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
         };

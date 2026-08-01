@@ -373,7 +373,7 @@
                 <input type="hidden" id="islemCariId">
                 <div><label>İşlem Türü</label><select id="islemTuru"><option value="Ödeme Alındı">💵 Ödeme Alındı (Borçtan Düşer)</option><option value="Manuel Borç">📝 Manuel Borç (Cariye Borç Ekler)</option></select></div>
                 <div><label>Tutar (₺)</label><input type="number" step="0.01" id="islemTutari" required></div>
-                <div><label>Ödeme Şekli (Nakit Kasaya veya Bankaya İşler)</label><select id="islemOdemeTipi"><option value="Nakit">💵 Nakit (Kasaya Girer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Havale (Bankaya Girer)</option></select></div>
+                <div><label>Ödeme Şekli (Nakit Kasaya veya Bankaya İşler)</label><select id="islemOdemeTipi"><option value="Nakit">💵 Nakit (Doğrudan Nakit Kasaya Girer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Havale (Banka/IBAN Hesabına Girer)</option></select></div>
                 <div><label>İşlem Tarihi</label><input type="date" id="islemTarihi" required></div>
                 <div><label>Açıklama</label><input type="text" id="islemAciklama" placeholder="Elden nakit / Havale açıklaması"></div>
                 <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:14px;">İşlemi Kaydet & Güncelle ⚡</button></div>
@@ -523,16 +523,32 @@
 
         window.kasaHesapla = function() {
             let nakitKasa = 0;
+            // 1. Satışlardan Gelen Nakitler
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
-                if (i.islemTuru.includes('Satış')) { if (i.odemeYontemi && (i.odemeYontemi.includes('Nakit') || i.odemeYontemi === 'Nakit')) nakitKasa += tutar; }
-                if (i.islemTuru.includes('Ödeme Alındı')) {
-                    if (!i.odemeYontemi || i.odemeYontemi.includes('Nakit')) nakitKasa += tutar;
+                if (i.islemTuru.includes('Satış')) { 
+                    if (!i.odemeYontemi || i.odemeYontemi.includes('Nakit') || i.odemeYontemi === 'Nakit') nakitKasa += tutar; 
                 }
-                if (i.islemTuru === '💸 Toptancıya Ödeme' && (!i.odemeYontemi || i.odemeYontemi.includes('Nakit'))) nakitKasa -= tutar;
+                if (i.islemTuru.includes('Ödeme Alındı')) {
+                    if (!i.odemeYontemi || i.odemeYontemi.includes('Nakit') || i.odemeYontemi === 'Nakit') nakitKasa += tutar;
+                }
+                if (i.islemTuru === '💸 Toptancıya Ödeme' && (!i.odemeYontemi || i.odemeYontemi.includes('Nakit') || i.odemeYontemi === 'Nakit')) {
+                    nakitKasa -= tutar;
+                }
             });
-            window.servisler.forEach(s => { let tutar = Number(s.ucret); if (!s.odemeYontemi || s.odemeYontemi.includes('Nakit') || s.odemeYontemi.includes('Nakit')) { nakitKasa += tutar; } });
-            window.giderler.forEach(g => { if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) nakitKasa -= Number(g.tutar); });
+            // 2. Servis Ücretlerinden Gelen Nakitler
+            window.servisler.forEach(s => { 
+                let tutar = Number(s.ucret); 
+                if (!s.odemeYontemi || s.odemeYontemi.includes('Nakit') || s.odemeYontemi === 'Nakit' || s.odemeYontemi.includes('Doğrudan Nakit')) { 
+                    nakitKasa += tutar; 
+                } 
+            });
+            // 3. Nakit Giderler
+            window.giderler.forEach(g => { 
+                if (!g.odemeYontemi || g.odemeYontemi.includes('Nakit')) {
+                    nakitKasa -= Number(g.tutar); 
+                }
+            });
             const el = document.getElementById('statKasaNakit');
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
 

@@ -265,7 +265,7 @@
             <form id="tedarikciOdemeForm" style="border-color:rgba(16, 185, 129, 0.3);">
                 <input type="hidden" id="odemeTedarikciId">
                 <div><label style="color:var(--success);">Ödenen Tutar (₺)</label><input type="number" step="0.01" id="tedOdemeTutari" required></div>
-                <div><label style="color:var(--success);">Ödeme Şekli</label><select id="tedOdemeTipi"><option value="Nakit">💵 Nakit (Kasadan Düşer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Banka Havalesi</option></select></div>
+                <div><label style="color:var(--success);">Ödeme Şekli</label><select id="tedOdemeTipi"><option value="Nakit">Nakit</option><option value="Kredi Kartı / Havale">Kredi Kartı / Havale</option></select></div>
                 <div><label style="color:var(--success);">Ödeme Tarihi</label><input type="date" id="tedOdemeTarihi" required></div>
                 <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#000;">Toptancıya Ödemeyi Kaydet 💸</button></div>
             </form>
@@ -303,7 +303,7 @@
                 <input type="hidden" id="satisUrunId" required><div id="satisUrunListesi" class="autocomplete-items" style="display:none;"></div>
             </div>
             <div><label>Satış Adedi</label><input type="number" id="satisAdet" min="1" value="1" required></div>
-            <div><label>Ödeme / Tahsilat Durumu</label><select id="satisOdemeYontemi" required><option value="Veresiye / Açık Hesap (Cari Borç)">📋 Veresiye / Açık Hesap (Bayiye Borç Yazılır)</option><option value="Nakit">💵 Peşin Nakit</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Havale</option></select></div>
+            <div><label>Ödeme Şekli</label><select id="satisOdemeYontemi" required><option value="Veresiye / Açık Hesap (Cari Borç)">📋 Veresiye / Açık Hesap</option><option value="Nakit">Nakit</option><option value="Kredi Kartı / Havale">Kredi Kartı / Havale</option></select></div>
             <div><label>İşlem Tarihi</label><input type="date" id="satisTarihi" required></div>
             <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:15px; background:linear-gradient(135deg, #f97316 0%, #ea580c 100%); color:white;">Satışı Tamamla ⚡</button></div>
         </form>
@@ -373,7 +373,13 @@
                 <input type="hidden" id="islemCariId">
                 <div><label>İşlem Türü</label><select id="islemTuru"><option value="Ödeme Alındı">💵 Ödeme Alındı (Borçtan Düşer)</option><option value="Manuel Borç">📝 Manuel Borç (Cariye Borç Ekler)</option></select></div>
                 <div><label>Tutar (₺)</label><input type="number" step="0.01" id="islemTutari" required></div>
-                <div><label>Ödeme Şekli (Nakit Kasaya veya Bankaya İşler)</label><select id="islemOdemeTipi"><option value="Nakit">💵 Nakit (Doğrudan Nakit Kasaya Girer)</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı / Havale (Banka/IBAN Hesabına Girer)</option></select></div>
+                <div>
+                    <label>Ödeme Şekli</label>
+                    <select id="islemOdemeTipi">
+                        <option value="Nakit">Nakit</option>
+                        <option value="Kredi Kartı / Havale">Kredi Kartı / Havale</option>
+                    </select>
+                </div>
                 <div><label>İşlem Tarihi</label><input type="date" id="islemTarihi" required></div>
                 <div><label>Açıklama</label><input type="text" id="islemAciklama" placeholder="Elden nakit / Havale açıklaması"></div>
                 <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:14px;">İşlemi Kaydet & Güncelle ⚡</button></div>
@@ -408,7 +414,7 @@
             <div><label>Tamir Edilen Cihaz / İşlem</label><input type="text" id="servisCihaz" placeholder="Örn: Samsung A12 Ön Cam" required></div>
             <div><label>Tamir Maliyeti (Sana Gelişi ₺)</label><input type="number" step="0.01" id="servisMaliyet" required placeholder="Parça maliyeti"></div>
             <div><label>Müşteriden Alınan Ücret (₺)</label><input type="number" step="0.01" id="servisUcret" required></div>
-            <div><label>Ödeme Yöntemi</label><select id="servisOdemeYontemi"><option value="Nakit">💵 Nakit</option><option value="Kredi Kartı">💳 Kredi Kartı</option><option value="Cari Borç (Veresiye)">📋 Cari Borç (Veresiye / Açık Hesap)</option></select></div>
+            <div><label>Ödeme Şekli</label><select id="servisOdemeYontemi"><option value="Nakit">Nakit</option><option value="Kredi Kartı">Kredi Kartı</option><option value="Cari Borç (Veresiye)">📋 Cari Borç (Veresiye / Açık Hesap)</option></select></div>
             <div><label>İşlem Tarihi</label><input type="date" id="servisTarihi" required></div>
             <div class="autocomplete-container">
                 <label>🔍 Bayi / Müşteri Seç (Harf Yazın)</label><input type="text" id="servisCariInput" placeholder="İsim veya harf yazın..." autocomplete="off" oninput="window.servisCariAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
@@ -425,7 +431,7 @@
         <h2 style="color:#fca5a5; margin-top:0; font-size:20px;">📉 Şirket Gideri & Malzeme Alımı</h2>
         <form id="giderForm" style="border-color:rgba(239, 68, 68, 0.3);">
             <div><label style="color:#fca5a5;">Gider Kategorisi</label><select id="giderKategori" required><option value="🍽️ Yemek & Çay / Mutfak">🍽️ Yemek & Çay / Mutfak</option><option value="📦 Dükkan Malzemesi">📦 Dükkan Malzemesi</option><option value="👥 Personel Haftalık / Maaş">👥 Personel Haftalık / Maaş</option><option value="⚡ Fatura">⚡ Fatura</option></select></div>
-            <div><label style="color:#fca5a5;">Ödeme Yöntemi</label><select id="giderOdemeYontemi" required><option value="Nakit">💵 Nakit</option><option value="Kredi Kartı / Havale">💳 Kredi Kartı</option></select></div>
+            <div><label style="color:#fca5a5;">Ödeme Şekli</label><select id="giderOdemeYontemi" required><option value="Nakit">Nakit</option><option value="Kredi Kartı / Havale">Kredi Kartı</option></select></div>
             <div><label style="color:#fca5a5;">Tutar (₺)</label><input type="number" step="0.01" id="giderTutari" required></div>
             <div><label style="color:#fca5a5;">Tarih</label><input type="date" id="giderTarihi" required></div>
             <div style="grid-column: 1 / -1;"><label style="color:#fca5a5;">Açıklama</label><input type="text" id="giderAciklama" required></div>
@@ -523,14 +529,13 @@
 
         window.kasaHesapla = function() {
             let nakitKasa = 0;
-            // 1. Satış ve Ödeme işlemlerinden gelen nakitler (Varsayılan olarak ödeme yöntemi seçilmediyse veya Nakit ise nakit kasaya eklenir)
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
                 let odeme = (i.odemeYontemi || '').toLowerCase();
                 let tur = (i.islemTuru || '').toLowerCase();
 
                 if (tur.includes('satış') || tur.includes('ödeme alındı')) {
-                    if (!odeme || odeme.includes('nakit') || odeme.includes('doğrudan') || (!odeme.includes('kredi') && !odeme.includes('havale'))) {
+                    if (!odeme || odeme.includes('nakit') || (!odeme.includes('kredi') && !odeme.includes('havale'))) {
                         nakitKasa += tutar;
                     }
                 }
@@ -541,16 +546,14 @@
                 }
             });
 
-            // 2. Teknik servis nakit girişleri
             window.servisler.forEach(s => { 
                 let tutar = Number(s.ucret); 
                 let odeme = (s.odemeYontemi || '').toLowerCase();
-                if (!odeme || odeme.includes('nakit') || odeme.includes('doğrudan')) { 
+                if (!odeme || odeme.includes('nakit')) { 
                     nakitKasa += tutar; 
                 } 
             });
 
-            // 3. Nakit giderler
             window.giderler.forEach(g => { 
                 let odeme = (g.odemeYontemi || '').toLowerCase();
                 if (!odeme || odeme.includes('nakit')) {
@@ -561,24 +564,11 @@
             const el = document.getElementById('statKasaNakit');
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
 
-            // Banka Bakiye Hesaplama (Hem bankaIslemleri hem de İşlemlerdeki havale/kart geçişleri)
             let bankaBakiye = 0;
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
                 if (b.islemTuru.includes('Gelen')) bankaBakiye += tutar;
                 else if (b.islemTuru.includes('Gönderilen')) bankaBakiye -= tutar;
-            });
-
-            // Ek olarak işlemlerde veya ödemelerde banka/kart/havale geçenleri de bankaya dahil edelim
-            window.islemler.forEach(i => {
-                let odeme = (i.odemeYontemi || '').toLowerCase();
-                let aciklama = (i.aciklama || '').toLowerCase();
-                let tutar = Number(i.islemTutari);
-                if (odeme.includes('kredi') || odeme.includes('havale') || aciklama.includes('iban') || aciklama.includes('havale')) {
-                    if (i.islemTuru.includes('Ödeme Alındı') || i.islemTuru.includes('Satış')) {
-                        bankaBakiye += tutar;
-                    }
-                }
             });
 
             const bEl = document.getElementById('statBankaBakiye');
@@ -706,19 +696,6 @@
                 const toplamTutar = Number(urun.satisFiyati) * adet; const maliyetTutar = Number(urun.alisFiyati) * adet; const karTutar = toplamTutar - maliyetTutar;
                 const islemId = Date.now() + Math.floor(Math.random() * 1000); let islemTuruBaslik = odemeYontemi.includes('Veresiye') ? '📦 Veresiye Satış (Borç)' : '📦 Peşin Satış';
                 const islemObj = { id: islemId, cariId: cari.id, islemTuru: islemTuruBaslik, islemTutari: toplamTutar, odemeYontemi: odemeYontemi, kar: karTutar, islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, aciklama: `${adet} Adet "${urun.urunAdi}" (${toplamTutar} ₺) [Ödeme: ${odemeYontemi}] [Yapan: ${aktifKullanici.toUpperCase()}]` };
-                
-                // Eğer satış ödemesi Kredi Kartı / Havale ise bankaya da ekleyelim
-                if (odemeYontemi.includes('Kredi Kartı')) {
-                    const bankaId = Date.now() + 1;
-                    const bankaObj = {
-                        id: bankaId,
-                        islemTuru: "IBAN'a Gelen Para",
-                        tutar: toplamTutar,
-                        tarih: `${secilenTarih} [${simdiTarihSaat()}]`,
-                        aciklama: `${cari.ad} - Satış Ödemesi (Havale/Kart) (${toplamTutar} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]`
-                    };
-                    await setDoc(doc(window.db, "bankaIslemleri", bankaId.toString()), bankaObj);
-                }
 
                 this.reset(); document.getElementById('satisCariId').value = ''; document.getElementById('satisUrunId').value = ''; document.getElementById('satisTarihi').valueAsDate = new Date();
                 await setDoc(doc(window.db, "stoklar", urun.id.toString()), urun); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Satış tamamlandı, Kar sisteme işlendi!");
@@ -733,8 +710,6 @@
                 const tur = document.getElementById('islemTuru').value; 
                 const odemeTipi = document.getElementById('islemOdemeTipi').value; 
                 const tutar = parseFloat(document.getElementById('islemTutari').value);
-                const cariObj = window.cariler.find(c => c.id == cid);
-                const cariAdi = cariObj ? cariObj.ad : 'Müşteri';
 
                 const islemObj = { 
                     id: islemId, 
@@ -745,19 +720,6 @@
                     islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, 
                     aciklama: `${document.getElementById('islemAciklama').value || '-'} (${tutar} ₺) [Alan: ${aktifKullanici.toUpperCase()}]` 
                 };
-
-                // Eğer ödeme şekli Kredi Kartı / Havale ise doğrudan banka hesabına da işleyelim!
-                if (tur === 'Ödeme Alındı' && odemeTipi.includes('Kredi Kartı')) {
-                    const bankaId = Date.now() + 1;
-                    const bankaObj = {
-                        id: bankaId,
-                        islemTuru: "IBAN'a Gelen Para",
-                        tutar: tutar,
-                        tarih: `${secilenTarih} [${simdiTarihSaat()}]`,
-                        aciklama: `${cariAdi} - Bayi Ödemesi (Havale/Kart) (${tutar} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]`
-                    };
-                    await setDoc(doc(window.db, "bankaIslemleri", bankaId.toString()), bankaObj);
-                }
 
                 this.reset(); 
                 document.getElementById('islemTarihi').valueAsDate = new Date(); 

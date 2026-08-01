@@ -571,6 +571,17 @@
                 else if (b.islemTuru.includes('Gönderilen')) bankaBakiye -= tutar;
             });
 
+            window.islemler.forEach(i => {
+                let odeme = (i.odemeYontemi || '').toLowerCase();
+                let aciklama = (i.aciklama || '').toLowerCase();
+                let tutar = Number(i.islemTutari);
+                if (odeme.includes('kredi') || odeme.includes('havale') || aciklama.includes('iban') || aciklama.includes('havale')) {
+                    if (i.islemTuru.includes('Ödeme Alındı') || i.islemTuru.includes('Satış')) {
+                        bankaBakiye += tutar;
+                    }
+                }
+            });
+
             const bEl = document.getElementById('statBankaBakiye');
             if(bEl) { bEl.innerText = `${bankaBakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; bEl.style.color = bankaBakiye >= 0 ? '#60a5fa' : '#f87171'; }
         };
@@ -710,6 +721,8 @@
                 const tur = document.getElementById('islemTuru').value; 
                 const odemeTipi = document.getElementById('islemOdemeTipi').value; 
                 const tutar = parseFloat(document.getElementById('islemTutari').value);
+                const cariObj = window.cariler.find(c => c.id == cid);
+                const cariAdi = cariObj ? cariObj.ad : 'Müşteri';
 
                 const islemObj = { 
                     id: islemId, 
@@ -720,6 +733,19 @@
                     islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, 
                     aciklama: `${document.getElementById('islemAciklama').value || '-'} (${tutar} ₺) [Alan: ${aktifKullanici.toUpperCase()}]` 
                 };
+
+                // Eğer ödeme şekli Kredi Kartı / Havale ise ve "Ödeme Alındı" ise otomatik bankaya işlesin (mükerrer olmaması için banka hesaplama mantığı düzeltildi)
+                if (tur === 'Ödeme Alındı' && odemeTipi.includes('Kredi Kartı')) {
+                    const bankaId = Date.now() + 1;
+                    const bankaObj = {
+                        id: bankaId,
+                        islemTuru: "IBAN'a Gelen Para",
+                        tutar: tutar,
+                        tarih: `${secilenTarih} [${simdiTarihSaat()}]`,
+                        aciklama: `${cariAdi} - Bayi Ödemesi (Havale/Kart) (${tutar} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]`
+                    };
+                    await setDoc(doc(window.db, "bankaIslemleri", bankaId.toString()), bankaObj);
+                }
 
                 this.reset(); 
                 document.getElementById('islemTarihi').valueAsDate = new Date(); 

@@ -564,21 +564,12 @@
             const el = document.getElementById('statKasaNakit');
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
 
-            // BANKA TOPLAMI: 9. Banka sekmesindeki işlemler ve Bayi Ekstresinden yapılan Havale/Kart ödemeleri toplanır
+            // BANKA TOPLAMI: Kesinlikle sadece 9. Banka Sekmesindeki (bankaIslemleri) hareketlerden hesaplanır. Çift sayma riski tamamen kaldırılmıştır.
             let bankaBakiye = 0;
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
                 if (b.islemTuru.includes('Gelen')) bankaBakiye += tutar;
                 else if (b.islemTuru.includes('Gönderilen')) bankaBakiye -= tutar;
-            });
-
-            window.islemler.forEach(i => {
-                let odeme = (i.odemeYontemi || '').toLowerCase();
-                let tur = (i.islemTuru || '').toLowerCase();
-                let tutar = Number(i.islemTutari);
-                if (tur.includes('ödeme alındı') && (odeme.includes('kredi') || odeme.includes('havale'))) {
-                    bankaBakiye += tutar;
-                }
             });
 
             const bEl = document.getElementById('statBankaBakiye');
@@ -676,21 +667,6 @@
                 e.preventDefault(); const cariId = parseInt(document.getElementById('odemeTedarikciId').value); const islemId = Date.now() + Math.floor(Math.random() * 1000);
                 const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin'; const odemeTipi = document.getElementById('tedOdemeTipi').value; const tutar = parseFloat(document.getElementById('tedOdemeTutari').value);
                 const islemObj = { id: islemId, cariId: cariId, islemTuru: '💸 Toptancıya Ödeme', islemTutari: tutar, odemeYontemi: odemeTipi, islemTarihi: `${document.getElementById('tedOdemeTarihi').value} [${simdiTarihSaat()}]`, aciklama: `Toptancıya ödeme yapıldı. [${tutar} ₺] [${odemeTipi}] [İşleyen: ${aktifKullanici.toUpperCase()}]` };
-                
-                // Eğer toptancıya ödeme Kredi Kartı / Havale ile yapıldıysa banka çıkışına da otomatik işlesin
-                if (odemeTipi.includes('Kredi Kartı')) {
-                    const bankaId = Date.now() + 1;
-                    const toptanciObj = window.cariler.find(c => c.id == cariId);
-                    const bankaObj = {
-                        id: bankaId,
-                        islemTuru: "IBAN'dan Gönderilen",
-                        tutar: tutar,
-                        tarih: `${document.getElementById('tedOdemeTarihi').value} [${simdiTarihSaat()}]`,
-                        aciklama: `${toptanciObj ? toptanciObj.ad : 'Toptancı'} - Havale/Kart Ödemesi (${tutar} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]`
-                    };
-                    await setDoc(doc(window.db, "bankaIslemleri", bankaId.toString()), bankaObj);
-                }
-
                 this.reset(); document.getElementById('tedOdemeTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancıya ödeme işlendi!");
             });
 
@@ -735,8 +711,6 @@
                 const tur = document.getElementById('islemTuru').value; 
                 const odemeTipi = document.getElementById('islemOdemeTipi').value; 
                 const tutar = parseFloat(document.getElementById('islemTutari').value);
-                const cariObj = window.cariler.find(c => c.id == cid);
-                const cariAdi = cariObj ? cariObj.ad : 'Bayi/Müşteri';
 
                 const islemObj = { 
                     id: islemId, 
@@ -747,19 +721,6 @@
                     islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, 
                     aciklama: `${document.getElementById('islemAciklama').value || '-'} (${tutar} ₺) [Alan: ${aktifKullanici.toUpperCase()}]` 
                 };
-
-                // Eğer Bayi Ekstresinden "Ödeme Alındı" ve ödeme şekli "Kredi Kartı / Havale" seçildiyse banka toplamına otomatik işlesin
-                if (tur === 'Ödeme Alındı' && odemeTipi.includes('Kredi Kartı')) {
-                    const bankaId = Date.now() + 1;
-                    const bankaObj = {
-                        id: bankaId,
-                        islemTuru: "IBAN'a Gelen Para",
-                        tutar: tutar,
-                        tarih: `${secilenTarih} [${simdiTarihSaat()}]`,
-                        aciklama: `${cariAdi} - Bayi Ödemesi (Havale/Kart) (${tutar} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]`
-                    };
-                    await setDoc(doc(window.db, "bankaIslemleri", bankaId.toString()), bankaObj);
-                }
 
                 this.reset(); 
                 document.getElementById('islemTarihi').valueAsDate = new Date(); 
@@ -1035,9 +996,9 @@
 
         window.tedarikciWhatsappEkstreGonder = function() {
             if (!window.seciliTedarikciId) return alert("Seçim yapın!"); const c = window.cariler.find(x => x.id == window.seciliTedarikciId); if (!c || !c.tel) return alert('Bu toptancının telefonu rehberde kayıtlı değil!');
-            let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel; let borc = 0, odenen = 0;
-            window.islemler.filter(i => i.cariId == c.id).forEach(i => { let tut = Number(i.islemTutari); if (i.islemTuru.includes('Toptancı Alımı')) borc += tut; else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += tut; });
-            let net = borc - odenen; window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}* Yetkilisi,\nHesap Kontrolü:\nNet Kalan Borcumuz: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺\nİyi çalışmalar dileriz.`)}`, '_blank');
+            let tel = c.tel.replace(/\D/g, ''); if (tel.startsWith('0')) tel = '9' + tel; let borç = 0, odenen = 0;
+            window.islemler.filter(i => i.cariId == c.id).forEach(i => { let tut = Number(i.islemTutari); if (i.islemTuru.includes('Toptancı Alımı')) borç += tut; else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += tut; });
+            let net = borç - odenen; window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}* Yetkilisi,\nHesap Kontrolü:\nNet Kalan Borcumuz: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺\nİyi çalışmalar dileriz.`)}`, '_blank');
         };
 
         window.verileriYedekle = function() { const data = { stoklar: window.stoklar, cariler: window.cariler, islemler: window.islemler, servisler: window.servisler, giderler: window.giderler, bankaIslemleri: window.bankaIslemleri }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `BB_Pro_Yedek.json`; a.click(); };

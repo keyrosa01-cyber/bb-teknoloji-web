@@ -185,9 +185,9 @@
     </div>
 
     <div class="dashboard-grid">
-        <div class="stat-card" style="border-left-color:#10b981;"><div class="stat-title">💰 Kasadaki Nakit Para</div><div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div></div>
+        <div class="stat-card" style="border-left-color:#10b981;"><div class="stat-title">💰 Nakit Kasa</div><div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div></div>
+        <div class="stat-card" style="border-left-color:#3b82f6;"><div class="stat-title">🏦 Banka / IBAN Toplamı</div><div class="stat-value" id="statBankaBakiye" style="color:#60a5fa;">0.00 ₺</div></div>
         <div class="stat-card"><div class="stat-title">Toplam Çeşit / Stok</div><div class="stat-value" id="statStokAdet">0 Çeşit / 0 Adet</div></div>
-        <div class="stat-card" style="border-left-color:#3b82f6;"><div class="stat-title">Toplam Stok Maliyeti</div><div class="stat-value" id="statMaliyet" style="color:#60a5fa;">0.00 ₺</div></div>
         <div class="stat-card" style="border-left-color:#ef4444;"><div class="stat-title">Piyasadan Toplam Alacak</div><div class="stat-value" id="statAlacak" style="color:#f87171;">0.00 ₺</div></div>
     </div>
 
@@ -200,6 +200,21 @@
         <button class="tab-btn" onclick="window.openTab('servisTab', this)">🛠️ 6. Teknik Servis</button>
         <button class="tab-btn" onclick="window.openTab('giderTab', this)" style="border-color:#ef4444; color:#fca5a5;">📉 7. Giderler</button>
         <button class="tab-btn purple-tab" onclick="window.openTab('tedarikciTab', this)" style="border-color:var(--purple-main); color:var(--purple-bright);">🏢 8. Toptancılar</button>
+        <button class="tab-btn" onclick="window.openTab('bankaTab', this)" style="border-color:#3b82f6; color:#60a5fa;">🏦 9. Banka & IBAN</button>
+    </div>
+
+    <!-- BANKA & IBAN SEKME -->
+    <div id="bankaTab" class="tab-content">
+        <h2 style="color:#60a5fa; margin-top:0; font-size:20px;">🏦 Banka / IBAN İşlemleri (Giriş & Çıkış)</h2>
+        <form id="bankaForm" style="border-color:rgba(59, 130, 246, 0.3);">
+            <div><label style="color:#60a5fa;">İşlem Türü</label><select id="bankaIslemTuru" required><option value="IBAN'a Gelen Para">📥 IBAN'a Para Geldi (Tahsilat / Satış)</option><option value="IBAN'dan Gönderilen">📤 IBAN'dan Para Çıkışı (Toptancıya Havale vb.)</option></select></div>
+            <div><label style="color:#60a5fa;">Tutar (₺)</label><input type="number" step="0.01" id="bankaTutari" required></div>
+            <div><label style="color:#60a5fa;">Tarih</label><input type="date" id="bankaTarihi" required></div>
+            <div style="grid-column: 1 / -1;"><label style="color:#60a5fa;">Açıklama / Kimden Geldi / Kime Gönderildi</label><input type="text" id="bankaAciklama" placeholder="Örn: XPRO IBAN ödemesi veya Toptancıya Havale" required></div>
+            <div style="grid-column: 1 / -1;"><button type="submit" class="submit-btn" style="width:100%; padding:15px; background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color:white;">Banka İşlemini Kaydet ⚡</button></div>
+        </form>
+        <h3 style="color:#60a5fa; margin:25px 0 12px 0; font-size:16px;">📋 Banka / IBAN Hareketleri Arşivi</h3>
+        <table id="bankaTablosu"><thead><tr><th>Zaman Damgası</th><th>İşlem Türü</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
     <!-- TOPTANCI & TEDARİKÇİ SEKME -->
@@ -436,7 +451,7 @@
         const db = getFirestore(app);
         window.db = db;
 
-        window.stoklar = []; window.cariler = []; window.islemler = []; window.servisler = []; window.giderler = [];
+        window.stoklar = []; window.cariler = []; window.islemler = []; window.servisler = []; window.giderler = []; window.bankaIslemleri = [];
         window.seciliCariId = null; window.seciliTedarikciId = null; window.aktifFinansFiltre = 'bugun';
 
         function kullanicilariGetir() { let kayitli = localStorage.getItem('bb_pro_users'); if (!kayitli) { let varsayilan = { "admin": "12345" }; localStorage.setItem('bb_pro_users', JSON.stringify(varsayilan)); return varsayilan; } return JSON.parse(kayitli); }
@@ -453,6 +468,7 @@
             if(typeof window.servisListele === 'function') window.servisListele();
             if(typeof window.satisGecmisListele === 'function') window.satisGecmisListele();
             if(typeof window.giderListele === 'function') window.giderListele();
+            if(typeof window.bankaListele === 'function') window.bankaListele();
             if(typeof window.kasaHesapla === 'function') window.kasaHesapla();
         };
 
@@ -461,6 +477,7 @@
         onSnapshot(collection(db, "islemler"), (snapshot) => { window.islemler = []; snapshot.forEach((doc) => { window.islemler.push(doc.data()); }); window.ekraniGuncelle(); });
         onSnapshot(collection(db, "servisler"), (snapshot) => { window.servisler = []; snapshot.forEach((doc) => { window.servisler.push(doc.data()); }); window.ekraniGuncelle(); });
         onSnapshot(collection(db, "giderler"), (snapshot) => { window.giderler = []; snapshot.forEach((doc) => { window.giderler.push(doc.data()); }); window.ekraniGuncelle(); });
+        onSnapshot(collection(db, "bankaIslemleri"), (snapshot) => { window.bankaIslemleri = []; snapshot.forEach((doc) => { window.bankaIslemleri.push(doc.data()); }); window.ekraniGuncelle(); });
 
         window.cariAramaCalistir = function(deger) {
             const listeDiv = document.getElementById('satisCariListesi'); listeDiv.innerHTML = '';
@@ -516,6 +533,15 @@
             window.giderler.forEach(g => { if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) nakitKasa -= Number(g.tutar); });
             const el = document.getElementById('statKasaNakit');
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
+
+            let bankaBakiye = 0;
+            window.bankaIslemleri.forEach(b => {
+                let tutar = Number(b.tutar);
+                if (b.islemTuru.includes('Gelen')) bankaBakiye += tutar;
+                else if (b.islemTuru.includes('Gönderilen')) bankaBakiye -= tutar;
+            });
+            const bEl = document.getElementById('statBankaBakiye');
+            if(bEl) { bEl.innerText = `${bankaBakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; bEl.style.color = bankaBakiye >= 0 ? '#60a5fa' : '#f87171'; }
         };
 
         window.girisYap = function() {
@@ -553,6 +579,7 @@
             if(tabName === 'servisTab') window.servisListele();
             if(tabName === 'satisTab') window.satisGecmisListele();
             if(tabName === 'giderTab') window.giderListele();
+            if(tabName === 'bankaTab') window.bankaListele();
         };
 
         window.dashboardGuncelle = function() {
@@ -612,6 +639,23 @@
                 this.reset(); document.getElementById('tedOdemeTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Toptancıya ödeme işlendi!");
             });
 
+            document.getElementById('bankaForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const bankaId = Date.now();
+                const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
+                const tutar = parseFloat(document.getElementById('bankaTutari').value);
+                const bankaObj = {
+                    id: bankaId,
+                    islemTuru: document.getElementById('bankaIslemTuru').value,
+                    tutar: tutar,
+                    tarih: `${document.getElementById('bankaTarihi').value} [${simdiTarihSaat()}]`,
+                    aciklama: `${document.getElementById('bankaAciklama').value} (${tutar} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]`
+                };
+                this.reset(); document.getElementById('bankaTarihi').valueAsDate = new Date();
+                await setDoc(doc(window.db, "bankaIslemleri", bankaId.toString()), bankaObj);
+                alert("Banka işlemi başarıyla kaydedildi!");
+            });
+
             document.getElementById('satisForm').addEventListener('submit', async function(e) {
                 e.preventDefault(); const cariId = parseInt(document.getElementById('satisCariId').value); const urunId = parseInt(document.getElementById('satisUrunId').value);
                 const adet = parseInt(document.getElementById('satisAdet').value); const odemeYontemi = document.getElementById('satisOdemeYontemi').value; const secilenTarih = document.getElementById('satisTarihi').value; const aktifKullanici = sessionStorage.getItem('bb_aktif_kullanici') || 'admin';
@@ -666,6 +710,24 @@
 
         window.stokDuzenle = function(id) { const u = window.stoklar.find(x => x.id == id); if(u) { document.getElementById('duzenlenecekUrunId').value = u.id; document.getElementById('barkod').value = u.barkod; document.getElementById('urunAdi').value = u.urunAdi; document.getElementById('renk').value = u.renk; document.getElementById('alisFiyati').value = u.alisFiyati; document.getElementById('satisFiyati').value = u.satisFiyati; document.getElementById('stokMiktari').value = u.stokMiktari; document.getElementById('kritikStok').value = u.kritikStok; document.getElementById('stokFormBaslik').innerText = "✏️ Ürün Bilgisini Güncelle"; window.scrollTo({ top: 0, behavior: 'smooth' }); } };
         window.stokSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "stoklar", id.toString())); };
+
+        window.bankaListele = function() {
+            const tbody = document.querySelector('#bankaTablosu tbody'); if(!tbody) return; let html = '';
+            window.bankaIslemleri.forEach(b => {
+                let isGelen = b.islemTuru.includes('Gelen');
+                let renk = isGelen ? '#34d399' : '#ef4444';
+                let isaret = isGelen ? '+' : '-';
+                html += `<tr>
+                    <td><small>${b.tarih}</small></td>
+                    <td><span class="badge" style="background:${isGelen ? 'rgba(52,211,153,0.2)' : 'rgba(239,68,68,0.2)'}; color:${renk};">${b.islemTuru}</span></td>
+                    <td><b>${b.aciklama}</b></td>
+                    <td><b style="color:${renk};">${isaret}${Number(b.tutar).toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                    <td><button class="btn-delete" onclick="window.bankaSil(${b.id})">Sil</button></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        };
+        window.bankaSil = async function(id) { if(confirm('Banka işlemini silmek istiyor musunuz?')) await deleteDoc(doc(window.db, "bankaIslemleri", id.toString())); };
 
         window.cariListele = function() {
             const tbody = document.querySelector('#cariRehberTablosu tbody'); if(!tbody) return; 
@@ -888,7 +950,7 @@
             let net = borc - odenen; window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Sayın *${c.ad}* Yetkilisi,\nHesap Kontrolü:\nNet Kalan Borcumuz: ${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺\nİyi çalışmalar dileriz.`)}`, '_blank');
         };
 
-        window.verileriYedekle = function() { const data = { stoklar: window.stoklar, cariler: window.cariler, islemler: window.islemler, servisler: window.servisler, giderler: window.giderler }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `BB_Pro_Yedek.json`; a.click(); };
+        window.verileriYedekle = function() { const data = { stoklar: window.stoklar, cariler: window.cariler, islemler: window.islemler, servisler: window.servisler, giderler: window.giderler, bankaIslemleri: window.bankaIslemleri }; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `BB_Pro_Yedek.json`; a.click(); };
     </script>
 </body>
 </html>

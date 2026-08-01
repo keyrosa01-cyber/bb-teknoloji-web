@@ -77,9 +77,12 @@
         .autocomplete-items div { padding: 12px 16px; cursor: pointer; background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); font-size: 13px; font-weight: 600; color: var(--text-main); }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
         
+        /* PROFESYONEL FATURA & FİŞ STİLİ (YAZDIRMA İÇİN) */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
             body * { visibility: hidden; }
+            
+            /* Bayi Ekstresi Print */
             body.printing-cari-ekstre #pdfCariAlani, body.printing-cari-ekstre #pdfCariAlani * { visibility: visible; }
             body.printing-cari-ekstre #pdfCariAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 20px !important; border-radius: 0 !important; box-shadow: none !important; }
             body.printing-cari-ekstre #pdfCariAlani h1 { color: #000 !important; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 18px; }
@@ -88,6 +91,8 @@
             body.printing-cari-ekstre #pdfCariAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             body.printing-cari-ekstre #pdfCariAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
             body.printing-cari-ekstre #pdfCariAlani tr:nth-child(even) { background-color: #fff !important; }
+            
+            /* Toptancı Ekstresi Print */
             body.printing-tedarikci-ekstre #pdfTedarikciAlani, body.printing-tedarikci-ekstre #pdfTedarikciAlani * { visibility: visible; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 20px !important; border-radius: 0 !important; box-shadow: none !important; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani h1 { color: #000 !important; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 18px; }
@@ -96,6 +101,15 @@
             body.printing-tedarikci-ekstre #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani tr:nth-child(even) { background-color: #fff !important; }
+
+            /* Toplu Borç Listesi Print */
+            body.printing-tum-borclar #pdfTumBorclarAlani, body.printing-tum-borclar #pdfTumBorclarAlani * { visibility: visible; }
+            body.printing-tum-borclar #pdfTumBorclarAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: none !important; padding: 20px !important; border-radius: 0 !important; box-shadow: none !important; display: block !important; }
+            body.printing-tum-borclar #pdfTumBorclarAlani h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 22px; margin-bottom: 20px; }
+            body.printing-tum-borclar #pdfTumBorclarAlani table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse; }
+            body.printing-tum-borclar #pdfTumBorclarAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 13px; text-transform: uppercase; padding: 12px; }
+            body.printing-tum-borclar #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 14px; padding: 12px; }
+
             .btn-delete-col, button { display: none !important; }
             @page { size: A4 portrait; margin: 10mm; }
         }
@@ -284,11 +298,21 @@
 
     <!-- BAYİ EKSTRESİ SEKME -->
     <div id="cariHesaplarTab" class="tab-content">
-        <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">💳 Bayi & Müşteri Hesap Kartları (Borçlular Üstte 🚀)</h2>
-        <p style="font-size:12px; color:var(--text-muted); margin-top:-5px;">Toptancılar bu listede görünmez, onlar 8. Toptancı sekmesindedir.</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+            <div>
+                <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px; margin-bottom:4px;">💳 Bayi & Müşteri Hesap Kartları</h2>
+                <p style="font-size:12px; color:var(--text-muted); margin:0;">Toptancılar bu listede görünmez, onlar 8. Toptancı sekmesindedir.</p>
+            </div>
+            <button class="btn-pro-action" style="background:#10b981; color:#0a0d14; border-color:#059669; font-size:14px; padding:12px 20px;" onclick="window.tumBorclulariYazdir()">🖨️ Tüm Borçlu Listesini Yazdır</button>
+        </div>
+        
         <input type="text" id="ekstreAramaInput" class="search-box" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
         <div id="cariKartlarKutusu" class="cari-grid"></div>
         <hr style="border-color:var(--border-color); margin:28px 0;">
+
+        <!-- YAZDIRMA İÇİN GİZLİ ALAN (TÜM BORÇLULAR) -->
+        <div id="pdfTumBorclarAlani" style="display:none;"></div>
+
         <div id="detayPaneli" style="display:none;">
             <div id="pdfCariAlani" style="background:var(--card-inner); padding:22px; border-radius:16px; margin-bottom:24px; border:1px solid var(--border-color);">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:15px;">
@@ -332,7 +356,6 @@
             <div class="stat-card" style="border-left-color:#ef4444;"><div class="stat-title">Şirket Giderleri Çıkışı</div><div class="stat-value" id="finansToplamGider" style="color:#f87171;">0.00 ₺</div></div>
             <div class="stat-card" style="border-left-color:#60a5fa;"><div class="stat-title">Gerçek NET KAR</div><div class="stat-value" id="finansNetKar" style="color:#60a5fa; font-size:26px;">0.00 ₺</div></div>
         </div>
-        <!-- FİNANS TABLOSUNA SİLME BUTONU SÜTUNU EKLENDİ -->
         <table id="finansTablosu"><thead><tr><th>Zaman Damgası</th><th>Kategori / İşlem</th><th>Ödeme / Detay</th><th>Tutar / Gider</th><th>İşlenen Kar</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
@@ -605,6 +628,7 @@
             document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = new Date());
         });
 
+        /* OPTİMİZE EDİLMİŞ TABLO ÇİZİMLERİ (DONMAYI ENGELLER) */
         window.stokLlistele = function() {
             const tbody = document.querySelector('#stokTablosu tbody'); if(!tbody) return; 
             const arama = turkceKucukHarf(document.getElementById('stokAramaInput').value); let html = '';
@@ -750,6 +774,36 @@
         window.gunlukRaporuYazdir = function() { window.openTab('finansTab', document.querySelector('.tab-btn:nth-child(5)')); setTimeout(() => window.print(), 300); };
         window.bayiEkstrePdfIndir = function() { if (!window.seciliCariId) return alert("Seçim yapın!"); document.body.classList.add('printing-cari-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-cari-ekstre'), 500); };
         window.tedarikciEkstrePdfIndir = function() { if (!window.seciliTedarikciId) return alert("Toptancı seçimi yapın!"); document.body.classList.add('printing-tedarikci-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-tedarikci-ekstre'), 500); };
+
+        window.tumBorclulariYazdir = function() {
+            let liste = window.cariler.filter(c => c.tur !== 'Tedarikçi').map(c => {
+                let borc = 0, odenen = 0;
+                window.islemler.filter(i => i.cariId == c.id).forEach(i => {
+                    let tut = Number(i.islemTutari);
+                    if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += tut;
+                    else if (i.islemTuru.includes('Ödeme Alındı')) odenen += tut;
+                });
+                return { ...c, bakiye: borc - odenen };
+            });
+
+            let borclular = liste.filter(c => c.bakiye > 0).sort((a, b) => b.bakiye - a.bakiye);
+            let html = `<h1>HAFTALIK TOPLU BORÇ LİSTESİ (${new Date().toLocaleDateString('tr-TR')})</h1>`;
+            html += `<table><thead><tr><th>Cari / Bayi Adı</th><th>Tür</th><th>Kalan Toplam Borç</th></tr></thead><tbody>`;
+
+            let genelToplam = 0;
+            borclular.forEach(c => {
+                genelToplam += c.bakiye;
+                html += `<tr><td><b>${c.ad}</b></td><td>${c.tur}</td><td><b>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
+            });
+
+            html += `<tr><td colspan="2" style="text-align:right; font-size:16px;"><b>GENEL TOPLAM ALACAK:</b></td><td style="font-size:16px;"><b>${genelToplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
+            html += `</tbody></table>`;
+
+            document.getElementById('pdfTumBorclarAlani').innerHTML = html;
+            document.body.classList.add('printing-tum-borclar');
+            window.print();
+            setTimeout(() => { document.body.classList.remove('printing-tum-borclar'); document.getElementById('pdfTumBorclarAlani').innerHTML = ''; }, 500);
+        };
 
         window.whatsappEkstreGonder = function() {
             if (!window.seciliCariId) return; const c = window.cariler.find(x => x.id == window.seciliCariId); if (!c || !c.tel) return alert('Telefon numarası yok!');

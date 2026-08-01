@@ -77,12 +77,9 @@
         .autocomplete-items div { padding: 12px 16px; cursor: pointer; background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); font-size: 13px; font-weight: 600; color: var(--text-main); }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
         
-        /* PROFESYONEL FATURA & FİŞ STİLİ (YAZDIRMA İÇİN) */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
             body * { visibility: hidden; }
-            
-            /* Bayi Ekstresi Print */
             body.printing-cari-ekstre #pdfCariAlani, body.printing-cari-ekstre #pdfCariAlani * { visibility: visible; }
             body.printing-cari-ekstre #pdfCariAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 25px !important; border-radius: 0 !important; box-shadow: none !important; }
             body.printing-cari-ekstre #pdfCariAlani h1 { color: #000 !important; }
@@ -91,19 +88,13 @@
             body.printing-cari-ekstre #pdfCariAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
             body.printing-cari-ekstre #pdfCariAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             body.printing-cari-ekstre #pdfCariAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
-            body.printing-cari-ekstre #pdfCariAlani tr:nth-child(even) { background-color: #fff !important; }
             
-            /* Toptancı Ekstresi Print */
             body.printing-tedarikci-ekstre #pdfTedarikciAlani, body.printing-tedarikci-ekstre #pdfTedarikciAlani * { visibility: visible; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 25px !important; border-radius: 0 !important; box-shadow: none !important; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani h1 { color: #000 !important; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani p, body.printing-tedarikci-ekstre #pdfTedarikciAlani div { color: #333 !important; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani tr:nth-child(even) { background-color: #fff !important; }
 
-            /* Toplu Borç Listesi Print */
             body.printing-tum-borclar #pdfTumBorclarAlani, body.printing-tum-borclar #pdfTumBorclarAlani * { visibility: visible; }
             body.printing-tum-borclar #pdfTumBorclarAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: none !important; padding: 20px !important; border-radius: 0 !important; box-shadow: none !important; display: block !important; }
             body.printing-tum-borclar #pdfTumBorclarAlani h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 22px; margin-bottom: 20px; }
@@ -149,6 +140,19 @@
             <div style="margin-bottom:24px; text-align:left;"><label>Şifre</label><input type="password" id="loginPass" placeholder="••••••••" style="margin-top:4px;" onkeydown="if(event.key==='Enter') window.girisYap()"></div>
             <button class="submit-btn" style="width:100%; padding:15px;" onclick="window.girisYap()">Sisteme Giriş Yap 🚀</button>
             <p id="loginError" style="color:var(--danger); font-size:13px; margin-top:16px; display:none; font-weight:bold;">❌ Hatalı kullanıcı adı veya şifre!</p>
+        </div>
+    </div>
+
+    <!-- İŞLEM DÜZENLEME MODALI -->
+    <div id="islemDuzenleModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10,13,20,0.92); backdrop-filter:blur(8px); z-index:99999; justify-content:center; align-items:center; padding:20px;">
+        <div class="modal-box" style="max-width:420px; text-align:left;">
+            <h3 style="color:var(--gold-bright); margin-top:0; font-size:18px;">✏️ İşlemi Düzenle</h3>
+            <input type="hidden" id="duzenleIslemId">
+            <div style="margin-bottom:12px;"><label>İşlem Türü</label><input type="text" id="duzenleIslemTuru"></div>
+            <div style="margin-bottom:12px;"><label>Tutar (₺)</label><input type="number" step="0.01" id="duzenleIslemTutari"></div>
+            <div style="margin-bottom:20px;"><label>Açıklama</label><textarea id="duzenleAciklama" rows="3"></textarea></div>
+            <button class="submit-btn" style="width:100%; padding:14px; margin-bottom:10px;" onclick="window.islemGuncelleKaydet()">Değişiklikleri Kaydet ⚡</button>
+            <button class="btn-pro-action" style="width:100%; padding:12px; justify-content:center; background:transparent; border-color:var(--border-color); color:var(--text-muted);" onclick="window.islemDuzenleKapat()">İptal / Kapat</button>
         </div>
     </div>
 
@@ -651,7 +655,6 @@
             document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = new Date());
         });
 
-        /* OPTİMİZE EDİLMİŞ TABLO ÇİZİMLERİ (DONMAYI ENGELLER) */
         window.stokLlistele = function() {
             const tbody = document.querySelector('#stokTablosu tbody'); if(!tbody) return; 
             const arama = turkceKucukHarf(document.getElementById('stokAramaInput').value); let html = '';
@@ -719,15 +722,51 @@
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
                 let tut = Number(i.islemTutari); if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += tut; else if (i.islemTuru.includes('Ödeme Alındı')) odenen += tut;
                 
-                // MALİYETLERİ KESİN OLARAK GİZLEYEN GÜÇLENDİRİLMİŞ FİLTRE:
                 let aciklama = i.aciklama || '-';
                 aciklama = aciklama.replace(/\(Maliyet:[^)]*\)/gi, ''); 
                 aciklama = aciklama.replace(/Maliyet:\s*[\d,.]+\s*₺\s*\|\s*/gi, ''); 
                 aciklama = aciklama.replace(/Maliyet:[^|]*\|\s*/gi, '');
                 
-                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b>${i.islemTuru}</b></td><td>${aciklama.trim()}</td><td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                html += `<tr>
+                    <td><small>${i.islemTarihi}</small></td>
+                    <td><b>${i.islemTuru}</b></td>
+                    <td>${aciklama.trim()}</td>
+                    <td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                    <td class="btn-delete-col">
+                        <button class="btn-edit" onclick="window.islemDuzenleAc('${i.id}')">Düzenle</button>
+                        <button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button>
+                    </td>
+                </tr>`;
             });
             tbody.innerHTML = html; let net = borc - odenen; document.getElementById('seciliCariBakiye').innerHTML = `<b>Net Bakiye:</b> <span style="color:${net > 0 ? '#f87171' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
+        };
+
+        window.islemDuzenleAc = function(id) {
+            const islem = window.islemler.find(x => x.id == id);
+            if(!islem) return;
+            document.getElementById('duzenleIslemId').value = islem.id;
+            document.getElementById('duzenleIslemTuru').value = islem.islemTuru;
+            document.getElementById('duzenleIslemTutari').value = islem.islemTutari;
+            document.getElementById('duzenleAciklama').value = islem.aciklama;
+            document.getElementById('islemDuzenleModal').style.display = 'flex';
+        };
+
+        window.islemDuzenleKapat = function() {
+            document.getElementById('islemDuzenleModal').style.display = 'none';
+        };
+
+        window.islemGuncelleKaydet = async function() {
+            const id = document.getElementById('duzenleIslemId').value;
+            const islem = window.islemler.find(x => x.id == id);
+            if(!islem) return;
+
+            islem.islemTuru = document.getElementById('duzenleIslemTuru').value;
+            islem.islemTutari = parseFloat(document.getElementById('duzenleIslemTutari').value);
+            islem.aciklama = document.getElementById('duzenleAciklama').value;
+
+            await setDoc(doc(window.db, "islemler", id.toString()), islem);
+            window.islemDuzenleKapat();
+            alert("İşlem başarıyla güncellendi!");
         };
 
         window.tedarikciKartlariniYukle = function() {
@@ -755,7 +794,7 @@
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
                 let tut = Number(i.islemTutari); if (i.islemTuru.includes('Toptancı Alımı')) borc += tut; else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += tut;
                 let isAlim = i.islemTuru.includes('Toptancı Alımı'); let renk = isAlim ? '#ef4444' : '#34d399';
-                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b style="color:${renk}">${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b style="color:${renk}">${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b style="color:${renk}">${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b style="color:${renk}">${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-edit" onclick="window.islemDuzenleAc('${i.id}')">Düzenle</button><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
             });
             tbody.innerHTML = html; let net = borc - odenen; document.getElementById('seciliTedarikciBakiye').innerHTML = `<b>Net Kalan Borcumuz:</b> <span style="color:${net > 0 ? '#ef4444' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
         };

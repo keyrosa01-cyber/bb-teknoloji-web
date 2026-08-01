@@ -523,41 +523,64 @@
 
         window.kasaHesapla = function() {
             let nakitKasa = 0;
-            // 1. Satışlardan Gelen Nakitler
+            // 1. Satış ve Ödeme işlemlerinden gelen nakitler (Varsayılan olarak ödeme yöntemi seçilmediyse veya Nakit ise nakit kasaya eklenir)
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
-                if (i.islemTuru.includes('Satış')) { 
-                    if (!i.odemeYontemi || i.odemeYontemi.includes('Nakit') || i.odemeYontemi === 'Nakit') nakitKasa += tutar; 
+                let odeme = (i.odemeYontemi || '').toLowerCase();
+                let tur = (i.islemTuru || '').toLowerCase();
+
+                if (tur.includes('satış') || tur.includes('ödeme alındı')) {
+                    if (!odeme || odeme.includes('nakit') || odeme.includes('doğrudan') || (!odeme.includes('kredi') && !odeme.includes('havale'))) {
+                        nakitKasa += tutar;
+                    }
                 }
-                if (i.islemTuru.includes('Ödeme Alındı')) {
-                    if (!i.odemeYontemi || i.odemeYontemi.includes('Nakit') || i.odemeYontemi === 'Nakit') nakitKasa += tutar;
-                }
-                if (i.islemTuru === '💸 Toptancıya Ödeme' && (!i.odemeYontemi || i.odemeYontemi.includes('Nakit') || i.odemeYontemi === 'Nakit')) {
-                    nakitKasa -= tutar;
+                if (tur.includes('toptancıya ödeme')) {
+                    if (!odeme || odeme.includes('nakit')) {
+                        nakitKasa -= tutar;
+                    }
                 }
             });
-            // 2. Servis Ücretlerinden Gelen Nakitler
+
+            // 2. Teknik servis nakit girişleri
             window.servisler.forEach(s => { 
                 let tutar = Number(s.ucret); 
-                if (!s.odemeYontemi || s.odemeYontemi.includes('Nakit') || s.odemeYontemi === 'Nakit' || s.odemeYontemi.includes('Doğrudan Nakit')) { 
+                let odeme = (s.odemeYontemi || '').toLowerCase();
+                if (!odeme || odeme.includes('nakit') || odeme.includes('doğrudan')) { 
                     nakitKasa += tutar; 
                 } 
             });
-            // 3. Nakit Giderler
+
+            // 3. Nakit giderler
             window.giderler.forEach(g => { 
-                if (!g.odemeYontemi || g.odemeYontemi.includes('Nakit')) {
+                let odeme = (g.odemeYontemi || '').toLowerCase();
+                if (!odeme || odeme.includes('nakit')) {
                     nakitKasa -= Number(g.tutar); 
                 }
             });
+
             const el = document.getElementById('statKasaNakit');
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
 
+            // Banka Bakiye Hesaplama (Hem bankaIslemleri hem de İşlemlerdeki havale/kart geçişleri)
             let bankaBakiye = 0;
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
                 if (b.islemTuru.includes('Gelen')) bankaBakiye += tutar;
                 else if (b.islemTuru.includes('Gönderilen')) bankaBakiye -= tutar;
             });
+
+            // Ek olarak işlemlerde veya ödemelerde banka/kart/havale geçenleri de bankaya dahil edelim
+            window.islemler.forEach(i => {
+                let odeme = (i.odemeYontemi || '').toLowerCase();
+                let aciklama = (i.aciklama || '').toLowerCase();
+                let tutar = Number(i.islemTutari);
+                if (odeme.includes('kredi') || odeme.includes('havale') || aciklama.includes('iban') || aciklama.includes('havale')) {
+                    if (i.islemTuru.includes('Ödeme Alındı') || i.islemTuru.includes('Satış')) {
+                        bankaBakiye += tutar;
+                    }
+                }
+            });
+
             const bEl = document.getElementById('statBankaBakiye');
             if(bEl) { bEl.innerText = `${bankaBakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; bEl.style.color = bankaBakiye >= 0 ? '#60a5fa' : '#f87171'; }
         };
@@ -613,7 +636,6 @@
                 let bak = borc - odenen; if (bak > 0) toplamAlacakTL += bak;
             });
             document.getElementById('statStokAdet').innerText = `${toplamCesit} Çeşit / ${toplamAdet} Adet`;
-            document.getElementById('statMaliyet').innerText = `${toplamMaliyetTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
             document.getElementById('statAlacak').innerText = `${toplamAlacakTL.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`;
         };
 
@@ -684,6 +706,20 @@
                 const toplamTutar = Number(urun.satisFiyati) * adet; const maliyetTutar = Number(urun.alisFiyati) * adet; const karTutar = toplamTutar - maliyetTutar;
                 const islemId = Date.now() + Math.floor(Math.random() * 1000); let islemTuruBaslik = odemeYontemi.includes('Veresiye') ? '📦 Veresiye Satış (Borç)' : '📦 Peşin Satış';
                 const islemObj = { id: islemId, cariId: cari.id, islemTuru: islemTuruBaslik, islemTutari: toplamTutar, odemeYontemi: odemeYontemi, kar: karTutar, islemTarihi: `${secilenTarih} [${simdiTarihSaat()}]`, aciklama: `${adet} Adet "${urun.urunAdi}" (${toplamTutar} ₺) [Ödeme: ${odemeYontemi}] [Yapan: ${aktifKullanici.toUpperCase()}]` };
+                
+                // Eğer satış ödemesi Kredi Kartı / Havale ise bankaya da ekleyelim
+                if (odemeYontemi.includes('Kredi Kartı')) {
+                    const bankaId = Date.now() + 1;
+                    const bankaObj = {
+                        id: bankaId,
+                        islemTuru: "IBAN'a Gelen Para",
+                        tutar: toplamTutar,
+                        tarih: `${secilenTarih} [${simdiTarihSaat()}]`,
+                        aciklama: `${cari.ad} - Satış Ödemesi (Havale/Kart) (${toplamTutar} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]`
+                    };
+                    await setDoc(doc(window.db, "bankaIslemleri", bankaId.toString()), bankaObj);
+                }
+
                 this.reset(); document.getElementById('satisCariId').value = ''; document.getElementById('satisUrunId').value = ''; document.getElementById('satisTarihi').valueAsDate = new Date();
                 await setDoc(doc(window.db, "stoklar", urun.id.toString()), urun); await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj); alert("Satış tamamlandı, Kar sisteme işlendi!");
             });

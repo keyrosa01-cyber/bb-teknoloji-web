@@ -740,10 +740,14 @@
                 const karTutar = ucret - maliyet; let cariAdi = "Doğrudan Nakit"; if (cariId) { const cariBul = window.cariler.find(c => c.id == cariId); if (cariBul) cariAdi = cariBul.ad; }
                 const servisObj = { id: servisId, cihaz: cihaz, maliyet: maliyet, ucret: ucret, kar: karTutar, odemeYontemi: odemeYontemi, tarih: `${tarih} [${simdiTarihSaat()}]`, cariId: cariId ? parseInt(cariId) : null, cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase() };
                 
+                // KESİN ÇÖZÜM: Teknik Servisten girilen her işlem doğrudan 'islemler' veritabanına da işlenir, böylece Finans & Kar Zarar ekranında anında görünür!
                 const islemId = Date.now() + 1; let servisIslemBaslik = (cariId && (odemeYontemi.includes('Cari Borç') || odemeYontemi.includes('Veresiye'))) ? '🛠️ Teknik Servis (Borç)' : '🛠️ Teknik Servis (Peşin)';
                 const islemObj = { id: islemId, cariId: cariId ? parseInt(cariId) : 999999, islemTuru: servisIslemBaslik, islemTutari: ucret, odemeYontemi: odemeYontemi, kar: karTutar, islemTarihi: `${tarih} [${simdiTarihSaat()}]`, aciklama: `${cihaz} - ${detay || 'Tamirat'} (Maliyet: ${maliyet} ₺ | Ücret: ${ucret} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]` }; 
+                
                 await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj);
-                this.reset(); document.getElementById('servisCariId').value = ''; document.getElementById('servisTarihi').valueAsDate = new Date(); await setDoc(doc(window.db, "servisler", servisId.toString()), servisObj); alert("Servis kaydedildi, Kar sisteme işlendi!");
+                this.reset(); document.getElementById('servisCariId').value = ''; document.getElementById('servisTarihi').valueAsDate = new Date(); 
+                await setDoc(doc(window.db, "servisler", servisId.toString()), servisObj); 
+                alert("Servis kaydedildi ve Finans / Kar tablosuna işlendi!");
             });
 
             document.getElementById('giderForm').addEventListener('submit', async function(e) {
@@ -933,7 +937,7 @@
         window.ozelTarihFiltreleUygula = function(tarihDegeri) {
             if(!tarihDegeri) return;
             window.aktifFinansFiltre = 'ozel';
-            window.secilenOzelTarih = tarihDegeri; // YYYY-MM-DD formatında gelir
+            window.secilenOzelTarih = tarihDegeri; // YYYY-MM-DD
             document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
             window.finansGuncelle();
         };
@@ -946,10 +950,9 @@
 
             const tarihUyuşuyorMu = (tarihMetni) => {
                 if(!tarihMetni) return false; 
-                let tarihKismi = tarihMetni.split(' ')[0]; // Örn: 01.08.2026 veya YYYY-MM-DD
+                let tarihKismi = tarihMetni.split(' ')[0]; // GG.AA.YYYY veya YYYY-MM-DD
                 
                 if (window.aktifFinansFiltre === 'ozel' && window.secilenOzelTarih) {
-                    // Seçilen ozelTarih formatı: YYYY-MM-DD. Veritabanındaki tarih GG.AA.YYYY olabilir. Dönüştürüp kıyaslayalım.
                     let p = window.secilenOzelTarih.split('-'); // [YYYY, MM, DD]
                     if (p.length === 3) {
                         let formatorTarih = `${p[2]}.${p[1]}.${p[0]}`; // GG.AA.YYYY

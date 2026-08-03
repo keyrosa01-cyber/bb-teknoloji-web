@@ -390,14 +390,20 @@
     <!-- FİNANS SEKME -->
     <div id="finansTab" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
-            <div><h2 style="color:var(--gold-bright); margin:0; font-size:20px;">📊 Gelir - Gider, Ciro & Net Kar Bilançosu</h2><p style="font-size:12px; color:var(--text-muted); margin:4px 0 0 0;">Satışlardan ve Tamirlerden edilen net karlar bu tabloda toplanır.</p></div>
+            <div><h2 style="color:var(--gold-bright); margin:0; font-size:20px;">📊 Gelir - Gider, Ciro & Net Kar Bilançosu</h2><p style="font-size:12px; color:var(--text-muted); margin:4px 0 0 0;">Günlük, haftalık veya özel tarih seçerek ciro ve karlarınızı takip edin.</p></div>
+            
             <div class="filter-btn-group" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                 <button class="filter-btn active" onclick="window.finansFiltrele('bugun', this)">📅 Bugün</button>
                 <button class="filter-btn" onclick="window.finansFiltrele('buHafta', this)">📅 Bu Hafta (Son 7 Gün)</button>
                 <button class="filter-btn" onclick="window.finansFiltrele('buAy', this)">📅 Bu Ay</button>
                 <button class="filter-btn" onclick="window.finansFiltrele('tumu', this)">🌐 Tüm Zamanlar</button>
+                <div style="display:inline-flex; align-items:center; gap:6px; background:var(--card-inner); padding:4px 8px; border-radius:8px; border:1px solid var(--border-gold);">
+                    <span style="font-size:11px; color:var(--gold-bright); font-weight:700;">ÖZEL GÜN:</span>
+                    <input type="date" id="ozelTarihSecici" onchange="window.ozelTarihFiltreleUygula(this.value)" style="padding:6px; font-size:12px; width:140px; border:none; background:transparent; color:var(--text-main);">
+                </div>
             </div>
         </div>
+
         <div class="dashboard-grid" style="margin-bottom:25px;">
             <div class="stat-card" style="border-left-color:#fbbf24;"><div class="stat-title">Seçili Periyot Toplam Ciro</div><div class="stat-value" id="finansGunlukCiro" style="color:var(--gold-bright);">0.00 ₺</div></div>
             <div class="stat-card" style="border-left-color:#34d399;"><div class="stat-title">Brüt Kar (Satış + Servis)</div><div class="stat-value" id="finansBrutKar" style="color:#34d399;">0.00 ₺</div></div>
@@ -458,7 +464,7 @@
         window.db = db;
 
         window.stoklar = []; window.cariler = []; window.islemler = []; window.servisler = []; window.giderler = []; window.bankaIslemleri = [];
-        window.seciliCariId = null; window.seciliTedarikciId = null; window.aktifFinansFiltre = 'bugun';
+        window.seciliCariId = null; window.seciliTedarikciId = null; window.aktifFinansFiltre = 'bugun'; window.secilenOzelTarih = '';
 
         function kullanicilariGetir() { let kayitli = localStorage.getItem('bb_pro_users'); if (!kayitli) { let varsayilan = { "admin": "12345" }; localStorage.setItem('bb_pro_users', JSON.stringify(varsayilan)); return varsayilan; } return JSON.parse(kayitli); }
         function simdiTarihSaat() { const now = new Date(); return `${now.toLocaleDateString('tr-TR')} | ${now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`; }
@@ -534,7 +540,6 @@
                 let odeme = (i.odemeYontemi || '').toLowerCase();
                 let tur = (i.islemTuru || '').toLowerCase();
 
-                // Satışlardan veya Bayi Ekstresinden gelen NAKİT tahsilatlar kasaya eklenir
                 if (tur.includes('satış') || tur.includes('ödeme alındı')) {
                     if (!odeme || odeme.includes('nakit') || (!odeme.includes('kredi') && !odeme.includes('havale'))) {
                         nakitKasa += tutar;
@@ -565,7 +570,6 @@
             const el = document.getElementById('statKasaNakit');
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
 
-            // BANKA TOPLAMI: Sadece 9. Banka sekmesindeki hareketlerden hesaplanır.
             let bankaBakiye = 0;
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
@@ -908,23 +912,66 @@
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
                 let tut = Number(i.islemTutari); if (i.islemTuru.includes('Toptancı Alımı')) borc += tut; else if (i.islemTuru.includes('Toptancıya Ödeme')) odenen += tut;
                 let isAlim = i.islemTuru.includes('Toptancı Alımı'); let renk = isAlim ? '#ef4444' : '#34d399';
-                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b style="color:${renk}">${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b style="color:${renk}">${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-edit" onclick="window.islemDuzenleAc('${i.id}')">Düzenle</button><button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button></td></tr>`;
+                html += `<tr><td><small>${i.islemTarihi}</small></td><td><b style="color:${renk}">${i.islemTuru}</b></td><td>${i.aciklama}</td><td><b style="color:${renk}">${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td><td class="btn-delete-col"><button class="btn-edit" onclick="window.islemDuzenleAc('${i.id}')">Düzenle</button><button class="btn-delete" onclick="window.islemSil('${i.id}')">Sil</button></td></tr>`;
             });
             tbody.innerHTML = html; let net = borc - odenen; document.getElementById('seciliTedarikciBakiye').innerHTML = `<b>Net Kalan Borcumuz:</b> <span style="color:${net > 0 ? '#ef4444' : '#34d399'}">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>`;
         };
 
         window.islemSil = async function(id) { if(confirm('Bu işlemi silmek istediğinize emin misiniz?')) await deleteDoc(doc(window.db, "islemler", id.toString())); };
 
-        window.finansFiltrele = function(tur, btn) { window.aktifFinansFiltre = tur; if(btn) { document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); } window.finansGuncelle(); };
+        window.finansFiltrele = function(tur, btn) { 
+            window.aktifFinansFiltre = tur; 
+            window.secilenOzelTarih = '';
+            document.getElementById('ozelTarihSecici').value = '';
+            if(btn) { 
+                document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active')); 
+                btn.classList.add('active'); 
+            } 
+            window.finansGuncelle(); 
+        };
+
+        window.ozelTarihFiltreleUygula = function(tarihDegeri) {
+            if(!tarihDegeri) return;
+            window.aktifFinansFiltre = 'ozel';
+            window.secilenOzelTarih = tarihDegeri; // YYYY-MM-DD formatında gelir
+            document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
+            window.finansGuncelle();
+        };
 
         window.finansGuncelle = function() {
             const tbody = document.querySelector('#finansTablosu tbody'); if(!tbody) return; let html = '';
-            let ciro = 0, tahsilat = 0, toplamGider = 0, brutKar = 0; const simdi = new Date(); const bugunStr = simdi.toLocaleDateString('tr-TR');
+            let ciro = 0, tahsilat = 0, toplamGider = 0, brutKar = 0; 
+            const simdi = new Date(); 
+            const bugunStr = simdi.toLocaleDateString('tr-TR'); // GG.AA.YYYY
+
             const tarihUyuşuyorMu = (tarihMetni) => {
-                if(!tarihMetni) return false; let tarihKismi = tarihMetni.split(' ')[0];
+                if(!tarihMetni) return false; 
+                let tarihKismi = tarihMetni.split(' ')[0]; // Örn: 01.08.2026 veya YYYY-MM-DD
+                
+                if (window.aktifFinansFiltre === 'ozel' && window.secilenOzelTarih) {
+                    // Seçilen ozelTarih formatı: YYYY-MM-DD. Veritabanındaki tarih GG.AA.YYYY olabilir. Dönüştürüp kıyaslayalım.
+                    let p = window.secilenOzelTarih.split('-'); // [YYYY, MM, DD]
+                    if (p.length === 3) {
+                        let formatorTarih = `${p[2]}.${p[1]}.${p[0]}`; // GG.AA.YYYY
+                        return tarihKismi === formatorTarih;
+                    }
+                    return false;
+                }
+
                 if(window.aktifFinansFiltre === 'bugun') return tarihKismi === bugunStr;
-                else if(window.aktifFinansFiltre === 'buHafta') { const parcalar = tarihKismi.split('.'); if(parcalar.length === 3) { const iDate = new Date(`${parcalar[2]}-${parcalar[1]}-${parcalar[0]}`); const yGec = new Date(); yGec.setDate(simdi.getDate() - 7); return iDate >= yGec && iDate <= simdi; } }
-                else if(window.aktifFinansFiltre === 'buAy') { return tarihKismi.endsWith(bugunStr.slice(3)); } return true;
+                else if(window.aktifFinansFiltre === 'buHafta') { 
+                    const parcalar = tarihKismi.split('.'); 
+                    if(parcalar.length === 3) { 
+                        const iDate = new Date(`${parcalar[2]}-${parcalar[1]}-${parcalar[0]}`); 
+                        const yGec = new Date(); 
+                        yGec.setDate(simdi.getDate() - 7); 
+                        return iDate >= yGec && iDate <= simdi; 
+                    } 
+                }
+                else if(window.aktifFinansFiltre === 'buAy') { 
+                    return tarihKismi.endsWith(bugunStr.slice(3)); 
+                } 
+                return true;
             };
 
             let liste = [];
@@ -936,7 +983,7 @@
             });
             window.giderler.filter(g => tarihUyuşuyorMu(g.tarih)).forEach(g => { let tut = Number(g.tutar); toplamGider += tut; liste.push({id: g.id, tarih: g.tarih, kisi: g.kategori, tur: `📉 GİDER (${g.odemeYontemi})`, aciklama: g.aciklama, tutarStr: `-${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`, tip: 'gider', karStr: '-'}); });
 
-            liste.slice(0, 40).forEach(h => { 
+            liste.slice(0, 50).forEach(h => { 
                 let renk = h.tip === 'tahsilat' ? '#34d399' : (h.tip === 'gider' ? '#ef4444' : '#fbbf24'); 
                 let silmeButonu = h.tip === 'gider' ? `<button class="btn-delete" onclick="window.giderSil(${h.id})">Sil</button>` : `<button class="btn-delete" onclick="window.islemSil(${h.id})">Sil</button>`;
                 html += `<tr><td><small>${h.tarih}</small></td><td><b>${h.kisi}</b></td><td><span style="color:${renk};">${h.tur}</span><br><small>${h.aciklama}</small></td><td><b style="color:${renk};">${h.tutarStr}</b></td><td><b style="color:#10b981;">${h.karStr}</b></td><td>${silmeButonu}</td></tr>`; 

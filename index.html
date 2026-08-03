@@ -21,7 +21,7 @@
 
         * { box-sizing: border-box; outline: none; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-main); margin: 0; padding: 24px; color: var(--text-main); background-image: radial-gradient(circle at 50% 0%, #1f1a0d 0%, var(--bg-main) 75%); min-height: 100vh; line-height: 1.5; }
-        #loginScreen, #passwordModal, #islemDuzenleModal, #topluYazdirModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 13, 20, 0.92); backdrop-filter: blur(8px); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        #loginScreen, #passwordModal, #islemDuzenleModal, #topluYazdirModal, #kasaDetayModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 13, 20, 0.92); backdrop-filter: blur(8px); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { background: var(--card-bg); border: 1px solid var(--gold-main); padding: 40px; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 0 60px rgba(245, 158, 11, 0.15); display: flex; flex-direction: column; }
         .header-brand { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(17, 22, 34, 0.95) 100%); border: 1px solid var(--border-gold); border-radius: 16px; margin-bottom: 24px; box-shadow: var(--shadow); }
         .brand-title h1 { color: var(--gold-bright); font-size: 24px; font-weight: 800; margin: 0; letter-spacing: 1px; }
@@ -30,7 +30,8 @@
         .btn-pro-action { padding: 11px 18px; font-size: 12px; font-weight: 700; border-radius: 10px; border: 1px solid var(--border-gold); background: var(--card-inner); color: var(--gold-bright); cursor: pointer; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 8px; }
         .btn-pro-action:hover { background: var(--gold-main); color: #000; transform: translateY(-2px); }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 28px; }
-        .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 22px; border-radius: 16px; border-left: 4px solid var(--gold-main); box-shadow: var(--shadow); }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 22px; border-radius: 16px; border-left: 4px solid var(--gold-main); box-shadow: var(--shadow); transition: all 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); border-color: var(--gold-main); }
         .stat-title { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-value { font-size: 22px; color: var(--text-main); font-weight: 800; margin-top: 10px; }
         .tab-buttons { margin-bottom: 24px; display: flex; gap: 8px; flex-wrap: wrap; }
@@ -80,71 +81,39 @@
         
         @media print {
             body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
-            
-            body.printing-cari-ekstre > *:not(#cariHesaplarTab),
-            body.printing-tum-borclar > *:not(#cariHesaplarTab),
-            body.printing-tedarikci-ekstre > *:not(#tedarikciTab) { display: none !important; }
-
-            body.printing-cari-ekstre #cariHesaplarTab > *:not(#detayPaneli),
-            body.printing-tum-borclar #cariHesaplarTab > *:not(#pdfTumBorclarAlani) { display: none !important; }
-
+            body.printing-cari-ekstre > *:not(#cariHesaplarTab), body.printing-tum-borclar > *:not(#cariHesaplarTab), body.printing-tedarikci-ekstre > *:not(#tedarikciTab) { display: none !important; }
+            body.printing-cari-ekstre #cariHesaplarTab > *:not(#detayPaneli), body.printing-tum-borclar #cariHesaplarTab > *:not(#pdfTumBorclarAlani) { display: none !important; }
             body.printing-cari-ekstre #detayPaneli > *:not(#pdfCariAlani) { display: none !important; }
-
             body.printing-tedarikci-ekstre #tedarikciTab > *:not(#tedarikciDetayPaneli) { display: none !important; }
             body.printing-tedarikci-ekstre #tedarikciDetayPaneli > *:not(#pdfTedarikciAlani) { display: none !important; }
-
-            #pdfCariAlani, #pdfTedarikciAlani, #pdfTumBorclarAlani { 
-                display: block !important; 
-                position: relative !important; 
-                width: 100% !important; 
-                box-shadow: none !important; 
-                border: none !important; 
-                margin: 0 !important; 
-                padding: 10px !important; 
-            }
-
-            #pdfCariAlani h1 { color: #000 !important; }
-            #pdfCariAlani p, #pdfCariAlani div { color: #333 !important; }
-            #pdfCariAlani h2 { color: #000 !important; font-size: 16px; }
+            #pdfCariAlani, #pdfTedarikciAlani, #pdfTumBorclarAlani { display: block !important; position: relative !important; width: 100% !important; box-shadow: none !important; border: none !important; margin: 0 !important; padding: 10px !important; }
+            #pdfCariAlani h1 { color: #000 !important; } #pdfCariAlani p, #pdfCariAlani div { color: #333 !important; } #pdfCariAlani h2 { color: #000 !important; font-size: 16px; }
             #pdfCariAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
             #pdfCariAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             #pdfCariAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
-
             #pdfTedarikciAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
             #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
-
             #pdfTumBorclarAlani h2 { text-align: center; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
             #pdfTumBorclarAlani table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse; table-layout: fixed; }
             #pdfTumBorclarAlani th { background-color: #e2e8f0 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 10px; text-transform: uppercase; padding: 6px; }
             #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 11px; padding: 6px; word-wrap: break-word; } 
-
-            table tr { page-break-inside: avoid; } 
-            .btn-delete-col, button { display: none !important; }
-            
+            table tr { page-break-inside: avoid; } .btn-delete-col, button { display: none !important; }
             @page { size: A4 portrait; margin: 10mm; }
         }
 
         @media screen and (max-width: 768px) {
-            body { padding: 10px; }
-            .header-brand { flex-direction: column; gap: 12px; text-align: center; padding: 15px; }
-            .brand-title h1 { font-size: 20px; }
-            .backup-controls { justify-content: center; width: 100%; gap: 6px; }
+            body { padding: 10px; } .header-brand { flex-direction: column; gap: 12px; text-align: center; padding: 15px; }
+            .brand-title h1 { font-size: 20px; } .backup-controls { justify-content: center; width: 100%; gap: 6px; }
             .btn-pro-action { flex: 1 1 calc(50% - 6px); justify-content: center; font-size: 11px; padding: 10px; }
-            .dashboard-grid { grid-template-columns: 1fr; gap: 10px; }
-            .stat-card { padding: 14px; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 10px; } .stat-card { padding: 14px; }
             .tab-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
             .tab-btn { width: 100%; justify-content: center; padding: 14px 10px; font-size: 12px; border-radius: 12px; text-align: center; }
-            .tab-content { padding: 18px 12px; }
-            form { grid-template-columns: 1fr; padding: 18px 12px; gap: 14px; }
-            input, select, textarea { padding: 14px; font-size: 16px !important; }
-            button.submit-btn { padding: 16px; font-size: 14px; }
-            .search-box { font-size: 16px !important; padding: 14px; }
-            table { display: block; width: 100%; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-            th, td { padding: 12px; font-size: 12px; }
-            .btn-whatsapp, .btn-pdf { width: 100%; justify-content: center; padding: 14px; }
-            .filter-btn-group { justify-content: space-between; width: 100%; }
-            .filter-btn { flex: 1; text-align: center; padding: 10px 4px; font-size: 11px; }
+            .tab-content { padding: 18px 12px; } form { grid-template-columns: 1fr; padding: 18px 12px; gap: 14px; }
+            input, select, textarea { padding: 14px; font-size: 16px !important; } button.submit-btn { padding: 16px; font-size: 14px; }
+            .search-box { font-size: 16px !important; padding: 14px; } table { display: block; width: 100%; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+            th, td { padding: 12px; font-size: 12px; } .btn-whatsapp, .btn-pdf { width: 100%; justify-content: center; padding: 14px; }
+            .filter-btn-group { justify-content: space-between; width: 100%; } .filter-btn { flex: 1; text-align: center; padding: 10px 4px; font-size: 11px; }
             .modal-box { padding: 25px 15px; width: 95%; max-width: none; }
         }
     </style>
@@ -159,6 +128,16 @@
             <div style="margin-bottom:24px; text-align:left;"><label>Şifre</label><input type="password" id="loginPass" placeholder="••••••••" style="margin-top:4px;" onkeydown="if(event.key==='Enter') window.girisYap()"></div>
             <button class="submit-btn" style="width:100%; padding:15px;" onclick="window.girisYap()">Sisteme Giriş Yap 🚀</button>
             <p id="loginError" style="color:var(--danger); font-size:13px; margin-top:16px; display:none; font-weight:bold;">❌ Hatalı kullanıcı adı veya şifre!</p>
+        </div>
+    </div>
+
+    <div id="kasaDetayModal" style="display:none;">
+        <div class="modal-box" style="max-width:550px; max-height:85vh; width:100%; text-align:left; overflow:hidden; display:flex; flex-direction:column; padding:30px;">
+            <h3 style="color:#34d399; margin-top:0; font-size:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">🔍 Kasa Dedektifi (Nakit Dökümü)</h3>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Sistemdeki 1.200 ₺ Nakit Kasanın, ilk günden bugüne kadar hangi işlemlerin toplanmasıyla oluştuğunu aşağıda görebilirsiniz. Listede hatalı olan veya geçmişte kalmış 1.000 ₺'lik işlemi bulup anında <b>Sil</b> butonuna basarak kasanızı 200 TL'ye eşitleyebilirsiniz.</p>
+            <div id="kasaDetayListesi" style="overflow-y:auto; flex:1; margin-bottom:20px; background:var(--card-inner); border-radius:10px; border:1px solid rgba(255,255,255,0.05); padding:10px;">
+                </div>
+            <button class="submit-btn" style="width:100%; padding:14px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-muted);" onclick="document.getElementById('kasaDetayModal').style.display='none'">Pencereyi Kapat</button>
         </div>
     </div>
 
@@ -221,7 +200,10 @@
     </div>
 
     <div class="dashboard-grid">
-        <div class="stat-card" style="border-left-color:#10b981;"><div class="stat-title">💰 Nakit Kasa</div><div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div></div>
+        <div class="stat-card" style="border-left-color:#10b981; cursor:pointer;" onclick="window.kasaDetayGoster()" title="Kasanın detay dökümünü görmek için tıklayın">
+            <div class="stat-title">💰 Nakit Kasa (Detay İçin Tıkla)</div>
+            <div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div>
+        </div>
         <div class="stat-card" style="border-left-color:#3b82f6;"><div class="stat-title">🏦 Banka / IBAN Toplamı</div><div class="stat-value" id="statBankaBakiye" style="color:#60a5fa;">0.00 ₺</div></div>
         <div class="stat-card"><div class="stat-title">Toplam Çeşit / Stok</div><div class="stat-value" id="statStokAdet">0 Çeşit / 0 Adet</div></div>
         <div class="stat-card" style="border-left-color:#ef4444;"><div class="stat-title">Piyasadan Toplam Alacak</div><div class="stat-value" id="statAlacak" style="color:#f87171;">0.00 ₺</div></div>
@@ -518,6 +500,75 @@
         onSnapshot(collection(db, "giderler"), (snapshot) => { window.giderler = []; snapshot.forEach((doc) => { window.giderler.push(doc.data()); }); window.ekraniGuncelle(); });
         onSnapshot(collection(db, "bankaIslemleri"), (snapshot) => { window.bankaIslemleri = []; snapshot.forEach((doc) => { window.bankaIslemleri.push(doc.data()); }); window.ekraniGuncelle(); });
 
+        /* ---------- YENİ: KASA DEDEKTİFİ FONKSİYONLARI ---------- */
+        window.kasaDetayGoster = function() {
+            let html = '<table style="width:100%; font-size:12px; border-collapse: collapse; text-align:left;"><thead><tr><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tarih</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Kayıt / İşlem Adı</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tutar</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Sil</th></tr></thead><tbody>';
+            let toplam = 0;
+            
+            // 1. İŞLEMLER
+            window.islemler.forEach(i => {
+                let tutar = Number(i.islemTutari);
+                let odeme = (i.odemeYontemi || '').toLowerCase();
+                let tur = (i.islemTuru || '').toLowerCase();
+                let isVeresiye = odeme.includes('veresiye') || odeme.includes('cari') || odeme.includes('açık') || tur.includes('borç');
+                let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
+                let isNakit = !isVeresiye && !isBanka;
+                let aciklama = (i.aciklama || '').toLowerCase();
+                if(!isBanka && !isVeresiye && (aciklama.includes('iban') || aciklama.includes('havale'))) { isBanka = true; isNakit = false; }
+
+                if (tur.includes('satış') || tur.includes('ödeme alındı')) {
+                    if (isNakit) { 
+                        toplam += tutar; 
+                        html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTarihi.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:#34d399">[+]</span> ${i.islemTuru}</td><td style="color:#34d399; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliKasaIslemSil('islemler', '${i.id}')">SİL</button></td></tr>`; 
+                    }
+                }
+                if (tur.includes('toptancıya ödeme')) {
+                    if (isNakit) { 
+                        toplam -= tutar; 
+                        html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTarihi.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:#ef4444">[-]</span> ${i.islemTuru}</td><td style="color:#ef4444; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliKasaIslemSil('islemler', '${i.id}')">SİL</button></td></tr>`; 
+                    }
+                }
+            });
+
+            // 2. SERVİSLER
+            window.servisler.forEach(s => { 
+                let tutar = Number(s.ucret); 
+                let odeme = (s.odemeYontemi || '').toLowerCase();
+                let isVeresiye = odeme.includes('veresiye') || odeme.includes('cari') || odeme.includes('açık');
+                let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
+                let isNakit = !isVeresiye && !isBanka;
+                if (isNakit) { 
+                    toplam += tutar; 
+                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${s.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:#34d399">[+]</span> Servis: ${s.cihaz}</td><td style="color:#34d399; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliKasaIslemSil('servisler', '${s.id}')">SİL</button></td></tr>`; 
+                }
+            });
+
+            // 3. GİDERLER
+            window.giderler.forEach(g => { 
+                let tutar = Number(g.tutar);
+                let odeme = (g.odemeYontemi || '').toLowerCase();
+                let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
+                let isNakit = !isBanka;
+                if (isNakit) { 
+                    toplam -= tutar; 
+                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${g.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:#ef4444">[-]</span> Gider: ${g.kategori}</td><td style="color:#ef4444; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliKasaIslemSil('giderler', '${g.id}')">SİL</button></td></tr>`; 
+                }
+            });
+            
+            html += `</tbody></table><div style="margin-top:20px; text-align:right; font-size:18px;"><b>NET KASA TOPLAMI: <span style="color:${toplam >= 0 ? '#34d399' : '#ef4444'};">${toplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></b></div>`;
+            document.getElementById('kasaDetayListesi').innerHTML = html;
+            document.getElementById('kasaDetayModal').style.display = 'flex';
+        };
+
+        window.hizliKasaIslemSil = async function(koleksiyon, id) {
+            if(confirm('DİKKAT: Bu işlemi tamamen silmek istediğinize emin misiniz? Sildiğiniz an KASA hemen güncellenecek.')) {
+                await deleteDoc(doc(window.db, koleksiyon, id.toString()));
+                document.getElementById('kasaDetayModal').style.display = 'none';
+                setTimeout(() => window.kasaDetayGoster(), 500); // Listeyi tekrar yükle
+            }
+        };
+        /* -------------------------------------------------------- */
+
         window.cariAramaCalistir = function(deger) {
             const listeDiv = document.getElementById('satisCariListesi'); listeDiv.innerHTML = '';
             const arama = turkceKucukHarf(deger); if (!arama) { listeDiv.style.display = 'none'; return; }
@@ -564,21 +615,15 @@
             let nakitKasa = 0;
             let bankaBakiye = 0;
 
-            // 1. İŞLEMLER (Ödeme Alındı, Satış, Toptancıya Ödeme)
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
                 let odeme = (i.odemeYontemi || '').toLowerCase();
                 let tur = (i.islemTuru || '').toLowerCase();
-
                 let isVeresiye = odeme.includes('veresiye') || odeme.includes('cari') || odeme.includes('açık') || tur.includes('borç');
                 let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
                 let isNakit = !isVeresiye && !isBanka;
-
                 let aciklama = (i.aciklama || '').toLowerCase();
-                if(!isBanka && !isVeresiye && (aciklama.includes('iban') || aciklama.includes('havale'))) {
-                    isBanka = true;
-                    isNakit = false;
-                }
+                if(!isBanka && !isVeresiye && (aciklama.includes('iban') || aciklama.includes('havale'))) { isBanka = true; isNakit = false; }
 
                 if (tur.includes('satış') || tur.includes('ödeme alındı')) {
                     if (isBanka) bankaBakiye += tutar;
@@ -590,11 +635,9 @@
                 }
             });
 
-            // 2. SERVİSLER
             window.servisler.forEach(s => { 
                 let tutar = Number(s.ucret); 
                 let odeme = (s.odemeYontemi || '').toLowerCase();
-                
                 let isVeresiye = odeme.includes('veresiye') || odeme.includes('cari') || odeme.includes('açık');
                 let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
                 let isNakit = !isVeresiye && !isBanka;
@@ -603,11 +646,9 @@
                 else if (isNakit) nakitKasa += tutar;
             });
 
-            // 3. GİDERLER
             window.giderler.forEach(g => { 
                 let tutar = Number(g.tutar);
                 let odeme = (g.odemeYontemi || '').toLowerCase();
-                
                 let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
                 let isNakit = !isBanka;
 
@@ -615,7 +656,6 @@
                 else if (isNakit) nakitKasa -= tutar;
             });
 
-            // 4. BANKA / IBAN SEKME MANUEL GİRİŞLERİ
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
                 if (b.islemTuru.includes('Gelen')) bankaBakiye += tutar;
@@ -1062,10 +1102,6 @@
         window.bayiEkstrePdfIndir = function() { if (!window.seciliCariId) return alert("Seçim yapın!"); document.body.classList.add('printing-cari-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-cari-ekstre'), 500); };
         window.tedarikciEkstrePdfIndir = function() { if (!window.seciliTedarikciId) return alert("Toptancı seçimi yapın!"); document.body.classList.add('printing-tedarikci-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-tedarikci-ekstre'), 500); };
 
-        /* -------------------------------------------------------------
-           DETAYLI HAFTALIK LİSTE 
-        ------------------------------------------------------------- */
-        
         window.tumBorclulariYazdirModalAc = function() {
             let liste = window.cariler.filter(c => c.tur !== 'Tedarikçi').map(c => {
                 let borc = 0, odenen = 0;

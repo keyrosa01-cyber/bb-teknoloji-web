@@ -80,11 +80,7 @@
         
         /* -- YAZDIRMA (PRINT) KODLARI TAMAMEN YENİLENDİ -- */
         @media print {
-            /* Tüm sayfayı beyaz ve sıfır boşluklu yap */
             body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
-            
-            /* DİKKAT: Boş sayfa sorununu çözen ana mantık! 
-               Sadece seçili alanları ekranda bırakıp, diğer HER ŞEYİ (boşlukları bile) siliyoruz (display:none) */
             
             body.printing-cari-ekstre > *:not(#cariHesaplarTab),
             body.printing-tum-borclar > *:not(#cariHesaplarTab),
@@ -98,10 +94,9 @@
             body.printing-tedarikci-ekstre #tedarikciTab > *:not(#tedarikciDetayPaneli) { display: none !important; }
             body.printing-tedarikci-ekstre #tedarikciDetayPaneli > *:not(#pdfTedarikciAlani) { display: none !important; }
 
-            /* ANA YAZDIRMA ALANLARININ KONUMLANDIRMASI */
             #pdfCariAlani, #pdfTedarikciAlani, #pdfTumBorclarAlani { 
                 display: block !important; 
-                position: relative !important; /* Eskiden absolute'tu, o da sayfa kaydırıyordu */
+                position: relative !important; 
                 width: 100% !important; 
                 box-shadow: none !important; 
                 border: none !important; 
@@ -109,7 +104,6 @@
                 padding: 10px !important; 
             }
 
-            /* CARİ EKSTRE İÇİN ÖZEL */
             #pdfCariAlani h1 { color: #000 !important; }
             #pdfCariAlani p, #pdfCariAlani div { color: #333 !important; }
             #pdfCariAlani h2 { color: #000 !important; font-size: 16px; }
@@ -117,19 +111,16 @@
             #pdfCariAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             #pdfCariAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
 
-            /* TEDARİKÇİ EKSTRE İÇİN ÖZEL */
             #pdfTedarikciAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
             #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
 
-            /* HAFTALIK LİSTE ÇIKTISI (TAŞMAYI VE BOŞ SAYFAYI DÜZELTEN STİL) */
             #pdfTumBorclarAlani h2 { text-align: center; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
-            /* table-layout: fixed eklendi, kağıttan taşması imkansızlaştı */
             #pdfTumBorclarAlani table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse; table-layout: fixed; }
             #pdfTumBorclarAlani th { background-color: #e2e8f0 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 10px; text-transform: uppercase; padding: 6px; }
-            #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 11px; padding: 6px; word-wrap: break-word; } /* word-wrap sayesinde uzun yazılar alt satıra geçer, dışarı taşmaz */
+            #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 11px; padding: 6px; word-wrap: break-word; } 
 
-            table tr { page-break-inside: avoid; } /* Tablo satırının sayfa ortasında kesilmesini önler */
+            table tr { page-break-inside: avoid; } 
             .btn-delete-col, button { display: none !important; }
             
             @page { size: A4 portrait; margin: 10mm; }
@@ -172,7 +163,6 @@
         </div>
     </div>
 
-    <!-- İŞLEM DÜZENLEME MODALI -->
     <div id="islemDuzenleModal" style="display:none;">
         <div class="modal-box" style="max-width:420px; text-align:left;">
             <h3 style="color:var(--gold-bright); margin-top:0; font-size:18px;">✏️ İşlemi Düzenle</h3>
@@ -185,7 +175,6 @@
         </div>
     </div>
 
-    <!-- TOPLU YAZDIRMA MODALI -->
     <div id="topluYazdirModal" style="display:none;">
         <div class="modal-box" style="max-width:500px; text-align:left; max-height: 80vh;">
             <h3 style="color:var(--gold-bright); margin-top:0; font-size:18px;">🖨️ Yazdırılacak Bayileri Seçin</h3>
@@ -196,8 +185,7 @@
                 <span style="font-size: 12px; color: var(--text-muted);" id="toplamBorcluSayisi">0 Kişi</span>
             </div>
             <div id="yazdirilacakBorclularListesi" style="overflow-y: auto; flex: 1; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
-                <!-- JS ile dolacak -->
-            </div>
+                </div>
             <div style="display: flex; gap: 10px; margin-top:auto;">
                 <button class="submit-btn" style="flex:1; padding:14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#000;" onclick="window.seciliBorclulariYazdirOnay()">Seçilileri Yazdır 🖨️</button>
                 <button class="btn-pro-action" style="flex:1; padding:12px; justify-content:center; background:transparent; border-color:var(--border-color); color:var(--text-muted);" onclick="window.topluYazdirKapat()">İptal</button>
@@ -252,7 +240,6 @@
         <button class="tab-btn" onclick="window.openTab('bankaTab', this)" style="border-color:#3b82f6; color:#60a5fa;">🏦 9. Banka & IBAN</button>
     </div>
 
-    <!-- BANKA & IBAN SEKME -->
     <div id="bankaTab" class="tab-content">
         <h2 style="color:#60a5fa; margin-top:0; font-size:20px;">🏦 Banka / IBAN İşlemleri (Giriş & Çıkış)</h2>
         <form id="bankaForm" style="border-color:rgba(59, 130, 246, 0.3);">
@@ -266,7 +253,6 @@
         <table id="bankaTablosu"><thead><tr><th>Zaman Damgası</th><th>İşlem Türü</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- TOPTANCI & TEDARİKÇİ SEKME -->
     <div id="tedarikciTab" class="tab-content">
         <h2 style="color:var(--purple-bright); margin-top:0; font-size:20px;">🏢 Malzeme & Ürün Alım Kaydı (Toptancı)</h2>
         <form id="tedarikciAlimForm" style="border-color:rgba(139, 92, 246, 0.3);">
@@ -321,7 +307,6 @@
         </div>
     </div>
 
-    <!-- STOK SEKME -->
     <div id="stokTab" class="tab-content active">
         <h2 id="stokFormBaslik" style="color:var(--gold-bright); margin-top:0; font-size:20px;">📦 Yeni Ürün Kaydı</h2>
         <form id="stokForm">
@@ -339,7 +324,6 @@
         <table id="stokTablosu"><thead><tr><th>Barkod</th><th>Ürün Adı</th><th>Model</th><th>Alış</th><th>Satış</th><th>Stok</th><th>Son İşlem / Tarih</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- SATIŞ SEKME -->
     <div id="satisTab" class="tab-content">
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">🛒 Satış Yap & Stoktan Düş</h2>
         <form id="satisForm">
@@ -361,7 +345,6 @@
         <table id="satisGecmisTablosu"><thead><tr><th>Zaman Damgası</th><th>Müşteri / Bayi</th><th>Satılan Ürün & Detay</th><th>Tutar</th><th>Kazanılan Kar</th><th>Ödeme Durumu</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- REHBER SEKME -->
     <div id="cariRehberTab" class="tab-content">
         <h2 id="cariFormBaslik" style="color:var(--gold-bright); margin-top:0; font-size:20px;">👥 Yeni Müşteri / Bayi / Toptancı Kaydı</h2>
         <form id="cariKayıtForm">
@@ -376,21 +359,19 @@
         <table id="cariRehberTablosu"><thead><tr><th>Tür</th><th>Adı / Firma</th><th>Telefon</th><th>Adres</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- BAYİ EKSTRESİ SEKME -->
     <div id="cariHesaplarTab" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
             <div>
                 <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px; margin-bottom:4px;">💳 Bayi & Müşteri Hesap Kartları</h2>
                 <p style="font-size:12px; color:var(--text-muted); margin:0;">Toptancılar bu listede görünmez, onlar 8. Toptancı sekmesindedir.</p>
             </div>
-            <button class="btn-pro-action" style="background:#10b981; color:#0a0d14; border-color:#059669; font-size:14px; padding:12px 20px;" onclick="window.tumBorclulariYazdirModalAc()">🖨️ Detaylı Haftalık Borç Listesini Yazdır</button>
+            <button class="btn-pro-action" style="background:#10b981; color:#0a0d14; border-color:#059669; font-size:14px; padding:12px 20px;" onclick="window.tumBorclulariYazdirModalAc()">🖨️ Detaylı Güncel Borç Listesini Yazdır</button>
         </div>
         
         <input type="text" id="ekstreAramaInput" class="search-box" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
         <div id="cariKartlarKutusu" class="cari-grid"></div>
         <hr style="border-color:var(--border-color); margin:28px 0;">
 
-        <!-- YAZDIRMA İÇİN GİZLİ ALAN (DETAYLI HAFTALIK LİSTE) -->
         <div id="pdfTumBorclarAlani" style="display:none;"></div>
 
         <div id="detayPaneli" style="display:none;">
@@ -436,7 +417,6 @@
         </div>
     </div>
 
-    <!-- FİNANS SEKME -->
     <div id="finansTab" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
             <div><h2 style="color:var(--gold-bright); margin:0; font-size:20px;">📊 Gelir - Gider, Ciro & Net Kar Bilançosu</h2><p style="font-size:12px; color:var(--text-muted); margin:4px 0 0 0;">Günlük, haftalık veya özel tarih seçerek ciro ve karlarınızı takip edin.</p></div>
@@ -462,7 +442,6 @@
         <table id="finansTablosu"><thead><tr><th>Zaman Damgası</th><th>Kategori / İşlem</th><th>Ödeme / Detay</th><th>Tutar / Gider</th><th>İşlenen Kar</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- SERVİS SEKME -->
     <div id="servisTab" class="tab-content">
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">🛠️ Teknik Servis & Tamir Kaydı</h2>
         <form id="servisForm">
@@ -481,7 +460,6 @@
         <table id="servisTablosu"><thead><tr><th>Zaman Damgası</th><th>Cihaz</th><th>Maliyet</th><th>Alınan Ücret</th><th>Elde Edilen Kar</th><th>Cari Durumu</th><th>İşlem</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- GİDER SEKME -->
     <div id="giderTab" class="tab-content">
         <h2 style="color:#fca5a5; margin-top:0; font-size:20px;">📉 Şirket Gideri & Malzeme Alımı</h2>
         <form id="giderForm" style="border-color:rgba(239, 68, 68, 0.3);">
@@ -986,7 +964,7 @@
         window.ozelTarihFiltreleUygula = function(tarihDegeri) {
             if(!tarihDegeri) return;
             window.aktifFinansFiltre = 'ozel';
-            window.secilenOzelTarih = tarihDegeri;
+            window.secilenOzelTarih = tarihDegeri; // YYYY-MM-DD formatında gelir
             document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
             window.finansGuncelle();
         };
@@ -999,14 +977,19 @@
             const yyyy = simdi.getFullYear();
             const mm = String(simdi.getMonth() + 1).padStart(2, '0');
             const dd = String(simdi.getDate()).padStart(2, '0');
-            const bugunFormatli = `${yyyy}-${mm}-${dd}`; 
+            const bugunFormatli = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD olarak formatla (Örn: 2026-08-03)
 
             const tarihUyuşuyorMu = (tarihMetni) => {
                 if(!tarihMetni) return false; 
-                let tarihKismi = tarihMetni.split(' ')[0];
+                let tarihKismi = tarihMetni.split(' ')[0]; // Örn: 2026-08-03
                 
                 if (window.aktifFinansFiltre === 'ozel' && window.secilenOzelTarih) {
-                    return tarihKismi === window.secilenOzelTarih; 
+                    let p = window.secilenOzelTarih.split('-'); // [YYYY, MM, DD]
+                    if (p.length === 3) {
+                        let formatorTarih = `${p[2]}.${p[1]}.${p[0]}`; // GG.AA.YYYY
+                        return tarihKismi === formatorTarih;
+                    }
+                    return false;
                 }
 
                 if(window.aktifFinansFiltre === 'bugun') {
@@ -1060,7 +1043,7 @@
         window.tedarikciEkstrePdfIndir = function() { if (!window.seciliTedarikciId) return alert("Toptancı seçimi yapın!"); document.body.classList.add('printing-tedarikci-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-tedarikci-ekstre'), 500); };
 
         /* -------------------------------------------------------------
-           DETAYLI HAFTALIK LİSTE (YENİ FORMAT) 
+           DETAYLI HAFTALIK LİSTE (YENİ FORMAT & HATA GİDERİLDİ)
         ------------------------------------------------------------- */
         
         window.tumBorclulariYazdirModalAc = function() {
@@ -1111,63 +1094,60 @@
             if(seciliIdler.length === 0) return alert("Yazdırılacak kimseyi seçmediniz! Lütfen listeden en az bir kişi işaretleyin.");
 
             const yazdirilacaklar = window.yazdirilacakBorclularData.filter(c => seciliIdler.includes(c.id));
-            
-            const simdi = new Date();
-            const yediGunOnce = new Date();
-            yediGunOnce.setDate(simdi.getDate() - 7);
-            yediGunOnce.setHours(0,0,0,0);
 
-            let html = `<h2>HAFTALIK BORÇ LİSTESİ (${new Date().toLocaleDateString('tr-TR')})</h2>`;
+            let html = `<h2>GÜNCEL BAYİ BORÇ LİSTESİ (${new Date().toLocaleDateString('tr-TR')})</h2>`;
             html += `<table><thead><tr><th style="width:25%;">BAYİ</th><th style="width:45%;">YAPILAN İŞLEM</th><th style="width:15%;">FİYAT</th><th style="width:15%;">TOPLAM</th></tr></thead><tbody>`;
 
             let genelGenisToplam = 0;
 
             yazdirilacaklar.forEach(c => {
-                // Bu bayinin son 7 gündeki işlemlerini bulalım
-                let cariIslemler = window.islemler.filter(i => {
-                    if (i.cariId != c.id) return false;
-                    let islemTuru = (i.islemTuru || '').toLowerCase();
-                    if (!islemTuru.includes('borç') && !islemTuru.includes('satış') && !islemTuru.includes('tamir')) return false;
-                    
-                    let tarihKismi = (i.islemTarihi || '').split(' ')[0];
-                    let islemTarihiObj = new Date(tarihKismi);
-                    return islemTarihiObj >= yediGunOnce && islemTarihiObj <= simdi;
-                });
+                // Sadece son 7 gün değil, tüm açık işlemleri listeliyoruz ki toplam bakiye ile hesap tutsun.
+                let cariIslemler = window.islemler.filter(i => i.cariId == c.id);
 
-                // Eğer son 7 günde işlem yoksa, tablonun boş kalmaması için genel bakiyesini veya son işlemini gösterelim
+                // TOPLAM SÜTUNUNA DİREKT SİSTEMDEKİ KESİN BAKİYE YAZILIYOR
+                genelGenisToplam += c.bakiye;
+
                 if(cariIslemler.length === 0) {
                     html += `<tr>
                         <td><b>${c.ad}</b></td>
                         <td>Genel Devreden / Bakiye Borç</td>
-                        <td>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})}</td>
+                        <td>-</td>
                         <td><b>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
                     </tr>`;
-                    genelGenisToplam += c.bakiye;
                 } else {
-                    let bayiHaftalikToplam = 0;
-                    cariIslemler.forEach(ci => { bayiHaftalikToplam += Number(ci.islemTutari); });
-                    genelGenisToplam += bayiHaftalikToplam;
-
                     cariIslemler.forEach((ci, index) => {
                         let aciklamaTemiz = ci.aciklama || '-';
                         aciklamaTemiz = aciklamaTemiz.replace(/\(Maliyet:[^)]*\)/gi, '');
                         aciklamaTemiz = aciklamaTemiz.replace(/Maliyet:\s*[\d,.]+\s*₺\s*\|\s*/gi, '');
+
+                        let islemTuru = (ci.islemTuru || '').toLowerCase();
+                        let tutar = Number(ci.islemTutari);
+                        let fiyatMetni = tutar.toLocaleString('tr-TR', {minimumFractionDigits:2});
+
+                        // ÖDEME ALINDI İŞLEMİ EKSİ OLARAK FİŞE EKLENDİ
+                        if (islemTuru.includes('ödeme alındı')) {
+                            fiyatMetni = `<span style="color:red;">-${fiyatMetni} ₺ (Tahsilat)</span>`;
+                            aciklamaTemiz = `<span style="color:red; font-weight:bold;">${aciklamaTemiz}</span>`;
+                        } else {
+                            fiyatMetni = `${fiyatMetni} ₺`;
+                        }
 
                         html += `<tr>`;
                         if (index === 0) {
                             html += `<td rowspan="${cariIslemler.length}"><b>${c.ad}</b></td>`;
                         }
                         html += `<td>${aciklamaTemiz}</td>
-                                 <td>${Number(ci.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})}</td>`;
+                                 <td>${fiyatMetni}</td>`;
                         if (index === 0) {
-                            html += `<td rowspan="${cariIslemler.length}" style="vertical-align:middle; text-align:center;"><b>${bayiHaftalikToplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>`;
+                            // SAĞDAKİ TOPLAM, DİREKT GERÇEK BAKİYEYİ YAZAR, ŞAŞMAZ
+                            html += `<td rowspan="${cariIslemler.length}" style="vertical-align:middle; text-align:center;"><b>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>`;
                         }
                         html += `</tr>`;
                     });
                 }
             });
 
-            html += `<tr><td colspan="3" style="text-align:right; font-size:12px;"><b>GENEL TOPLAM BORÇ:</b></td><td style="font-size:12px;"><b>${genelGenisToplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
+            html += `<tr><td colspan="3" style="text-align:right; font-size:12px;"><b>GENEL TOPLAM ALACAK:</b></td><td style="font-size:12px;"><b>${genelGenisToplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
             html += `</tbody></table>`;
 
             document.getElementById('pdfTumBorclarAlani').innerHTML = html;

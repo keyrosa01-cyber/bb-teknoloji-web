@@ -141,7 +141,7 @@
         </div>
     </div>
 
-    <!-- BANKA DEDEKTİFİ MODALI (YENİ) -->
+    <!-- BANKA DEDEKTİFİ MODALI -->
     <div id="bankaDetayModal" style="display:none;">
         <div class="modal-box" style="max-width:550px; max-height:85vh; width:100%; text-align:left; overflow:hidden; display:flex; flex-direction:column; padding:30px;">
             <h3 style="color:#60a5fa; margin-top:0; font-size:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">🏦 Banka Dedektifi (IBAN / Kart Dökümü)</h3>
@@ -254,7 +254,7 @@
         <h2 style="color:var(--purple-bright); margin-top:0; font-size:20px;">🏢 Malzeme & Ürün Alım Kaydı (Toptancı)</h2>
         <form id="tedarikciAlimForm" style="border-color:rgba(139, 92, 246, 0.3);">
             <div class="autocomplete-container">
-                <label style="color:var(--purple-bright);">🔍 Toptancı Seç (Harf Yazın)</label>
+                <label style="color:var(--purple-bright);">🔍 Toptancı Seç</label>
                 <input type="text" id="alimTedarikciInput" class="purple-input" placeholder="Toptancı adını yazın..." autocomplete="off" oninput="window.tedarikciAramaCalistir(this.value)" style="border-color:var(--purple-main); background:#111622;">
                 <input type="hidden" id="alimTedarikciId" required>
                 <div id="alimTedarikciListesi" class="autocomplete-items" style="display:none; border-color:var(--purple-main);"></div>
@@ -327,11 +327,11 @@
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">🛒 Satış Yap & Stoktan Düş</h2>
         <form id="satisForm">
             <div class="autocomplete-container">
-                <label>🔍 Müşteri / Bayi Seç (Harf Yazın)</label><input type="text" id="satisCariInput" placeholder="İsim veya harf yazın..." autocomplete="off" oninput="window.cariAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
+                <label>🔍 Müşteri / Bayi Seç</label><input type="text" id="satisCariInput" placeholder="İsim yazarak arayın..." autocomplete="off" oninput="window.cariAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
                 <input type="hidden" id="satisCariId" required><div id="satisCariListesi" class="autocomplete-items" style="display:none;"></div>
             </div>
             <div class="autocomplete-container">
-                <label>🔍 Satılacak Ürünü Seç (Harf Yazın)</label><input type="text" id="satisUrunInput" placeholder="Ürün adı, model veya barkod yazın..." autocomplete="off" oninput="window.urunAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
+                <label>🔍 Ürün Seç</label><input type="text" id="satisUrunInput" placeholder="Ürün adı veya barkod..." autocomplete="off" oninput="window.urunAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
                 <input type="hidden" id="satisUrunId" required><div id="satisUrunListesi" class="autocomplete-items" style="display:none;"></div>
             </div>
             <div><label>Satış Adedi</label><input type="number" id="satisAdet" min="1" value="1" required></div>
@@ -453,7 +453,7 @@
             <div><label>Ödeme Şekli</label><select id="servisOdemeYontemi"><option value="Nakit">Nakit</option><option value="Kredi Kartı">Kredi Kartı</option><option value="Cari Borç (Veresiye)">📋 Cari Borç (Veresiye / Açık Hesap)</option></select></div>
             <div><label>İşlem Tarihi</label><input type="date" id="servisTarihi" required></div>
             <div class="autocomplete-container">
-                <label>🔍 Bayi / Müşteri Seç (Harf Yazın)</label><input type="text" id="servisCariInput" placeholder="İsim veya harf yazın..." autocomplete="off" oninput="window.servisCariAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
+                <label>🔍 Müşteri / Bayi Seç</label><input type="text" id="servisCariInput" placeholder="İsim yazarak arayın..." autocomplete="off" oninput="window.servisCariAramaCalistir(this.value)" style="border-color:var(--gold-main); background:#111622;">
                 <input type="hidden" id="servisCariId"><div id="servisCariListesi" class="autocomplete-items" style="display:none;"></div>
             </div>
             <div style="grid-column: 1 / -1;"><label>Notlar</label><textarea id="servisAciklama" rows="2" placeholder="Detay..."></textarea></div>
@@ -565,12 +565,11 @@
             document.getElementById('kasaDetayModal').style.display = 'flex';
         };
 
-        /* BANKA DEDEKTİFİ (YENİ) */
+        /* BANKA DEDEKTİFİ */
         window.bankaDetayGoster = function() {
             let html = '<table style="width:100%; font-size:12px; border-collapse: collapse; text-align:left;"><thead><tr><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tarih</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">İşlem / Kaynak</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tutar</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Sil</th></tr></thead><tbody>';
             let toplam = 0;
 
-            // 1. Banka sekmesinden manuel girilenler
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
                 let isGelen = b.islemTuru.includes('Gelen');
@@ -583,7 +582,6 @@
                 }
             });
 
-            // 2. İşlemlerden gelen kart/havale
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
                 let odeme = (i.odemeYontemi || '').toLowerCase();
@@ -602,7 +600,6 @@
                 }
             });
 
-            // 3. Servislerden gelen kart
             window.servisler.forEach(s => {
                 let tutar = Number(s.ucret);
                 let odeme = (s.odemeYontemi || '').toLowerCase();
@@ -612,7 +609,6 @@
                 }
             });
 
-            // 4. Giderlerden gelen kart
             window.giderler.forEach(g => {
                 let tutar = Number(g.tutar);
                 let odeme = (g.odemeYontemi || '').toLowerCase();

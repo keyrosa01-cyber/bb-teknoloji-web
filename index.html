@@ -78,7 +78,6 @@
         .autocomplete-items div { padding: 12px 16px; cursor: pointer; background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); font-size: 13px; font-weight: 600; color: var(--text-main); }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
         
-        /* -- YAZDIRMA (PRINT) KODLARI TAMAMEN YENİLENDİ -- */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
             
@@ -563,47 +562,68 @@
 
         window.kasaHesapla = function() {
             let nakitKasa = 0;
+            let bankaBakiye = 0;
+
+            // 1. İŞLEMLER (Ödeme Alındı, Satış, Toptancıya Ödeme)
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
                 let odeme = (i.odemeYontemi || '').toLowerCase();
                 let tur = (i.islemTuru || '').toLowerCase();
 
+                let isVeresiye = odeme.includes('veresiye') || odeme.includes('cari') || odeme.includes('açık') || tur.includes('borç');
+                let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
+                let isNakit = !isVeresiye && !isBanka;
+
+                let aciklama = (i.aciklama || '').toLowerCase();
+                if(!isBanka && !isVeresiye && (aciklama.includes('iban') || aciklama.includes('havale'))) {
+                    isBanka = true;
+                    isNakit = false;
+                }
+
                 if (tur.includes('satış') || tur.includes('ödeme alındı')) {
-                    if (!odeme || odeme.includes('nakit') || (!odeme.includes('kredi') && !odeme.includes('havale'))) {
-                        nakitKasa += tutar;
-                    }
+                    if (isBanka) bankaBakiye += tutar;
+                    else if (isNakit) nakitKasa += tutar;
                 }
                 if (tur.includes('toptancıya ödeme')) {
-                    if (!odeme || odeme.includes('nakit')) {
-                        nakitKasa -= tutar;
-                    }
+                    if (isBanka) bankaBakiye -= tutar;
+                    else if (isNakit) nakitKasa -= tutar;
                 }
             });
 
+            // 2. SERVİSLER
             window.servisler.forEach(s => { 
                 let tutar = Number(s.ucret); 
                 let odeme = (s.odemeYontemi || '').toLowerCase();
-                if (!odeme || odeme.includes('nakit')) { 
-                    nakitKasa += tutar; 
-                } 
+                
+                let isVeresiye = odeme.includes('veresiye') || odeme.includes('cari') || odeme.includes('açık');
+                let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
+                let isNakit = !isVeresiye && !isBanka;
+
+                if (isBanka) bankaBakiye += tutar;
+                else if (isNakit) nakitKasa += tutar;
             });
 
+            // 3. GİDERLER
             window.giderler.forEach(g => { 
+                let tutar = Number(g.tutar);
                 let odeme = (g.odemeYontemi || '').toLowerCase();
-                if (!odeme || odeme.includes('nakit')) {
-                    nakitKasa -= Number(g.tutar); 
-                }
+                
+                let isBanka = odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart');
+                let isNakit = !isBanka;
+
+                if (isBanka) bankaBakiye -= tutar;
+                else if (isNakit) nakitKasa -= tutar;
             });
 
-            const el = document.getElementById('statKasaNakit');
-            if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
-
-            let bankaBakiye = 0;
+            // 4. BANKA / IBAN SEKME MANUEL GİRİŞLERİ
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
                 if (b.islemTuru.includes('Gelen')) bankaBakiye += tutar;
                 else if (b.islemTuru.includes('Gönderilen')) bankaBakiye -= tutar;
             });
+
+            const el = document.getElementById('statKasaNakit');
+            if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
 
             const bEl = document.getElementById('statBankaBakiye');
             if(bEl) { bEl.innerText = `${bankaBakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; bEl.style.color = bankaBakiye >= 0 ? '#60a5fa' : '#f87171'; }
@@ -883,7 +903,7 @@
                     <td><b>${tut.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
                     <td class="btn-delete-col">
                         <button class="btn-edit" onclick="window.islemDuzenleAc('${i.id}')">Düzenle</button>
-                        <button class="btn-delete" onclick="window.islemSil(${i.id})">Sil</button>
+                        <button class="btn-delete" onclick="window.islemSil('${i.id}')">Sil</button>
                     </td>
                 </tr>`;
             });
@@ -977,7 +997,7 @@
             const yyyy = simdi.getFullYear();
             const mm = String(simdi.getMonth() + 1).padStart(2, '0');
             const dd = String(simdi.getDate()).padStart(2, '0');
-            const bugunFormatli = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD olarak formatla (Örn: 2026-08-03)
+            const bugunFormatli = `${yyyy}-${mm}-${dd}`; 
 
             const tarihUyuşuyorMu = (tarihMetni) => {
                 if(!tarihMetni) return false; 
@@ -1043,7 +1063,7 @@
         window.tedarikciEkstrePdfIndir = function() { if (!window.seciliTedarikciId) return alert("Toptancı seçimi yapın!"); document.body.classList.add('printing-tedarikci-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-tedarikci-ekstre'), 500); };
 
         /* -------------------------------------------------------------
-           DETAYLI HAFTALIK LİSTE (YENİ FORMAT & HATA GİDERİLDİ)
+           DETAYLI HAFTALIK LİSTE 
         ------------------------------------------------------------- */
         
         window.tumBorclulariYazdirModalAc = function() {
@@ -1101,10 +1121,8 @@
             let genelGenisToplam = 0;
 
             yazdirilacaklar.forEach(c => {
-                // Sadece son 7 gün değil, tüm açık işlemleri listeliyoruz ki toplam bakiye ile hesap tutsun.
                 let cariIslemler = window.islemler.filter(i => i.cariId == c.id);
 
-                // TOPLAM SÜTUNUNA DİREKT SİSTEMDEKİ KESİN BAKİYE YAZILIYOR
                 genelGenisToplam += c.bakiye;
 
                 if(cariIslemler.length === 0) {
@@ -1124,7 +1142,6 @@
                         let tutar = Number(ci.islemTutari);
                         let fiyatMetni = tutar.toLocaleString('tr-TR', {minimumFractionDigits:2});
 
-                        // ÖDEME ALINDI İŞLEMİ EKSİ OLARAK FİŞE EKLENDİ
                         if (islemTuru.includes('ödeme alındı')) {
                             fiyatMetni = `<span style="color:red;">-${fiyatMetni} ₺ (Tahsilat)</span>`;
                             aciklamaTemiz = `<span style="color:red; font-weight:bold;">${aciklamaTemiz}</span>`;
@@ -1139,7 +1156,6 @@
                         html += `<td>${aciklamaTemiz}</td>
                                  <td>${fiyatMetni}</td>`;
                         if (index === 0) {
-                            // SAĞDAKİ TOPLAM, DİREKT GERÇEK BAKİYEYİ YAZAR, ŞAŞMAZ
                             html += `<td rowspan="${cariIslemler.length}" style="vertical-align:middle; text-align:center;"><b>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>`;
                         }
                         html += `</tr>`;
@@ -1160,8 +1176,6 @@
                 window.topluYazdirKapat();
             }, 500);
         };
-
-        /* ------------------------------------------------------------- */
 
         window.whatsappEkstreGonder = function() {
             if (!window.seciliCariId) return; const c = window.cariler.find(x => x.id == window.seciliCariId); if (!c || !c.tel) return alert('Telefon numarası yok!');

@@ -78,34 +78,61 @@
         .autocomplete-items div { padding: 12px 16px; cursor: pointer; background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); font-size: 13px; font-weight: 600; color: var(--text-main); }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
         
+        /* -- YAZDIRMA (PRINT) KODLARI TAMAMEN YENİLENDİ -- */
         @media print {
-            body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
-            body * { visibility: hidden; }
-            body.printing-cari-ekstre #pdfCariAlani, body.printing-cari-ekstre #pdfCariAlani * { visibility: visible; }
-            body.printing-cari-ekstre #pdfCariAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 25px !important; border-radius: 0 !important; box-shadow: none !important; }
-            body.printing-cari-ekstre #pdfCariAlani h1 { color: #000 !important; }
-            body.printing-cari-ekstre #pdfCariAlani p, body.printing-cari-ekstre #pdfCariAlani div { color: #333 !important; }
-            body.printing-cari-ekstre #pdfCariAlani h2 { color: #000 !important; font-size: 16px; }
-            body.printing-cari-ekstre #pdfCariAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
-            body.printing-cari-ekstre #pdfCariAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
-            body.printing-cari-ekstre #pdfCariAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
+            /* Tüm sayfayı beyaz ve sıfır boşluklu yap */
+            body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif !important; }
             
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani, body.printing-tedarikci-ekstre #pdfTedarikciAlani * { visibility: visible; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: 2px solid #000 !important; padding: 25px !important; border-radius: 0 !important; box-shadow: none !important; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
-            body.printing-tedarikci-ekstre #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
+            /* DİKKAT: Boş sayfa sorununu çözen ana mantık! 
+               Sadece seçili alanları ekranda bırakıp, diğer HER ŞEYİ (boşlukları bile) siliyoruz (display:none) */
+            
+            body.printing-cari-ekstre > *:not(#cariHesaplarTab),
+            body.printing-tum-borclar > *:not(#cariHesaplarTab),
+            body.printing-tedarikci-ekstre > *:not(#tedarikciTab) { display: none !important; }
 
-            /* YENİ DETAYLI HAFTALIK LİSTE ÇIKTISI STİLİ */
-            body.printing-tum-borclar #pdfTumBorclarAlani, body.printing-tum-borclar #pdfTumBorclarAlani * { visibility: visible; }
-            body.printing-tum-borclar #pdfTumBorclarAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: none !important; padding: 10px !important; box-shadow: none !important; display: block !important; }
-            body.printing-tum-borclar #pdfTumBorclarAlani h2 { text-align: center; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
-            body.printing-tum-borclar #pdfTumBorclarAlani table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse; }
-            body.printing-tum-borclar #pdfTumBorclarAlani th { background-color: #e2e8f0 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; padding: 6px; }
-            body.printing-tum-borclar #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 11px; padding: 6px; }
+            body.printing-cari-ekstre #cariHesaplarTab > *:not(#detayPaneli),
+            body.printing-tum-borclar #cariHesaplarTab > *:not(#pdfTumBorclarAlani) { display: none !important; }
 
+            body.printing-cari-ekstre #detayPaneli > *:not(#pdfCariAlani) { display: none !important; }
+
+            body.printing-tedarikci-ekstre #tedarikciTab > *:not(#tedarikciDetayPaneli) { display: none !important; }
+            body.printing-tedarikci-ekstre #tedarikciDetayPaneli > *:not(#pdfTedarikciAlani) { display: none !important; }
+
+            /* ANA YAZDIRMA ALANLARININ KONUMLANDIRMASI */
+            #pdfCariAlani, #pdfTedarikciAlani, #pdfTumBorclarAlani { 
+                display: block !important; 
+                position: relative !important; /* Eskiden absolute'tu, o da sayfa kaydırıyordu */
+                width: 100% !important; 
+                box-shadow: none !important; 
+                border: none !important; 
+                margin: 0 !important; 
+                padding: 10px !important; 
+            }
+
+            /* CARİ EKSTRE İÇİN ÖZEL */
+            #pdfCariAlani h1 { color: #000 !important; }
+            #pdfCariAlani p, #pdfCariAlani div { color: #333 !important; }
+            #pdfCariAlani h2 { color: #000 !important; font-size: 16px; }
+            #pdfCariAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
+            #pdfCariAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
+            #pdfCariAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
+
+            /* TEDARİKÇİ EKSTRE İÇİN ÖZEL */
+            #pdfTedarikciAlani table { border: 1px solid #000 !important; width: 100% !important; margin-top: 15px; border-collapse: collapse; }
+            #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
+            #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
+
+            /* HAFTALIK LİSTE ÇIKTISI (TAŞMAYI VE BOŞ SAYFAYI DÜZELTEN STİL) */
+            #pdfTumBorclarAlani h2 { text-align: center; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+            /* table-layout: fixed eklendi, kağıttan taşması imkansızlaştı */
+            #pdfTumBorclarAlani table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse; table-layout: fixed; }
+            #pdfTumBorclarAlani th { background-color: #e2e8f0 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 10px; text-transform: uppercase; padding: 6px; }
+            #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 11px; padding: 6px; word-wrap: break-word; } /* word-wrap sayesinde uzun yazılar alt satıra geçer, dışarı taşmaz */
+
+            table tr { page-break-inside: avoid; } /* Tablo satırının sayfa ortasında kesilmesini önler */
             .btn-delete-col, button { display: none !important; }
-            @page { size: A4 portrait; margin: 5mm; }
+            
+            @page { size: A4 portrait; margin: 10mm; }
         }
 
         @media screen and (max-width: 768px) {
@@ -356,7 +383,6 @@
                 <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px; margin-bottom:4px;">💳 Bayi & Müşteri Hesap Kartları</h2>
                 <p style="font-size:12px; color:var(--text-muted); margin:0;">Toptancılar bu listede görünmez, onlar 8. Toptancı sekmesindedir.</p>
             </div>
-            <!-- YENİ DETAYLI HAFTALIK LİSTE BUTONU -->
             <button class="btn-pro-action" style="background:#10b981; color:#0a0d14; border-color:#059669; font-size:14px; padding:12px 20px;" onclick="window.tumBorclulariYazdirModalAc()">🖨️ Detaylı Haftalık Borç Listesini Yazdır</button>
         </div>
         

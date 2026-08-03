@@ -740,7 +740,6 @@
                 const karTutar = ucret - maliyet; let cariAdi = "Doğrudan Nakit"; if (cariId) { const cariBul = window.cariler.find(c => c.id == cariId); if (cariBul) cariAdi = cariBul.ad; }
                 const servisObj = { id: servisId, cihaz: cihaz, maliyet: maliyet, ucret: ucret, kar: karTutar, odemeYontemi: odemeYontemi, tarih: `${tarih} [${simdiTarihSaat()}]`, cariId: cariId ? parseInt(cariId) : null, cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase() };
                 
-                // KESİN ÇÖZÜM: Teknik Servisten girilen her işlem doğrudan 'islemler' veritabanına da işlenir, böylece Finans & Kar Zarar ekranında anında görünür!
                 const islemId = Date.now() + 1; let servisIslemBaslik = (cariId && (odemeYontemi.includes('Cari Borç') || odemeYontemi.includes('Veresiye'))) ? '🛠️ Teknik Servis (Borç)' : '🛠️ Teknik Servis (Peşin)';
                 const islemObj = { id: islemId, cariId: cariId ? parseInt(cariId) : 999999, islemTuru: servisIslemBaslik, islemTutari: ucret, odemeYontemi: odemeYontemi, kar: karTutar, islemTarihi: `${tarih} [${simdiTarihSaat()}]`, aciklama: `${cihaz} - ${detay || 'Tamirat'} (Maliyet: ${maliyet} ₺ | Ücret: ${ucret} ₺) [Yapan: ${aktifKullanici.toUpperCase()}]` }; 
                 
@@ -937,7 +936,7 @@
         window.ozelTarihFiltreleUygula = function(tarihDegeri) {
             if(!tarihDegeri) return;
             window.aktifFinansFiltre = 'ozel';
-            window.secilenOzelTarih = tarihDegeri; // YYYY-MM-DD
+            window.secilenOzelTarih = tarihDegeri; // YYYY-MM-DD formatında gelir
             document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
             window.finansGuncelle();
         };
@@ -945,34 +944,36 @@
         window.finansGuncelle = function() {
             const tbody = document.querySelector('#finansTablosu tbody'); if(!tbody) return; let html = '';
             let ciro = 0, tahsilat = 0, toplamGider = 0, brutKar = 0; 
+            
             const simdi = new Date(); 
-            const bugunStr = simdi.toLocaleDateString('tr-TR'); // GG.AA.YYYY
+            const yyyy = simdi.getFullYear();
+            const mm = String(simdi.getMonth() + 1).padStart(2, '0');
+            const dd = String(simdi.getDate()).padStart(2, '0');
+            const bugunFormatli = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD olarak formatla (Örn: 2026-08-03)
 
             const tarihUyuşuyorMu = (tarihMetni) => {
                 if(!tarihMetni) return false; 
-                let tarihKismi = tarihMetni.split(' ')[0]; // GG.AA.YYYY veya YYYY-MM-DD
+                let tarihKismi = tarihMetni.split(' ')[0]; // Örn: 2026-08-03
                 
                 if (window.aktifFinansFiltre === 'ozel' && window.secilenOzelTarih) {
-                    let p = window.secilenOzelTarih.split('-'); // [YYYY, MM, DD]
-                    if (p.length === 3) {
-                        let formatorTarih = `${p[2]}.${p[1]}.${p[0]}`; // GG.AA.YYYY
-                        return tarihKismi === formatorTarih;
-                    }
-                    return false;
+                    return tarihKismi === window.secilenOzelTarih; 
                 }
 
-                if(window.aktifFinansFiltre === 'bugun') return tarihKismi === bugunStr;
+                if(window.aktifFinansFiltre === 'bugun') {
+                    return tarihKismi === bugunFormatli;
+                }
                 else if(window.aktifFinansFiltre === 'buHafta') { 
-                    const parcalar = tarihKismi.split('.'); 
-                    if(parcalar.length === 3) { 
-                        const iDate = new Date(`${parcalar[2]}-${parcalar[1]}-${parcalar[0]}`); 
-                        const yGec = new Date(); 
-                        yGec.setDate(simdi.getDate() - 7); 
-                        return iDate >= yGec && iDate <= simdi; 
-                    } 
+                    const islemTarihiObj = new Date(tarihKismi);
+                    const yediGunOnce = new Date(); 
+                    yediGunOnce.setDate(simdi.getDate() - 7); 
+                    yediGunOnce.setHours(0,0,0,0);
+                    islemTarihiObj.setHours(0,0,0,0);
+                    return islemTarihiObj >= yediGunOnce && islemTarihiObj <= simdi; 
                 }
                 else if(window.aktifFinansFiltre === 'buAy') { 
-                    return tarihKismi.endsWith(bugunStr.slice(3)); 
+                    const islemAyYil = tarihKismi.substring(0, 7); 
+                    const mevcutAyYil = bugunFormatli.substring(0, 7); 
+                    return islemAyYil === mevcutAyYil;
                 } 
                 return true;
             };

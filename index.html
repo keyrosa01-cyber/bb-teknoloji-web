@@ -96,15 +96,16 @@
             body.printing-tedarikci-ekstre #pdfTedarikciAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; }
             body.printing-tedarikci-ekstre #pdfTedarikciAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 12px; padding: 10px; }
 
+            /* YENİ DETAYLI HAFTALIK LİSTE ÇIKTISI STİLİ */
             body.printing-tum-borclar #pdfTumBorclarAlani, body.printing-tum-borclar #pdfTumBorclarAlani * { visibility: visible; }
-            body.printing-tum-borclar #pdfTumBorclarAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: none !important; padding: 20px !important; border-radius: 0 !important; box-shadow: none !important; display: block !important; }
-            body.printing-tum-borclar #pdfTumBorclarAlani h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 22px; margin-bottom: 20px; }
+            body.printing-tum-borclar #pdfTumBorclarAlani { position: absolute; left: 0; top: 0; width: 100% !important; background: #ffffff !important; color: #000000 !important; border: none !important; padding: 10px !important; box-shadow: none !important; display: block !important; }
+            body.printing-tum-borclar #pdfTumBorclarAlani h2 { text-align: center; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
             body.printing-tum-borclar #pdfTumBorclarAlani table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse; }
-            body.printing-tum-borclar #pdfTumBorclarAlani th { background-color: #f1f5f9 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 13px; text-transform: uppercase; padding: 12px; }
-            body.printing-tum-borclar #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 14px; padding: 12px; }
+            body.printing-tum-borclar #pdfTumBorclarAlani th { background-color: #e2e8f0 !important; color: #000 !important; border: 1px solid #000 !important; font-size: 11px; text-transform: uppercase; padding: 6px; }
+            body.printing-tum-borclar #pdfTumBorclarAlani td { border: 1px solid #000 !important; color: #000 !important; font-size: 11px; padding: 6px; }
 
             .btn-delete-col, button { display: none !important; }
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 portrait; margin: 5mm; }
         }
 
         @media screen and (max-width: 768px) {
@@ -355,15 +356,15 @@
                 <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px; margin-bottom:4px;">💳 Bayi & Müşteri Hesap Kartları</h2>
                 <p style="font-size:12px; color:var(--text-muted); margin:0;">Toptancılar bu listede görünmez, onlar 8. Toptancı sekmesindedir.</p>
             </div>
-            <!-- YENİ YAZDIRMA BUTONU -->
-            <button class="btn-pro-action" style="background:#10b981; color:#0a0d14; border-color:#059669; font-size:14px; padding:12px 20px;" onclick="window.tumBorclulariYazdirModalAc()">🖨️ Toplu Borçlu Listesini Seç & Yazdır</button>
+            <!-- YENİ DETAYLI HAFTALIK LİSTE BUTONU -->
+            <button class="btn-pro-action" style="background:#10b981; color:#0a0d14; border-color:#059669; font-size:14px; padding:12px 20px;" onclick="window.tumBorclulariYazdirModalAc()">🖨️ Detaylı Haftalık Borç Listesini Yazdır</button>
         </div>
         
         <input type="text" id="ekstreAramaInput" class="search-box" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
         <div id="cariKartlarKutusu" class="cari-grid"></div>
         <hr style="border-color:var(--border-color); margin:28px 0;">
 
-        <!-- YAZDIRMA İÇİN GİZLİ ALAN (TÜM BORÇLULAR) -->
+        <!-- YAZDIRMA İÇİN GİZLİ ALAN (DETAYLI HAFTALIK LİSTE) -->
         <div id="pdfTumBorclarAlani" style="display:none;"></div>
 
         <div id="detayPaneli" style="display:none;">
@@ -487,7 +488,7 @@
 
         window.stoklar = []; window.cariler = []; window.islemler = []; window.servisler = []; window.giderler = []; window.bankaIslemleri = [];
         window.seciliCariId = null; window.seciliTedarikciId = null; window.aktifFinansFiltre = 'bugun'; window.secilenOzelTarih = '';
-        window.yazdirilacakBorclularData = []; // Toplu yazdırma için geçici veri
+        window.yazdirilacakBorclularData = [];
 
         function kullanicilariGetir() { let kayitli = localStorage.getItem('bb_pro_users'); if (!kayitli) { let varsayilan = { "admin": "12345" }; localStorage.setItem('bb_pro_users', JSON.stringify(varsayilan)); return varsayilan; } return JSON.parse(kayitli); }
         function simdiTarihSaat() { const now = new Date(); return `${now.toLocaleDateString('tr-TR')} | ${now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`; }
@@ -1033,7 +1034,7 @@
         window.tedarikciEkstrePdfIndir = function() { if (!window.seciliTedarikciId) return alert("Toptancı seçimi yapın!"); document.body.classList.add('printing-tedarikci-ekstre'); window.print(); setTimeout(() => document.body.classList.remove('printing-tedarikci-ekstre'), 500); };
 
         /* -------------------------------------------------------------
-           TOPLU YAZDIRMA FONKSİYONLARI 
+           DETAYLI HAFTALIK LİSTE (YENİ FORMAT) 
         ------------------------------------------------------------- */
         
         window.tumBorclulariYazdirModalAc = function() {
@@ -1085,16 +1086,62 @@
 
             const yazdirilacaklar = window.yazdirilacakBorclularData.filter(c => seciliIdler.includes(c.id));
             
-            let html = `<h1>SEÇİLİ TOPLU BORÇ LİSTESİ (${new Date().toLocaleDateString('tr-TR')})</h1>`;
-            html += `<table><thead><tr><th>Cari / Bayi Adı</th><th>Tür</th><th>Kalan Toplam Borç</th></tr></thead><tbody>`;
+            const simdi = new Date();
+            const yediGunOnce = new Date();
+            yediGunOnce.setDate(simdi.getDate() - 7);
+            yediGunOnce.setHours(0,0,0,0);
 
-            let genelToplam = 0;
+            let html = `<h2>HAFTALIK BORÇ LİSTESİ (${new Date().toLocaleDateString('tr-TR')})</h2>`;
+            html += `<table><thead><tr><th style="width:25%;">BAYİ</th><th style="width:45%;">YAPILAN İŞLEM</th><th style="width:15%;">FİYAT</th><th style="width:15%;">TOPLAM</th></tr></thead><tbody>`;
+
+            let genelGenisToplam = 0;
+
             yazdirilacaklar.forEach(c => {
-                genelToplam += c.bakiye;
-                html += `<tr><td><b>${c.ad}</b></td><td>${c.tur}</td><td><b>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
+                // Bu bayinin son 7 gündeki işlemlerini bulalım
+                let cariIslemler = window.islemler.filter(i => {
+                    if (i.cariId != c.id) return false;
+                    let islemTuru = (i.islemTuru || '').toLowerCase();
+                    if (!islemTuru.includes('borç') && !islemTuru.includes('satış') && !islemTuru.includes('tamir')) return false;
+                    
+                    let tarihKismi = (i.islemTarihi || '').split(' ')[0];
+                    let islemTarihiObj = new Date(tarihKismi);
+                    return islemTarihiObj >= yediGunOnce && islemTarihiObj <= simdi;
+                });
+
+                // Eğer son 7 günde işlem yoksa, tablonun boş kalmaması için genel bakiyesini veya son işlemini gösterelim
+                if(cariIslemler.length === 0) {
+                    html += `<tr>
+                        <td><b>${c.ad}</b></td>
+                        <td>Genel Devreden / Bakiye Borç</td>
+                        <td>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})}</td>
+                        <td><b>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                    </tr>`;
+                    genelGenisToplam += c.bakiye;
+                } else {
+                    let bayiHaftalikToplam = 0;
+                    cariIslemler.forEach(ci => { bayiHaftalikToplam += Number(ci.islemTutari); });
+                    genelGenisToplam += bayiHaftalikToplam;
+
+                    cariIslemler.forEach((ci, index) => {
+                        let aciklamaTemiz = ci.aciklama || '-';
+                        aciklamaTemiz = aciklamaTemiz.replace(/\(Maliyet:[^)]*\)/gi, '');
+                        aciklamaTemiz = aciklamaTemiz.replace(/Maliyet:\s*[\d,.]+\s*₺\s*\|\s*/gi, '');
+
+                        html += `<tr>`;
+                        if (index === 0) {
+                            html += `<td rowspan="${cariIslemler.length}"><b>${c.ad}</b></td>`;
+                        }
+                        html += `<td>${aciklamaTemiz}</td>
+                                 <td>${Number(ci.islemTutari).toLocaleString('tr-TR', {minimumFractionDigits:2})}</td>`;
+                        if (index === 0) {
+                            html += `<td rowspan="${cariIslemler.length}" style="vertical-align:middle; text-align:center;"><b>${bayiHaftalikToplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>`;
+                        }
+                        html += `</tr>`;
+                    });
+                }
             });
 
-            html += `<tr><td colspan="2" style="text-align:right; font-size:16px;"><b>SEÇİLİ KİŞİLERİN TOPLAM BORCU:</b></td><td style="font-size:16px;"><b>${genelToplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
+            html += `<tr><td colspan="3" style="text-align:right; font-size:12px;"><b>GENEL TOPLAM BORÇ:</b></td><td style="font-size:12px;"><b>${genelGenisToplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td></tr>`;
             html += `</tbody></table>`;
 
             document.getElementById('pdfTumBorclarAlani').innerHTML = html;

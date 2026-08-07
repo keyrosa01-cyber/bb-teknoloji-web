@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Tarayıcı önbelleğini tamamen devre dışı bırakan etiketler -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>BB TEKNOLOJİ PRO - Kurumsal ERP & Kasa Platformu</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -135,7 +140,7 @@
     <div id="kasaDetayModal" style="display:none;">
         <div class="modal-box" style="max-width:550px; max-height:85vh; width:100%; text-align:left; overflow:hidden; display:flex; flex-direction:column; padding:30px;">
             <h3 style="color:#34d399; margin-top:0; font-size:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">🔍 Kasa Dedektifi (Nakit Dökümü)</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Sistemdeki nakit kasanın hangi işlemlerden oluştuğunu aşağıda görebilirsiniz. Hatalı kaydı silerek kasayı eşitleyebilirsiniz.</p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Sistemdeki nakit kasanın hangi işlemlerden oluştuğunu aşağıda görebilirsiniz. Liste en yeni tarihten eskiye doğru sıralanmıştır.</p>
             <div id="kasaDetayListesi" style="overflow-y:auto; flex:1; margin-bottom:20px; background:var(--card-inner); border-radius:10px; border:1px solid rgba(255,255,255,0.05); padding:10px;"></div>
             <button class="submit-btn" style="width:100%; padding:14px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-muted);" onclick="document.getElementById('kasaDetayModal').style.display='none'">Pencereyi Kapat</button>
         </div>
@@ -145,7 +150,7 @@
     <div id="bankaDetayModal" style="display:none;">
         <div class="modal-box" style="max-width:550px; max-height:85vh; width:100%; text-align:left; overflow:hidden; display:flex; flex-direction:column; padding:30px;">
             <h3 style="color:#60a5fa; margin-top:0; font-size:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">🏦 Banka Dedektifi (IBAN / Kart Dökümü)</h3>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Banka / IBAN toplamını oluşturan tüm işlemler aşağıdadır. Geçmişte yanlışlıkla karta/havaleye yazılmış hatalı bir işlem varsa buradan silebilirsin.</p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Banka / IBAN toplamını oluşturan işlemler aşağıdadır. Liste en yeni tarihten eskiye doğru sıralanmıştır.</p>
             <div id="bankaDetayListesi" style="overflow-y:auto; flex:1; margin-bottom:20px; background:var(--card-inner); border-radius:10px; border:1px solid rgba(255,255,255,0.05); padding:10px;"></div>
             <button class="submit-btn" style="width:100%; padding:14px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-muted);" onclick="document.getElementById('bankaDetayModal').style.display='none'">Pencereyi Kapat</button>
         </div>
@@ -524,8 +529,9 @@
 
         /* KASA DEDEKTİFİ */
         window.kasaDetayGoster = function() {
-            let html = '<table style="width:100%; font-size:12px; border-collapse: collapse; text-align:left;"><thead><tr><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tarih</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">İşlem Adı</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tutar</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Sil</th></tr></thead><tbody>';
+            let items = [];
             let toplam = 0;
+
             window.islemler.forEach(i => {
                 let tutar = Number(i.islemTutari);
                 let odeme = (i.odemeYontemi || '').toLowerCase();
@@ -536,30 +542,65 @@
                 let aciklama = (i.aciklama || '').toLowerCase();
                 if(!isBanka && !isVeresiye && (aciklama.includes('iban') || aciklama.includes('havale'))) { isBanka = true; isNakit = false; }
 
+                let cari = window.cariler.find(c => c.id == i.cariId);
+                let kisi = cari ? cari.ad : '';
+                let rawDate = i.islemTarihi.split(' ')[0]; // Örn: 2026-08-01
+
                 if ((tur.includes('satış') || tur.includes('ödeme alındı')) && isNakit) {
                     toplam += tutar; 
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTarihi.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTuru}</td><td style="color:#34d399; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'kasaDetayGoster')">SİL</button></td></tr>`; 
+                    let islemAdiHtml = i.islemTuru + (kisi ? ` <br><small style="color:var(--text-muted); font-weight:600;">👤 ${kisi}</small>` : '');
+                    items.push({
+                        fullDateStr: i.islemTarihi, // Saniye hassasiyeti için tam stringi kullanıyoruz
+                        htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#34d399; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'kasaDetayGoster')">SİL</button></td></tr>`
+                    });
                 }
                 if (tur.includes('toptancıya ödeme') && isNakit) {
                     toplam -= tutar; 
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTarihi.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTuru}</td><td style="color:#ef4444; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'kasaDetayGoster')">SİL</button></td></tr>`; 
+                    let islemAdiHtml = i.islemTuru + (kisi ? ` <br><small style="color:var(--text-muted); font-weight:600;">🏢 ${kisi}</small>` : '');
+                    items.push({
+                        fullDateStr: i.islemTarihi,
+                        htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#ef4444; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'kasaDetayGoster')">SİL</button></td></tr>`
+                    });
                 }
             });
+
             window.servisler.forEach(s => { 
                 let tutar = Number(s.ucret); 
                 let odeme = (s.odemeYontemi || '').toLowerCase();
                 if (!odeme.includes('veresiye') && !odeme.includes('cari') && !odeme.includes('kredi') && !odeme.includes('havale')) { 
                     toplam += tutar; 
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${s.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">Servis: ${s.cihaz}</td><td style="color:#34d399; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('servisler', '${s.id}', 'kasaDetayGoster')">SİL</button></td></tr>`; 
+                    let rawDate = s.tarih.split(' ')[0];
+                    let kisiIsim = s.cariAdi && s.cariAdi !== 'Doğrudan Nakit' ? s.cariAdi : '';
+                    let islemAdiHtml = `Servis: ${s.cihaz}` + (kisiIsim ? ` <br><small style="color:var(--text-muted); font-weight:600;">👤 ${kisiIsim}</small>` : '');
+                    items.push({
+                        fullDateStr: s.tarih,
+                        htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#34d399; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('servisler', '${s.id}', 'kasaDetayGoster')">SİL</button></td></tr>`
+                    });
                 }
             });
+
             window.giderler.forEach(g => { 
                 let tutar = Number(g.tutar);
                 if (!((g.odemeYontemi || '').toLowerCase().includes('kredi') || (g.odemeYontemi || '').toLowerCase().includes('havale'))) { 
                     toplam -= tutar; 
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${g.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">Gider: ${g.kategori}</td><td style="color:#ef4444; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('giderler', '${g.id}', 'kasaDetayGoster')">SİL</button></td></tr>`; 
+                    let rawDate = g.tarih.split(' ')[0];
+                    let islemAdiHtml = `Gider: ${g.kategori}`;
+                    items.push({
+                        fullDateStr: g.tarih,
+                        htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#ef4444; padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('giderler', '${g.id}', 'kasaDetayGoster')">SİL</button></td></tr>`
+                    });
                 }
             });
+
+            // En yeni tarih en üstte olacak şekilde z->a sıralıyoruz
+            items.sort((a, b) => b.fullDateStr.localeCompare(a.fullDateStr));
+
+            let html = '<table style="width:100%; font-size:12px; border-collapse: collapse; text-align:left;"><thead><tr><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tarih</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">İşlem Adı / Kişi</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tutar</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Sil</th></tr></thead><tbody>';
+            
+            items.forEach(item => {
+                html += item.htmlRow;
+            });
+
             html += `</tbody></table><div style="margin-top:20px; text-align:right; font-size:18px;"><b>NET KASA: <span style="color:${toplam >= 0 ? '#34d399' : '#ef4444'};">${toplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></b></div>`;
             document.getElementById('kasaDetayListesi').innerHTML = html;
             document.getElementById('kasaDetayModal').style.display = 'flex';
@@ -567,18 +608,21 @@
 
         /* BANKA DEDEKTİFİ */
         window.bankaDetayGoster = function() {
-            let html = '<table style="width:100%; font-size:12px; border-collapse: collapse; text-align:left;"><thead><tr><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tarih</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">İşlem / Kaynak</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tutar</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Sil</th></tr></thead><tbody>';
+            let items = [];
             let toplam = 0;
 
             window.bankaIslemleri.forEach(b => {
                 let tutar = Number(b.tutar);
                 let isGelen = b.islemTuru.includes('Gelen');
+                let rawDate = b.tarih.split(' ')[0];
+                let islemAdiHtml = `[Banka Manuel] ${b.islemTuru}`;
+
                 if (isGelen) {
                     toplam += tutar;
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${b.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">[Banka Manuel] ${b.islemTuru}</td><td style="color:#60a5fa; padding:8px;">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('bankaIslemleri', '${b.id}', 'bankaDetayGoster')">SİL</button></td></tr>`;
+                    items.push({ fullDateStr: b.tarih, htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#60a5fa; padding:8px;">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('bankaIslemleri', '${b.id}', 'bankaDetayGoster')">SİL</button></td></tr>` });
                 } else {
                     toplam -= tutar;
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${b.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">[Banka Manuel] ${b.islemTuru}</td><td style="color:#ef4444; padding:8px;">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('bankaIslemleri', '${b.id}', 'bankaDetayGoster')">SİL</button></td></tr>`;
+                    items.push({ fullDateStr: b.tarih, htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#ef4444; padding:8px;">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('bankaIslemleri', '${b.id}', 'bankaDetayGoster')">SİL</button></td></tr>` });
                 }
             });
 
@@ -590,13 +634,19 @@
                 let aciklama = (i.aciklama || '').toLowerCase();
                 if(!isBanka && (aciklama.includes('iban') || aciklama.includes('havale'))) isBanka = true;
 
+                let cari = window.cariler.find(c => c.id == i.cariId);
+                let kisi = cari ? cari.ad : '';
+                let rawDate = i.islemTarihi.split(' ')[0];
+
                 if ((tur.includes('satış') || tur.includes('ödeme alındı')) && isBanka) {
                     toplam += tutar;
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTarihi.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">[Satış/Tahsilat] ${i.islemTuru}</td><td style="color:#60a5fa; padding:8px;">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'bankaDetayGoster')">SİL</button></td></tr>`;
+                    let islemAdiHtml = `[Tahsilat] ${i.islemTuru}` + (kisi ? ` <br><small style="color:var(--text-muted); font-weight:600;">👤 ${kisi}</small>` : '');
+                    items.push({ fullDateStr: i.islemTarihi, htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#60a5fa; padding:8px;">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'bankaDetayGoster')">SİL</button></td></tr>` });
                 }
                 if (tur.includes('toptancıya ödeme') && isBanka) {
                     toplam -= tutar;
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${i.islemTarihi.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">[Toptancı Ödeme] ${i.islemTuru}</td><td style="color:#ef4444; padding:8px;">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'bankaDetayGoster')">SİL</button></td></tr>`;
+                    let islemAdiHtml = `[Toptancı] ${i.islemTuru}` + (kisi ? ` <br><small style="color:var(--text-muted); font-weight:600;">🏢 ${kisi}</small>` : '');
+                    items.push({ fullDateStr: i.islemTarihi, htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#ef4444; padding:8px;">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('islemler', '${i.id}', 'bankaDetayGoster')">SİL</button></td></tr>` });
                 }
             });
 
@@ -605,7 +655,11 @@
                 let odeme = (s.odemeYontemi || '').toLowerCase();
                 if (odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart')) {
                     toplam += tutar;
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${s.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">[Servis Kart] ${s.cihaz}</td><td style="color:#60a5fa; padding:8px;">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('servisler', '${s.id}', 'bankaDetayGoster')">SİL</button></td></tr>`;
+                    let rawDate = s.tarih.split(' ')[0];
+                    let kisiIsim = s.cariAdi && s.cariAdi !== 'Doğrudan Nakit' ? s.cariAdi : '';
+                    let islemAdiHtml = `[Servis] ${s.cihaz}` + (kisiIsim ? ` <br><small style="color:var(--text-muted); font-weight:600;">👤 ${kisiIsim}</small>` : '');
+                    
+                    items.push({ fullDateStr: s.tarih, htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#60a5fa; padding:8px;">+${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('servisler', '${s.id}', 'bankaDetayGoster')">SİL</button></td></tr>` });
                 }
             });
 
@@ -614,9 +668,19 @@
                 let odeme = (g.odemeYontemi || '').toLowerCase();
                 if (odeme.includes('kredi') || odeme.includes('havale') || odeme.includes('kart')) {
                     toplam -= tutar;
-                    html += `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${g.tarih.split(' ')[0]}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">[Gider Kart] ${g.kategori}</td><td style="color:#ef4444; padding:8px;">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('giderler', '${g.id}', 'bankaDetayGoster')">SİL</button></td></tr>`;
+                    let rawDate = g.tarih.split(' ')[0];
+                    let islemAdiHtml = `[Gider] ${g.kategori}`;
+
+                    items.push({ fullDateStr: g.tarih, htmlRow: `<tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${rawDate}</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${islemAdiHtml}</td><td style="color:#ef4444; padding:8px;">-${tutar.toLocaleString('tr-TR')} ₺</td><td style="padding:8px;"><button class="btn-delete" style="padding:4px 8px; font-size:10px;" onclick="window.hizliSil('giderler', '${g.id}', 'bankaDetayGoster')">SİL</button></td></tr>` });
                 }
             });
+
+            // En yeni tarih en üstte olacak şekilde sıralıyoruz
+            items.sort((a, b) => b.fullDateStr.localeCompare(a.fullDateStr));
+
+            let html = '<table style="width:100%; font-size:12px; border-collapse: collapse; text-align:left;"><thead><tr><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tarih</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">İşlem / Kişi</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Tutar</th><th style="border-bottom:1px solid rgba(255,255,255,0.2); padding:8px;">Sil</th></tr></thead><tbody>';
+            
+            items.forEach(item => { html += item.htmlRow; });
 
             html += `</tbody></table><div style="margin-top:20px; text-align:right; font-size:18px;"><b>NET BANKA TOPLAMI: <span style="color:${toplam >= 0 ? '#60a5fa' : '#ef4444'};">${toplam.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></b></div>`;
             document.getElementById('bankaDetayListesi').innerHTML = html;

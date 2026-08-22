@@ -209,6 +209,28 @@
         </div>
     </div>
 
+    <!-- BAYİ SEÇİM MODALİ (YAZDIRMA ÖNCESİ SEÇİM LİSTESİ) -->
+    <div id="topluSecimModal" style="display:none;">
+        <div class="modal-box" style="max-width:550px; text-align:left; max-height:85vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:var(--gold-bright); margin:0; font-size:18px;">🖨️ Yazdırılacak Bayileri Seçin</h3>
+                <button class="btn-pro-action" onclick="window.closeTopluSecimModal()" style="padding:6px 12px;">Kapat ✖</button>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Listeden çıktıya dahil etmek istediğiniz bayileri işaretleyin:</p>
+            
+            <div style="margin-bottom: 12px; display: flex; gap: 10px;">
+                <button class="btn-pro-action" onclick="window.bayileriSecUnsec(true)" style="padding: 6px 10px; font-size: 11px;">Tümünü Seç</button>
+                <button class="btn-pro-action" onclick="window.bayileriSecUnsec(false)" style="padding: 6px 10px; font-size: 11px; background:transparent; color:var(--text-muted);">Seçimleri Kaldır</button>
+            </div>
+
+            <div id="secimBayiListesiContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+                <!-- Dinamik Bayi Checkbox Listesi -->
+            </div>
+
+            <button class="submit-btn" style="width:100%; padding:14px;" onclick="window.secilenleriYazdirIslemi()">Seçilen Bayilerin Çıktısını Al 🖨️</button>
+        </div>
+    </div>
+
     <div id="passwordModal" style="display:none;">
         <div class="modal-box" style="max-width:400px; text-align:left;">
             <h3 style="color:var(--gold-bright); margin-top:0; font-size:18px;">⚙️ Personel & Şifre Ayarları</h3>
@@ -483,7 +505,7 @@
 
     <!-- TOPLU BAYİ BORÇ YAZDIRMA ALANI -->
     <div id="topluBorcPrintAlani">
-        <h2 id="topluBorcTarihBaslik">GÜNCEL BAYİ BORÇ LİSTESİ (<span id="topluBorcTarihAlan"></span>)</h2>
+        <h2 id="topluBorcTarihBaslik">GÜNCEL SEÇİLEN BAYİLER BORÇ LİSTESİ (<span id="topluBorcTarihAlan"></span>)</h2>
         <table id="topluBorcTablo">
             <thead>
                 <tr>
@@ -728,6 +750,7 @@
             document.getElementById('kasaModal').style.display = 'none';
         };
 
+        // YAZDIRMA İÇİN SEÇİM PENCERESİNİ AÇ
         window.topluYazdirPenceresiAc = function() {
             let borcluCariler = window.cariler.filter(c => {
                 let borc = 0, odenen = 0;
@@ -740,16 +763,61 @@
 
             if(borcluCariler.length === 0) return alert("Şu an borçlu bayi bulunmuyor!");
 
+            const container = document.getElementById('secimBayiListesiContainer');
+            container.innerHTML = '';
+
+            borcluCariler.forEach(c => {
+                let borc = 0, odenen = 0;
+                window.islemler.filter(i => i.cariId == c.id).forEach(i => {
+                    if (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) borc += Number(i.islemTutari);
+                    else if (i.islemTuru.includes('Ödeme Alındı')) odenen += Number(i.islemTutari);
+                });
+                let net = borc - odenen;
+
+                container.innerHTML += `
+                    <label style="display: flex; align-items: center; justify-content: space-between; background: var(--input-bg); padding: 10px 14px; border-radius: 8px; cursor: pointer; margin: 0; border: 1px solid var(--border-color);">
+                        <span style="display: flex; align-items: center; gap: 10px; color: var(--text-main); font-size: 13px;">
+                            <input type="checkbox" class="bayi-secim-cb" value="${c.id}" checked style="width: 18px; height: 18px; accent-color: var(--gold-main); cursor: pointer;">
+                            <b>${c.ad.toUpperCase()}</b>
+                        </span>
+                        <span style="color: #f87171; font-weight: bold; font-size: 13px;">${net.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span>
+                    </label>
+                `;
+            });
+
+            document.getElementById('topluSecimModal').style.display = 'flex';
+        };
+
+        window.closeTopluSecimModal = function() {
+            document.getElementById('topluSecimModal').style.display = 'none';
+        };
+
+        window.bayileriSecUnsec = function(durum) {
+            document.querySelectorAll('.bayi-secim-cb').forEach(cb => cb.checked = durum);
+        };
+
+        // SEÇİLEN BAYİLERİN DÖKÜMÜNÜ HAZIRLA VE YAZDIR
+        window.secilenleriYazdirIslemi = function() {
+            let secilenIds = [];
+            document.querySelectorAll('.bayi-secim-cb:checked').forEach(cb => {
+                secilenIds.push(Number(cb.value));
+            });
+
+            if(secilenIds.length === 0) return alert("Lütfen en az bir bayi seçin!");
+
+            window.closeTopluSecimModal();
+
             const tbody = document.querySelector('#topluBorcTablo tbody');
             tbody.innerHTML = '';
             document.getElementById('topluBorcTarihAlan').innerText = new Date().toLocaleDateString('tr-TR');
 
             const baslangicTarihi = document.getElementById('ekstreBaslangicTarihi') ? document.getElementById('ekstreBaslangicTarihi').value : '';
 
-            borcluCariler.forEach(c => {
-                let cariIslemler = window.islemler.filter(i => i.cariId == c.id);
-                if(cariIslemler.length === 0) return;
+            secilenIds.forEach(id => {
+                let c = window.cariler.find(x => x.id == id);
+                if(!c) return;
 
+                let cariIslemler = window.islemler.filter(i => i.cariId == c.id);
                 let devredenBorc = 0, devredenOdenen = 0;
                 let toplamBorc = 0, toplamOdenen = 0;
                 let guncelListe = [];
@@ -772,42 +840,41 @@
                 });
 
                 let netBakiye = toplamBorc - toplamOdenen;
+                let islemSatirlari = [];
+                let devredenNet = devredenBorc - devredenOdenen;
                 
-                if (netBakiye > 0) {
-                    let islemSatirlari = [];
-                    let devredenNet = devredenBorc - devredenOdenen;
-                    
-                    if (baslangicTarihi && devredenNet !== 0) {
-                        let aciklamaBaslik = devredenNet > 0 ? `KALAN (${devredenNet.toLocaleString('tr-TR')} ₺)` : `ALACAK DEVRİ (${Math.abs(devredenNet).toLocaleString('tr-TR')} ₺)`;
-                        islemSatirlari.push({ aciklama: aciklamaBaslik, tutar: Math.abs(devredenNet), isBorc: devredenNet > 0 });
-                    }
-
-                    guncelListe.forEach(g => {
-                        islemSatirlari.push({ aciklama: g.islem.aciklama, tutar: g.miktar, isBorc: g.isBorc });
-                    });
-
-                    if(islemSatirlari.length > 0) {
-                        let rowCount = islemSatirlari.length;
-                        islemSatirlari.forEach((s, index) => {
-                            let tutarFormat = s.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
-                            if(!s.isBorc) tutarFormat = "-" + tutarFormat;
-
-                            if (index === 0) {
-                                tbody.innerHTML += `<tr>
-                                    <td rowspan="${rowCount}"><b>${c.ad.toUpperCase()}</b></td>
-                                    <td>${s.aciklama}</td>
-                                    <td>${tutarFormat}</td>
-                                    <td rowspan="${rowCount}"><b>${netBakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
-                                </tr>`;
-                            } else {
-                                tbody.innerHTML += `<tr>
-                                    <td>${s.aciklama}</td>
-                                    <td>${tutarFormat}</td>
-                                </tr>`;
-                            }
-                        });
-                    }
+                if (baslangicTarihi && devredenNet !== 0) {
+                    let aciklamaBaslik = devredenNet > 0 ? `KALAN (${devredenNet.toLocaleString('tr-TR')} ₺)` : `ALACAK DEVRİ (${Math.abs(devredenNet).toLocaleString('tr-TR')} ₺)`;
+                    islemSatirlari.push({ aciklama: aciklamaBaslik, tutar: Math.abs(devredenNet), isBorc: devredenNet > 0 });
                 }
+
+                guncelListe.forEach(g => {
+                    islemSatirlari.push({ aciklama: g.islem.aciklama, tutar: g.miktar, isBorc: g.isBorc });
+                });
+
+                if(islemSatirlari.length === 0) {
+                    islemSatirlari.push({ aciklama: "Güncel işlem yok", tutar: 0, isBorc: true });
+                }
+
+                let rowCount = islemSatirlari.length;
+                islemSatirlari.forEach((s, index) => {
+                    let tutarFormat = s.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+                    if(!s.isBorc) tutarFormat = "-" + tutarFormat;
+
+                    if (index === 0) {
+                        tbody.innerHTML += `<tr>
+                            <td rowspan="${rowCount}"><b>${c.ad.toUpperCase()}</b></td>
+                            <td>${s.aciklama}</td>
+                            <td>${tutarFormat}</td>
+                            <td rowspan="${rowCount}"><b>${netBakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                        </tr>`;
+                    } else {
+                        tbody.innerHTML += `<tr>
+                            <td>${s.aciklama}</td>
+                            <td>${tutarFormat}</td>
+                        </tr>`;
+                    }
+                });
             });
 
             setTimeout(() => {

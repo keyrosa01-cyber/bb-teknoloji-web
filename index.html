@@ -99,7 +99,7 @@
 
         .search-box {
             width: 100%; padding: 16px 20px; font-size: 14px; font-weight: 600; border: 1px solid var(--gold-main);
-            border-radius: 12px; background-color: var(--card-inner); color: var(--text-main); margin-bottom: 22px;
+            border-radius: 12px; background-color: var(--card-inner); color: var(--text-main);
         }
 
         button.submit-btn { 
@@ -123,6 +123,8 @@
         
         .btn-whatsapp { background-color: var(--whatsapp); color: white; border: none; padding: 12px 20px; cursor: pointer; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
         .btn-pdf { background-color: #ef4444; color: white; border: none; padding: 12px 20px; cursor: pointer; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+        .btn-toplu { background-color: #3b82f6; color: white; border: none; padding: 16px 20px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 14px; transition: all 0.2s; white-space: nowrap; }
+        .btn-toplu:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
 
         .cari-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; margin-bottom: 28px; }
         .cari-card { background: var(--card-inner); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; cursor: pointer; transition: all 0.25s; position: relative; }
@@ -142,7 +144,6 @@
         .filter-btn { padding: 10px 16px; border: 1px solid var(--border-color); background: var(--card-inner); color: var(--text-main); font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .filter-btn.active { background: var(--gold-main); color: #000; border-color: var(--gold-bright); }
 
-        /* AÇILIR LİSTE STİLLERİ */
         .autocomplete-container { position: relative; width: 100%; }
         .autocomplete-items {
             position: absolute; border: 1px solid var(--gold-main); border-top: none; z-index: 99;
@@ -155,15 +156,16 @@
         }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
 
-        /* --- KUSURSUZ CARİ EKSTRE PDF YAZDIRMA STİLİ --- */
+        /* YAZDIRMA CSS */
         body.printing-cari-ekstre #ekstreFiltreAlani,
         body.printing-cari-ekstre .tab-content:not(#cariHesaplarTab),
         body.printing-cari-ekstre #loginScreen,
         body.printing-cari-ekstre #passwordModal,
         body.printing-cari-ekstre .header-brand,
         body.printing-cari-ekstre .tab-buttons,
-        body.printing-cari-ekstre #ekstreAramaInput,
+        body.printing-cari-ekstre .cari-ust-alan,
         body.printing-cari-ekstre #cariKartlarKutusu,
+        body.printing-cari-ekstre hr,
         body.printing-cari-ekstre .btn-whatsapp,
         body.printing-cari-ekstre .btn-pdf,
         body.printing-cari-ekstre #islemForm,
@@ -175,22 +177,33 @@
             display: none !important;
         }
 
+        body.printing-toplu-borc .header-brand,
+        body.printing-toplu-borc .dashboard-grid,
+        body.printing-toplu-borc .tab-buttons,
+        body.printing-toplu-borc .tab-content,
+        body.printing-toplu-borc #loginScreen,
+        body.printing-toplu-borc #passwordModal {
+            display: none !important;
+        }
+
         @media print {
             body { background: #fff !important; color: #000 !important; padding: 0 !important; font-family: 'Arial', sans-serif !important; }
+            @page { size: A4 portrait; margin: 10mm; }
+            
             body.printing-cari-ekstre #cariHesaplarTab { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; width: 100% !important; }
             body.printing-cari-ekstre #detayPaneli { display: block !important; }
             body.printing-cari-ekstre #pdfCariAlani { background: #fff !important; border: none !important; padding: 0 !important; margin: 0 !important; color: #000 !important; width: 100% !important; }
+            body.printing-cari-ekstre #pdfCariAlani h1 { color: #000 !important; font-size: 16px !important; margin: 0 0 4px 0 !important; }
+            body.printing-cari-ekstre #pdfCariAlani h2 { color: #000 !important; font-size: 14px !important; margin: 0 !important; }
+            body.printing-cari-ekstre #pdfCariAlani h3 { color: #000 !important; font-size: 12px !important; margin: 10px 0 6px 0 !important; border-bottom: 1px solid #000; padding-bottom: 2px; }
             
-            @page { size: A4 portrait; margin: 10mm; }
-            
-            #pdfCariAlani h1 { color: #000 !important; font-size: 16px !important; margin: 0 0 4px 0 !important; }
-            #pdfCariAlani h2 { color: #000 !important; font-size: 14px !important; margin: 0 !important; }
-            #pdfCariAlani h3 { color: #000 !important; font-size: 12px !important; margin: 10px 0 6px 0 !important; border-bottom: 1px solid #000; padding-bottom: 2px; }
+            body.printing-toplu-borc #topluBorcPrintAlani { display: block !important; background: #fff !important; width: 100% !important; }
+            body.printing-toplu-borc #topluBorcPrintAlani h2 { color: #000 !important; text-align: center !important; font-size: 18px !important; border-bottom: 2px solid #000 !important; padding-bottom: 8px !important; margin-bottom: 15px !important; }
             
             table { width: 100% !important; border-collapse: collapse !important; margin-top: 5px !important; border: 1px solid #000 !important; }
-            th, td { padding: 4px 6px !important; border: 1px solid #666 !important; font-size: 9pt !important; color: #000 !important; }
-            th { background-color: #eee !important; color: #000 !important; font-weight: bold !important; -webkit-print-color-adjust: exact; }
-            tr:nth-child(even) { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
+            th, td { padding: 6px 8px !important; border: 1px solid #666 !important; font-size: 10pt !important; color: #000 !important; vertical-align: middle !important; }
+            th { background-color: #f0f0f0 !important; color: #000 !important; font-weight: bold !important; -webkit-print-color-adjust: exact; }
+            tr:nth-child(even) { background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -358,18 +371,27 @@
 
     <div id="cariHesaplarTab" class="tab-content">
         <h2 style="color:var(--gold-bright); margin-top:0; font-size:20px;">💳 Bayi & Müşteri Hesap Kartları</h2>
-        <input type="text" id="ekstreAramaInput" class="search-box" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
+        
+        <div class="cari-ust-alan" style="display:flex; gap:12px; margin-bottom:22px; flex-wrap:wrap; align-items:center;">
+            <div style="flex:1; min-width:250px;">
+                <input type="text" id="ekstreAramaInput" class="search-box" style="margin-bottom:0;" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
+            </div>
+            <button class="btn-toplu" onclick="window.topluBorcListesiYazdir()">🖨️ Güncel Bayi Borç Listesini Yazdır</button>
+        </div>
+
         <div id="cariKartlarKutusu" class="cari-grid"></div>
         <hr style="border-color:var(--border-color); margin:28px 0;">
         
         <div id="detayPaneli" style="display:none;">
             
-            <!-- DEVREDEN BAKİYE / TARİH FİLTRESİ (YAZICIDA ÇIKMAZ) -->
+            <!-- PRATİK HESAP KAPATMA VE DEVİR ALANI -->
             <div id="ekstreFiltreAlani" style="background:var(--card-inner); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border-gold); display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
-                <label style="margin:0; color:var(--text-main); font-size:13px;">📅 Ekstre Başlangıç Tarihi:</label>
-                <input type="date" id="ekstreBaslangicTarihi" onchange="window.kisiIslemleriniListele(window.seciliCariId)" style="width:auto; padding:8px 12px; background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-color); border-radius:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label style="margin:0; color:var(--text-main); font-size:13px;">📅 Tarih / Devir Sınırı:</label>
+                    <input type="date" id="ekstreBaslangicTarihi" onchange="window.kisiIslemleriniListele(window.seciliCariId)" style="width:auto; padding:8px 12px; background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-color); border-radius:8px;">
+                </div>
+                <button class="btn-pro-action" style="background:rgba(16, 185, 129, 0.15); color:#34d399; border-color:rgba(16, 185, 129, 0.4);" onclick="window.cariHesabiDevreSok()">✨ Bu Haftayı Kapat / Kalanı Devir Yap</button>
                 <button class="btn-pro-action" onclick="document.getElementById('ekstreBaslangicTarihi').value=''; window.kisiIslemleriniListele(window.seciliCariId)">🔄 Tüm Geçmişi Göster</button>
-                <small style="color:var(--text-muted); margin-left:auto;">(Seçili tarihten öncekiler "Devreden Bakiye" olarak tek kalemde toplanır.)</small>
             </div>
 
             <div id="pdfCariAlani" style="background:var(--card-inner); padding:22px; border-radius:16px; margin-bottom:24px; border:1px solid var(--border-color);">
@@ -470,6 +492,21 @@
         </table>
     </div>
 
+    <div id="topluBorcPrintAlani" style="display:none;">
+        <h2 id="topluBorcTarihBaslik">GÜNCEL BAYİ BORÇ LİSTESİ (<span id="topluBorcTarihAlan"></span>)</h2>
+        <table id="topluBorcTablo">
+            <thead>
+                <tr>
+                    <th style="width:25%;">BAYİ</th>
+                    <th style="width:45%;">YAPILAN İŞLEM</th>
+                    <th style="width:15%;">FİYAT</th>
+                    <th style="width:15%;">TOPLAM</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
@@ -514,6 +551,20 @@
             if (!metin) return "";
             return metin.toLocaleLowerCase('tr-TR');
         }
+
+        const parseDateKisa = (tarihMetni) => {
+            let kisa = "";
+            if(!tarihMetni) return "";
+            let tarihKismi = tarihMetni.split(' ')[0];
+            if(tarihKismi.includes('-')) {
+                const p = tarihKismi.split('-');
+                kisa = p[0].length === 4 ? p.join('-') : `${p[2]}-${p[1]}-${p[0]}`;
+            } else if(tarihKismi.includes('.')) {
+                const p = tarihKismi.split('.');
+                kisa = `${p[2]}-${p[1]}-${p[0]}`;
+            }
+            return kisa;
+        };
 
         window.ekraniGuncelle = function() {
             if(typeof window.stokLlistele === 'function') window.stokLlistele();
@@ -1003,7 +1054,16 @@
             window.kisiIslemleriniListele(id);
         };
 
-        // YENİDEN YAZILAN "DEVREDEN BAKİYE" FİLTRELİ FONKSİYON
+        // --- PRATİK HESABI KAPAT / DEVİR YAP ÖZELLİĞİ ---
+        window.cariHesabiDevreSok = function() {
+            if (!window.seciliCariId) return alert("Önce bir bayi seçin!");
+            let bugun = new Date().toISOString().split('T')[0];
+            document.getElementById('ekstreBaslangicTarihi').value = bugun;
+            window.kisiIslemleriniListele(window.seciliCariId);
+            alert("✨ Hesap bu haftaya devredildi! Bugünden önceki tüm eski hareketler tek satır 'Devreden Bakiye' olarak toplandı, altından temiz yeni hafta başladı.");
+        };
+
+        // --- BİREYSEL CARİ İŞLEMLERİ (DEVREDEN KISIM) ---
         window.kisiIslemleriniListele = function(cariId) {
             const tbody = document.querySelector('#kisiIslemTablosu tbody');
             if(!tbody) return; tbody.innerHTML = '';
@@ -1011,24 +1071,7 @@
             const baslangicInput = document.getElementById('ekstreBaslangicTarihi');
             let baslangicTarihi = baslangicInput ? baslangicInput.value : ''; 
             
-            let devredenBorc = 0;
-            let devredenOdenen = 0;
-            let guncelBorc = 0;
-            let guncelOdenen = 0;
-            
-            const parseDateKisa = (tarihMetni) => {
-                let kisa = "";
-                if(!tarihMetni) return "";
-                let tarihKismi = tarihMetni.split(' ')[0];
-                if(tarihKismi.includes('-')) {
-                    const p = tarihKismi.split('-');
-                    kisa = p[0].length === 4 ? p.join('-') : `${p[2]}-${p[1]}-${p[0]}`;
-                } else if(tarihKismi.includes('.')) {
-                    const p = tarihKismi.split('.');
-                    kisa = `${p[2]}-${p[1]}-${p[0]}`;
-                }
-                return kisa;
-            };
+            let devredenBorc = 0, devredenOdenen = 0, guncelBorc = 0, guncelOdenen = 0;
 
             window.islemler.filter(i => i.cariId == cariId).forEach(i => {
                 let isTarihiKisa = parseDateKisa(i.islemTarihi);
@@ -1036,12 +1079,10 @@
                 let isBorc = (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir'));
                 let isOdeme = i.islemTuru.includes('Ödeme Alındı');
 
-                // Seçili tarihten öncesi ise devreden bakiyeye topla
                 if (baslangicTarihi && isTarihiKisa < baslangicTarihi) {
                     if (isBorc) devredenBorc += islemMiktari;
                     else if (isOdeme) devredenOdenen += islemMiktari;
                 } else {
-                    // Seçili tarihten sonrası ise listeye normal ekle
                     if (isBorc) guncelBorc += islemMiktari;
                     else if (isOdeme) guncelOdenen += islemMiktari;
                     
@@ -1055,20 +1096,18 @@
                 }
             });
 
-            // Geçmişten gelen bakiye varsa tablo başına ekle
             let devredenNet = devredenBorc - devredenOdenen;
             if (baslangicTarihi && devredenNet !== 0) {
-                let devredenTuru = devredenNet > 0 ? '📝 Devreden Bakiye (Borç)' : '💵 Devreden Bakiye (Alacak)';
+                let devredenTuru = devredenNet > 0 ? '📝 Önceki Dönem Kalan Bakiye' : '💵 Alacak Devri';
                 let devredenTutar = Math.abs(devredenNet);
                 
                 let devredenRow = `<tr style="background-color: rgba(245, 158, 11, 0.1);">
                     <td><small>${baslangicTarihi} Öncesi</small></td>
                     <td><b style="color:var(--gold-main);">${devredenTuru}</b></td>
-                    <td>Geçmiş işlemlerden devreden net hesap bakiyesi.</td>
+                    <td>Geçmiş hesaplardan devreden net bakiye.</td>
                     <td><b style="color:var(--gold-main);">${devredenTutar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
                     <td class="btn-delete-col">-</td>
                 </tr>`;
-                
                 tbody.innerHTML = devredenRow + tbody.innerHTML;
             }
 
@@ -1080,6 +1119,90 @@
         };
 
         window.islemSil = async function(id) { if(confirm('Silinsin mi?')) await deleteDoc(doc(window.db, "islemler", id.toString())); };
+
+        // --- TOPLU BORÇ LİSTESİ YAZDIRMA ---
+        window.topluBorcListesiYazdir = function() {
+            const tbody = document.querySelector('#topluBorcTablo tbody');
+            tbody.innerHTML = '';
+            document.getElementById('topluBorcTarihAlan').innerText = new Date().toLocaleDateString('tr-TR');
+
+            const baslangicTarihi = document.getElementById('ekstreBaslangicTarihi') ? document.getElementById('ekstreBaslangicTarihi').value : '';
+            let borcluCariler = [];
+
+            window.cariler.forEach(c => {
+                let cariIslemler = window.islemler.filter(i => i.cariId == c.id);
+                if(cariIslemler.length === 0) return;
+
+                let devredenBorc = 0, devredenOdenen = 0;
+                let toplamBorc = 0, toplamOdenen = 0;
+                let guncelListe = [];
+
+                cariIslemler.forEach(i => {
+                    let isTarihiKisa = parseDateKisa(i.islemTarihi);
+                    let islemMiktari = Number(i.islemTutari);
+                    let isBorc = (i.islemTuru.includes('Borç') || i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir'));
+                    let isOdeme = i.islemTuru.includes('Ödeme Alındı');
+
+                    if (isBorc) toplamBorc += islemMiktari;
+                    else if (isOdeme) toplamOdenen += islemMiktari;
+
+                    if (baslangicTarihi && isTarihiKisa < baslangicTarihi) {
+                        if (isBorc) devredenBorc += islemMiktari;
+                        else if (isOdeme) devredenOdenen += islemMiktari;
+                    } else {
+                        guncelListe.push({ islem: i, isBorc: isBorc, miktar: islemMiktari });
+                    }
+                });
+
+                let netBakiye = toplamBorc - toplamOdenen;
+                
+                if (netBakiye > 0) {
+                    let islemSatirlari = [];
+                    let devredenNet = devredenBorc - devredenOdenen;
+                    
+                    if (baslangicTarihi && devredenNet !== 0) {
+                        let aciklamaBaslik = devredenNet > 0 ? `KALAN (${devredenNet.toLocaleString('tr-TR')} ₺)` : `ALACAK DEVRİ (${Math.abs(devredenNet).toLocaleString('tr-TR')} ₺)`;
+                        islemSatirlari.push({ aciklama: aciklamaBaslik, tutar: Math.abs(devredenNet), isBorc: devredenNet > 0 });
+                    }
+
+                    guncelListe.forEach(g => {
+                        islemSatirlari.push({ aciklama: g.islem.aciklama, tutar: g.miktar, isBorc: g.isBorc });
+                    });
+
+                    if(islemSatirlari.length > 0) {
+                        borcluCariler.push({ ad: c.ad, bakiye: netBakiye, satirlar: islemSatirlari });
+                    }
+                }
+            });
+
+            if (borcluCariler.length === 0) return alert("Şu an borçlu bayi bulunmuyor veya seçili tarihten sonra hareket yok.");
+
+            borcluCariler.forEach(c => {
+                let rowCount = c.satirlar.length;
+                c.satirlar.forEach((s, index) => {
+                    let tutarFormat = s.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+                    if(!s.isBorc) tutarFormat = "-" + tutarFormat;
+
+                    if (index === 0) {
+                        tbody.innerHTML += `<tr>
+                            <td rowspan="${rowCount}"><b>${c.ad.toUpperCase()}</b></td>
+                            <td>${s.aciklama}</td>
+                            <td>${tutarFormat}</td>
+                            <td rowspan="${rowCount}"><b>${c.bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                        </tr>`;
+                    } else {
+                        tbody.innerHTML += `<tr>
+                            <td>${s.aciklama}</td>
+                            <td>${tutarFormat}</td>
+                        </tr>`;
+                    }
+                });
+            });
+
+            document.body.classList.add('printing-toplu-borc');
+            window.print();
+            setTimeout(() => document.body.classList.remove('printing-toplu-borc'), 500);
+        };
 
         window.finansFiltrele = function(tur, btn) {
             window.aktifFinansFiltre = tur;
@@ -1114,7 +1237,7 @@
                 const cari = window.cariler.find(c => c.id == i.cariId);
                 if (!i.islemTuru.includes('Ödeme Alındı')) ciro += Number(i.islemTutari);
                 else tahsilat += Number(i.islemTutari);
-                liste.push({tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: i.islemTuru.includes('Ödeme Alındı') ? 'tahsilat' : 'ciro'});
+                liste.push({tarih: i.islemTuru.includes('Ödeme Alındı') ? i.islemTarihi : i.islemTarihi, kisi: cari ? cari.ad : 'Genel', tur: i.islemTuru, aciklama: i.aciklama, tutar: Number(i.islemTutari), tip: i.islemTuru.includes('Ödeme Alındı') ? 'tahsilat' : 'ciro'});
             });
 
             window.giderler.filter(g => tarihUyuşuyorMu(g.tarih)).forEach(g => {

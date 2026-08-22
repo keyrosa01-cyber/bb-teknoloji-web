@@ -159,7 +159,11 @@
         }
         .autocomplete-items div:hover { background-color: var(--gold-main); color: #000; }
 
-        /* YAZDIRMA CSS */
+        /* YAZDIRMA CSS (TOPLU BORÇ VE EKSTRE İÇİN ÖZEL) */
+        body:not(.printing-toplu-borc) #topluBorcPrintAlani {
+            display: none !important;
+        }
+
         body.printing-cari-ekstre #ekstreFiltreAlani,
         body.printing-cari-ekstre .tab-content:not(#cariHesaplarTab),
         body.printing-cari-ekstre #loginScreen,
@@ -185,7 +189,8 @@
         body.printing-toplu-borc .tab-buttons,
         body.printing-toplu-borc .tab-content,
         body.printing-toplu-borc #loginScreen,
-        body.printing-toplu-borc #passwordModal {
+        body.printing-toplu-borc #passwordModal,
+        body.printing-toplu-borc #kasaModal {
             display: none !important;
         }
 
@@ -283,7 +288,7 @@
 
     <div class="dashboard-grid">
         <div class="stat-card clickable" onclick="window.openKasaModal()" style="border-left-color:#10b981;" title="Tıklayarak Kasa Hareketlerini Gör">
-            <div class="stat-title">Kasadaki Nakit Para (Tıkla Göör)</div>
+            <div class="stat-title">Kasadaki Nakit Para (Tıkla Gör)</div>
             <div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div>
         </div>
         <div class="stat-card">
@@ -516,8 +521,9 @@
         </table>
     </div>
 
-    <div id="topluBorcPrintAlani" style="display:none;">
-        <h2 id="topluBorcTarihBaslik">GÜNCEL BAYİ BORÇ LİSTESİ (<span id="topluBorcTarihAlan"></span>)</h2>
+    <!-- TOPLU BAYİ BORÇ YAZDIRMA ALANI -->
+    <div id="topluBorcPrintAlani">
+        <h2 id="topluBorcTarihBaslik" style="font-size:16px; text-align:center; margin-bottom:10px;">GÜNCEL BAYİ BORÇ LİSTESİ (<span id="topluBorcTarihAlan"></span>)</h2>
         <table id="topluBorcTablo">
             <thead>
                 <tr>

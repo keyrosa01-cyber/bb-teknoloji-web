@@ -34,7 +34,7 @@
             min-height: 100vh; line-height: 1.5;
         }
 
-        #loginScreen, #passwordModal, #topluSecimModal {
+        #loginScreen, #passwordModal, #kasaModal, #topluSecimModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(10, 13, 20, 0.92); backdrop-filter: blur(8px);
             z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 20px;
@@ -70,6 +70,9 @@
             background: var(--card-bg); border: 1px solid var(--border-color); padding: 22px;
             border-radius: 16px; border-left: 4px solid var(--gold-main); box-shadow: var(--shadow);
         }
+        .stat-card.clickable { cursor: pointer; transition: all 0.2s ease; }
+        .stat-card.clickable:hover { border-color: var(--gold-bright); transform: translateY(-2px); background: linear-gradient(135deg, #161c2d 0%, var(--card-bg) 100%); }
+
         .stat-title { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-value { font-size: 22px; color: var(--text-main); font-weight: 800; margin-top: 10px; }
 
@@ -226,6 +229,21 @@
         </div>
     </div>
 
+    <!-- KASA DETAY MODALİ -->
+    <div id="kasaModal" style="display:none;">
+        <div class="modal-box" style="max-width:700px; text-align:left; max-height:85vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:var(--gold-bright); margin:0; font-size:18px;">💵 Kasadaki Nakit Para Dökümü</h3>
+                <button class="btn-pro-action" onclick="window.closeKasaModal()" style="padding:6px 12px;">Kapat ✖</button>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Kasaya giren nakit/kart tahsilatları ve kasadan çıkan giderlerin listesi:</p>
+            <table id="kasaDetayTablosu" style="margin-top:10px;">
+                <thead><tr><th>Zaman</th><th>İşlem / Kaynak</th><th>Açıklama</th><th>Tutar</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
     <div id="passwordModal" style="display:none;">
         <div class="modal-box" style="max-width:400px; text-align:left;">
             <h3 style="color:var(--gold-bright); margin-top:0; font-size:18px;">⚙️ Personel & Şifre Ayarları</h3>
@@ -264,8 +282,8 @@
     </div>
 
     <div class="dashboard-grid">
-        <div class="stat-card" style="border-left-color:#10b981;">
-            <div class="stat-title">Kasadaki Nakit Para</div>
+        <div class="stat-card clickable" onclick="window.openKasaModal()" style="border-left-color:#10b981;" title="Tıklayarak Kasa Hareketlerini Gör">
+            <div class="stat-title">Kasadaki Nakit Para (Tıkla Göör)</div>
             <div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div>
         </div>
         <div class="stat-card">
@@ -700,6 +718,50 @@
             if(el) { el.innerText = `${nakitKasa.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺`; el.style.color = nakitKasa >= 0 ? '#34d399' : '#f87171'; }
         };
 
+        window.openKasaModal = function() {
+            const tbody = document.querySelector('#kasaDetayTablosu tbody');
+            tbody.innerHTML = '';
+            let nakitKasa = 0;
+
+            let tumHareketler = [];
+            window.islemler.forEach(i => {
+                if ((i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir')) && (i.odemeYontemi === 'Nakit' || i.odemeYontemi.includes('Kredi Kartı'))) {
+                    nakitKasa += Number(i.islemTutari);
+                    tumHareketler.push({tarih: i.islemTarihi, tur: `➕ GİRİŞ (${i.odemeYontemi})`, aciklama: i.aciklama, tutar: Number(i.islemTutari), renk: '#34d399'});
+                }
+                if (i.islemTuru.includes('Ödeme Alındı')) {
+                    nakitKasa += Number(i.islemTutari);
+                    tumHareketler.push({tarih: i.islemTarihi, tur: '➕ ÖDEME ALINDI (Nakit)', aciklama: i.aciklama, tutar: Number(i.islemTutari), renk: '#34d399'});
+                }
+            });
+
+            window.giderler.forEach(g => {
+                if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) {
+                    nakitKasa -= Number(g.tutar);
+                    tumHareketler.push({tarih: g.tarih, tur: `📉 GİDER (${g.kategori})`, aciklama: g.aciklama, tutar: Number(g.tutar), renk: '#ef4444'});
+                }
+            });
+
+            if(tumHareketler.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Henüz nakit kasa hareketi bulunmuyor.</td></tr>`;
+            } else {
+                tumHareketler.sort((a,b) => b.tarih.localeCompare(a.tarih)).forEach(h => {
+                    tbody.innerHTML += `<tr>
+                        <td><small>${h.tarih}</small></td>
+                        <td><b style="color:${h.renk};">${h.tur}</b></td>
+                        <td>${h.aciklama}</td>
+                        <td><b style="color:${h.renk};">${h.renk === '#34d399' ? '+' : '-'}${h.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                    </tr>`;
+                });
+            }
+
+            document.getElementById('kasaModal').style.display = 'flex';
+        };
+
+        window.closeKasaModal = function() {
+            document.getElementById('kasaModal').style.display = 'none';
+        };
+
         window.topluYazdirPenceresiAc = function() {
             let borcluCariler = window.cariler.filter(c => {
                 let borc = 0, odenen = 0;
@@ -995,7 +1057,6 @@
                     cariAdi: cariAdi, detay: detay, yapan: aktifKullanici.toUpperCase()
                 };
 
-                // Eğer "Cari Borç Ekle (Veresiye)" seçildiyse ve bayi seçildiyse cariye borç yazılır, kasaya para girmez!
                 if (secilenIslemTuru.includes('Cari Borç') && cariId) {
                     const islemId = Date.now() + 1;
                     const islemObj = {
@@ -1007,7 +1068,6 @@
                     };
                     await setDoc(doc(window.db, "islemler", islemId.toString()), islemObj);
                 } else if (secilenIslemTuru === 'Nakit' || secilenIslemTuru.includes('Kredi Kartı')) {
-                    // Peşin işlemler için genel finans/kasa hareketi kaydedilir
                     const islemId = Date.now() + 1;
                     const islemObj = {
                         id: islemId, cariId: cariId ? parseInt(cariId) : null,

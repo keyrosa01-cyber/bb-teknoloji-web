@@ -234,14 +234,13 @@
 
     <!-- KASA DETAY MODALI (Nakit Kasa Kartına Tıklayınca Açılır) -->
     <div id="kasaModal" style="display:none;">
-        <div class="modal-box" style="max-width:750px; text-align:left; max-height:85vh; overflow-y:auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="color:var(--gold-bright); margin:0; font-size:18px;">💰 Kasaya Giren & Çıkan Paraların Kaynağı</h3>
+        <div class="modal-box" style="max-width:700px; text-align:left; max-height:85vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="color:var(--gold-bright); margin:0; font-size:18px;">💰 Kasaya Giren / Çıkan Nakit Hareketleri</h3>
                 <button class="btn-delete" onclick="document.getElementById('kasaModal').style.display='none'">Kapat ✕</button>
             </div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Aşağıda kasadaki 3.470 TL'yi oluşturan tüm nakit girişleri (Satışlar, Servis Ücretleri, Ödemeler) ve nakit çıkışları (Giderler) listelenmiştir:</p>
             <table id="kasaDetayTablosu">
-                <thead><tr><th>Zaman</th><th>Kişi / Bayi</th><th>İşlem / Açıklama</th><th>Tutar</th></tr></thead>
+                <thead><tr><th>Zaman</th><th>Kişi / Kategori</th><th>İşlem Türü</th><th>Tutar</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -299,7 +298,7 @@
 
     <div class="dashboard-grid">
         <div class="stat-card" style="border-left-color:#10b981;" onclick="window.kasaDetayAc()">
-            <div class="stat-title">💰 Kasadaki Nakit Para (Tıkla Nereden Geldiğini Gör)</div>
+            <div class="stat-title">💰 Kasadaki Nakit Para (Tıkla Gör)</div>
             <div class="stat-value" id="statKasaNakit" style="color:#34d399;">0.00 ₺</div>
         </div>
         <div class="stat-card">
@@ -312,7 +311,7 @@
         </div>
         <div class="stat-card" style="border-left-color:#ef4444;">
             <div class="stat-title">Piyasadan Toplam Alacak</div>
-            <div class="stat-value" id="statAlacak" style="color:#f87171;">169.087,00 ₺</div>
+            <div class="stat-value" id="statAlacak" style="color:#f87171;">0.00 ₺</div>
         </div>
     </div>
 
@@ -410,6 +409,7 @@
             <div style="flex:1; min-width:250px;">
                 <input type="text" id="ekstreAramaInput" class="search-box" style="margin-bottom:0;" placeholder="🔍 Cari Kartlarda Filtrele..." onkeyup="window.cariKartlariniYukle()">
             </div>
+            <!-- ESKİSTİLE TIKLANDIĞINDA ALT ALTA AÇILAN LİSTE BUTONU -->
             <button class="btn-toplu" onclick="window.topluSecimPenceresiniAc()">🖨️ Güncel Bayi Borç Listesini Yazdır</button>
         </div>
 
@@ -716,7 +716,7 @@
             }
         });
 
-        // --- KASA HESAPLAMA VE DETAY GÖSTERME (3470 TL'NİN KAYNAĞI) ---
+        // --- KASA HESAPLAMA VE DETAY GÖSTERME ---
         window.kasaHesapla = function() {
             let nakitKasa = 0;
             window.islemler.forEach(i => {
@@ -733,52 +733,26 @@
             tbody.innerHTML = '';
             
             let hareketler = [];
-            // Satışlar ve Tahsilatlar (Kasaya Girenler)
             window.islemler.forEach(i => {
                 if ((i.islemTuru.includes('Satış') || i.islemTuru.includes('Tamir') || i.islemTuru.includes('Ödeme Alındı'))) {
                     const cari = window.cariler.find(c => c.id == i.cariId);
-                    hareketler.push({ 
-                        tarih: i.islemTarihi, 
-                        kisi: cari ? cari.ad : 'Doğrudan Müşteri', 
-                        tur: `<span style="color:#34d399;">+ ${i.islemTuru}</span>`, 
-                        tutar: Number(i.islemTutari),
-                        tip: 'giris'
-                    });
+                    hareketler.push({ tarih: i.islemTarihi, kisi: cari ? cari.ad : 'Müşteri', tur: i.islemTuru, tutar: Number(i.islemTutari) });
                 }
             });
 
-            // Giderler (Kasadan Çıkanlar)
-            window.giderler.forEach(g => {
-                if (g.odemeYontemi === 'Nakit' || !g.odemeYontemi) {
-                    hareketler.push({
-                        tarih: g.tarih,
-                        kisi: g.kategori,
-                        tur: `<span style="color:#ef4444;">- Gider (${g.aciklama})</span>`,
-                        tutar: Number(g.tutar),
-                        tip: 'cikis'
-                    });
-                }
+            hareketler.reverse().forEach(h => {
+                tbody.innerHTML += `<tr>
+                    <td><small>${h.tarih}</small></td>
+                    <td><b>${h.kisi}</b></td>
+                    <td><span style="color:#34d399;">${h.tur}</span></td>
+                    <td><b style="color:#34d399;">+${h.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                </tr>`;
             });
-
-            if(hareketler.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Kasada henüz hareket bulunmuyor.</td></tr>`;
-            } else {
-                hareketler.reverse().forEach(h => {
-                    let renk = h.tip === 'giris' ? '#34d399' : '#ef4444';
-                    let isaret = h.tip === 'giris' ? '+' : '-';
-                    tbody.innerHTML += `<tr>
-                        <td><small>${h.tarih}</small></td>
-                        <td><b>${h.kisi}</b></td>
-                        <td>${h.tur}</td>
-                        <td><b style="color:${renk};">${isaret}${h.tutar.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
-                    </tr>`;
-                });
-            }
 
             document.getElementById('kasaModal').style.display = 'flex';
         };
 
-        // --- ALT ALTA BAYİ LİSTE SEÇİM MODALI ---
+        // --- ESKİSTİLE TIKLANDIĞINDA ALT ALTA LİSTE AÇMA ---
         window.topluSecimPenceresiniAc = function() {
             const listeDiv = document.getElementById('bayiAltAltaListe');
             listeDiv.innerHTML = '';

@@ -209,21 +209,27 @@
         </div>
     </div>
 
-    <!-- BAYİ SEÇİM MODALİ (YAZDIRMA ÖNCESİ SEÇİM LİSTESİ) -->
+    <!-- BAYİ SEÇİM MODALİ (YAZDIRMA ÖNCESİ) -->
     <div id="topluSecimModal" style="display:none;">
-        <div class="modal-box" style="max-width:550px; text-align:left; max-height:85vh; overflow-y:auto;">
+        <div class="modal-box" style="max-width:550px; text-align:left; max-height:90vh; overflow-y:auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h3 style="color:var(--gold-bright); margin:0; font-size:18px;">🖨️ Yazdırılacak Bayileri Seçin</h3>
                 <button class="btn-pro-action" onclick="window.closeTopluSecimModal()" style="padding:6px 12px;">Kapat ✖</button>
             </div>
-            <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Listeden çıktıya dahil etmek istediğiniz bayileri işaretleyin:</p>
             
+            <div style="background: var(--input-bg); border: 1px solid var(--border-gold); padding: 12px; border-radius: 10px; margin-bottom: 15px;">
+                <label style="color:var(--gold-bright); display:block; margin-bottom:5px;">📅 Hangi Tarihten İtibaren Detay Görünsün?</label>
+                <p style="font-size:11px; color:var(--text-muted); margin:0 0 8px 0;">Seçtiğiniz tarihten öncekiler <b>"Önceki Dönem Bakiyesi"</b> olarak toplanır. Sonrakiler tek tek dökülür. Tüm geçmişi dökmek için alanı silip boş bırakın.</p>
+                <input type="date" id="topluYazdirTarihSınırı">
+            </div>
+
+            <p style="font-size:12px; color:var(--text-muted); margin-top:0;">Listeden çıktıya dahil etmek istediğiniz bayileri işaretleyin:</p>
             <div style="margin-bottom: 12px; display: flex; gap: 10px;">
                 <button class="btn-pro-action" onclick="window.bayileriSecUnsec(true)" style="padding: 6px 10px; font-size: 11px;">Tümünü Seç</button>
                 <button class="btn-pro-action" onclick="window.bayileriSecUnsec(false)" style="padding: 6px 10px; font-size: 11px; background:transparent; color:var(--text-muted);">Seçimleri Kaldır</button>
             </div>
 
-            <div id="secimBayiListesiContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+            <div id="secimBayiListesiContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
                 <!-- Dinamik Bayi Checkbox Listesi -->
             </div>
 
@@ -750,7 +756,7 @@
             document.getElementById('kasaModal').style.display = 'none';
         };
 
-        // YAZDIRMA İÇİN SEÇİM PENCERESİNİ AÇ
+        // YAZDIRMA İÇİN SEÇİM PENCERESİNİ AÇ (YENİ TARİH SİSTEMİ)
         window.topluYazdirPenceresiAc = function() {
             let borcluCariler = window.cariler.filter(c => {
                 let borc = 0, odenen = 0;
@@ -762,6 +768,13 @@
             });
 
             if(borcluCariler.length === 0) return alert("Şu an borçlu bayi bulunmuyor!");
+
+            // Modalı açarken otomatik olarak "Bu Haftanın Pazartesi Günü" nü tarihe ekle
+            let d = new Date();
+            let day = d.getDay();
+            let diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            let monday = new Date(d.setDate(diff));
+            document.getElementById('topluYazdirTarihSınırı').valueAsDate = monday;
 
             const container = document.getElementById('secimBayiListesiContainer');
             container.innerHTML = '';
@@ -775,7 +788,7 @@
                 let net = borc - odenen;
 
                 container.innerHTML += `
-                    <label style="display: flex; align-items: center; justify-content: space-between; background: var(--input-bg); padding: 10px 14px; border-radius: 8px; cursor: pointer; margin: 0; border: 1px solid var(--border-color);">
+                    <label style="display: flex; align-items: center; justify-content: space-between; background: var(--card-inner); padding: 10px 14px; border-radius: 8px; cursor: pointer; margin: 0; border: 1px solid var(--border-color);">
                         <span style="display: flex; align-items: center; gap: 10px; color: var(--text-main); font-size: 13px;">
                             <input type="checkbox" class="bayi-secim-cb" value="${c.id}" checked style="width: 18px; height: 18px; accent-color: var(--gold-main); cursor: pointer;">
                             <b>${c.ad.toUpperCase()}</b>
@@ -796,7 +809,7 @@
             document.querySelectorAll('.bayi-secim-cb').forEach(cb => cb.checked = durum);
         };
 
-        // SEÇİLEN BAYİLERİN DÖKÜMÜNÜ HAZIRLA VE YAZDIR
+        // SEÇİLEN BAYİLERİN DÖKÜMÜNÜ HAZIRLA VE YAZDIR (YENİ TARİH SİSTEMİ)
         window.secilenleriYazdirIslemi = function() {
             let secilenIds = [];
             document.querySelectorAll('.bayi-secim-cb:checked').forEach(cb => {
@@ -811,13 +824,16 @@
             tbody.innerHTML = '';
             document.getElementById('topluBorcTarihAlan').innerText = new Date().toLocaleDateString('tr-TR');
 
-            const baslangicTarihi = document.getElementById('ekstreBaslangicTarihi') ? document.getElementById('ekstreBaslangicTarihi').value : '';
+            const baslangicTarihi = document.getElementById('topluYazdirTarihSınırı').value;
 
             secilenIds.forEach(id => {
                 let c = window.cariler.find(x => x.id == id);
                 if(!c) return;
 
                 let cariIslemler = window.islemler.filter(i => i.cariId == c.id);
+                // Listeyi tarih sırasına diz
+                cariIslemler.sort((a,b) => a.islemTarihi.localeCompare(b.islemTarihi));
+
                 let devredenBorc = 0, devredenOdenen = 0;
                 let toplamBorc = 0, toplamOdenen = 0;
                 let guncelListe = [];
@@ -831,10 +847,12 @@
                     if (isBorc) toplamBorc += islemMiktari;
                     else if (isOdeme) toplamOdenen += islemMiktari;
 
+                    // Eğer seçili bir tarih varsa ve işlem bu tarihten eskiyse devreden nete at
                     if (baslangicTarihi && isTarihiKisa < baslangicTarihi) {
                         if (isBorc) devredenBorc += islemMiktari;
                         else if (isOdeme) devredenOdenen += islemMiktari;
                     } else {
+                        // Değilse güncel listeye (detaylı listeye) ekle
                         guncelListe.push({ islem: i, isBorc: isBorc, miktar: islemMiktari });
                     }
                 });
@@ -843,17 +861,25 @@
                 let islemSatirlari = [];
                 let devredenNet = devredenBorc - devredenOdenen;
                 
+                // Devreden varsa, listeye İLK satır olarak ekle
                 if (baslangicTarihi && devredenNet !== 0) {
-                    let aciklamaBaslik = devredenNet > 0 ? `KALAN (${devredenNet.toLocaleString('tr-TR')} ₺)` : `ALACAK DEVRİ (${Math.abs(devredenNet).toLocaleString('tr-TR')} ₺)`;
+                    let aciklamaBaslik = devredenNet > 0 ? `<b>[Önceki Dönem Devreden Bakiye]</b><br><span style="font-size:11px; color:#555;">Seçili tarihten önceki hesap özeti</span>` 
+                                                         : `<b>[Önceki Dönemden Alacak]</b><br><span style="font-size:11px; color:#555;">Seçili tarihten önceki fazla ödeme</span>`;
                     islemSatirlari.push({ aciklama: aciklamaBaslik, tutar: Math.abs(devredenNet), isBorc: devredenNet > 0 });
                 }
 
+                // Güncel listedeki her işlemi güzel bir tasarımla listeye ekle
                 guncelListe.forEach(g => {
-                    islemSatirlari.push({ aciklama: g.islem.aciklama, tutar: g.miktar, isBorc: g.isBorc });
+                    let tarihBolum = g.islem.islemTarihi.split(' ')[0]; 
+                    let parts = tarihBolum.split('-');
+                    let displayDate = parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : tarihBolum;
+                    
+                    let aciklamaHtml = `<b>[${displayDate}]</b> ${g.islem.islemTuru}<br><span style="font-size:11px; color:#555;">${g.islem.aciklama}</span>`;
+                    islemSatirlari.push({ aciklama: aciklamaHtml, tutar: g.miktar, isBorc: g.isBorc });
                 });
 
                 if(islemSatirlari.length === 0) {
-                    islemSatirlari.push({ aciklama: "Güncel işlem yok", tutar: 0, isBorc: true });
+                    islemSatirlari.push({ aciklama: "Bu tarih aralığında detaylı işlem yok.", tutar: 0, isBorc: true });
                 }
 
                 let rowCount = islemSatirlari.length;

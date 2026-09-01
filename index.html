@@ -162,18 +162,18 @@
         @media print {
             body > *:not(#topluBorcPrintAlani) { display: none !important; }
             #topluBorcPrintAlani { display: block !important; width: 100% !important; background: #fff !important; color: #000 !important; }
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 portrait; margin: 6mm; }
             
-            #topluBorcPrintAlani h2 { color: #000 !important; text-align: center !important; font-size: 16px !important; border-bottom: 2px solid #000 !important; padding-bottom: 8px !important; margin-bottom: 15px !important; }
-            #topluBorcTablo { width: 100% !important; border-collapse: collapse !important; margin-top: 5px !important; border: 1px solid #000 !important; }
-            #topluBorcTablo th, #topluBorcTablo td { padding: 6px 8px !important; border: 1px solid #666 !important; font-size: 10pt !important; color: #000 !important; vertical-align: middle !important; }
+            #topluBorcPrintAlani h2 { color: #000 !important; text-align: center !important; font-size: 11pt !important; border-bottom: 1.5px solid #000 !important; padding-bottom: 4px !important; margin-bottom: 8px !important; }
+            #topluBorcTablo { width: 100% !important; border-collapse: collapse !important; margin-top: 2px !important; border: 1px solid #000 !important; }
+            #topluBorcTablo th, #topluBorcTablo td { padding: 4px 6px !important; border: 1px solid #555 !important; font-size: 8.5pt !important; color: #000 !important; vertical-align: middle !important; line-height: 1.2 !important; }
             #topluBorcTablo th { background-color: #f0f0f0 !important; color: #000 !important; font-weight: bold !important; -webkit-print-color-adjust: exact; }
             #topluBorcTablo tr:nth-child(even) { background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
             
             .print-borc { color: #dc2626 !important; font-weight: bold; }
             .print-alacak { color: #16a34a !important; font-weight: bold; }
             .print-bakiye { font-weight: bold; }
-            .print-bayi-baslik { background-color: #e5e7eb !important; text-align: center !important; font-size: 12pt !important; }
+            .print-bayi-baslik { background-color: #e5e7eb !important; text-align: center !important; font-size: 10pt !important; }
         }
     </style>
 </head>
@@ -404,7 +404,6 @@
                     </div>
                 </div>
                 
-                <!-- KÜMÜLATİF BAKİYE TABLOSU -->
                 <h3 style="color:var(--gold-bright); margin:16px 0 10px 0; font-size:15px;">📋 Satır Satır Bakiye Takip Dökümü</h3>
                 <table id="kisiIslemTablosu">
                     <thead>
@@ -515,9 +514,9 @@
             <thead>
                 <tr>
                     <th style="width:15%;">Tarih</th>
-                    <th style="width:40%;">İşlem / Açıklama</th>
+                    <th style="width:45%;">İşlem / Açıklama</th>
                     <th style="width:20%;">Borç (+) / Alacak (-)</th>
-                    <th style="width:25%;">Kalan Bakiye</th>
+                    <th style="width:20%;">Kalan Bakiye</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -729,7 +728,6 @@
 
         window.closeKasaModal = function() { document.getElementById('kasaModal').style.display = 'none'; };
 
-        // TOPLU YAZDIRMA PENCERESİ AÇ
         window.topluYazdirPenceresiAc = function() {
             let borcluCariler = window.cariler.filter(c => {
                 let borc = 0, odenen = 0;
@@ -766,7 +764,6 @@
         window.closeTopluSecimModal = function() { document.getElementById('topluSecimModal').style.display = 'none'; };
         window.bayileriSecUnsec = function(durum) { document.querySelectorAll('.bayi-secim-cb').forEach(cb => cb.checked = durum); };
 
-        // SEÇİLEN BAYİLERİN TAM EKSTRESİNİ YAZDIR (KÜMÜLATİF AKIŞ)
         window.secilenleriYazdirIslemi = function() {
             let secilenIds = [];
             document.querySelectorAll('.bayi-secim-cb:checked').forEach(cb => { secilenIds.push(Number(cb.value)); });
@@ -782,16 +779,14 @@
                 let c = window.cariler.find(x => x.id == id);
                 if(!c) return;
 
-                // İşlemleri ilk yapıldığı günden bugüne doğru sırala
                 let cariIslemler = window.islemler.filter(i => i.cariId == c.id).sort((a,b) => a.id - b.id);
                 
                 let bakiye = 0;
                 let islemSayisi = 0;
 
-                // Bayi Başlığı Satırı
                 tbody.innerHTML += `
                     <tr class="print-bayi-baslik">
-                        <td colspan="4" style="padding: 10px !important;"><b>👤 ${c.ad.toUpperCase()} - HESAP EKSTRESİ</b></td>
+                        <td colspan="4"><b>👤 ${c.ad.toUpperCase()} - HESAP EKSTRESİ</b></td>
                     </tr>
                 `;
 
@@ -809,7 +804,7 @@
 
                     tbody.innerHTML += `<tr>
                         <td>${tarihBolum}</td>
-                        <td><b>${i.islemTuru}</b><br><span style="font-size:10px; color:#555;">${i.aciklama}</span></td>
+                        <td><b>${i.islemTuru}</b><br><span style="font-size:8pt; color:#444;">${i.aciklama}</span></td>
                         <td>${islemYazisi}</td>
                         <td><b class="print-bakiye">${bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
                     </tr>`;
@@ -819,13 +814,12 @@
                     tbody.innerHTML += `<tr><td colspan="4" style="text-align:center;">İşlem bulunamadı.</td></tr>`;
                 }
 
-                // Altına toplam bakiye çizgisi
                 tbody.innerHTML += `
                     <tr>
                         <td colspan="3" style="text-align:right; border-bottom: 2px solid #000 !important;"><b>GÜNCEL KALAN NET BAKİYE:</b></td>
-                        <td style="border-bottom: 2px solid #000 !important;"><b style="font-size:12pt; color:#dc2626;">${bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
+                        <td style="border-bottom: 2px solid #000 !important;"><b style="font-size:9.5pt; color:#dc2626;">${bakiye.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</b></td>
                     </tr>
-                    <tr><td colspan="4" style="border:none !important; height:15px;"></td></tr>
+                    <tr><td colspan="4" style="border:none !important; height:10px;"></td></tr>
                 `;
             });
 
@@ -1128,7 +1122,6 @@
             window.kisiIslemleriniListele(id);
         };
 
-        // KÜMÜLATİF (YÜRÜYEN) BAKİYE SİSTEMİ - EKRANDAKİ TABLO
         window.kisiIslemleriniListele = function(cariId) {
             const tbody = document.querySelector('#kisiIslemTablosu tbody');
             if(!tbody) return; tbody.innerHTML = '';
